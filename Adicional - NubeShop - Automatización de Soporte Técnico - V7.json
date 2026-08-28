@@ -1,0 +1,5150 @@
+{
+  "name": "NubeShop - Automatización de Soporte Técnico - V7",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $json;\nconst nombre = (row['Nombre completo'] || '').toString().trim();\nconst email = (row['Correo electrónico'] || '').toString().trim();\nconst categoria = (row['Categoría del problema'] || '').toString().trim();\nconst mensaje = (row['Describe tu problema'] || '').toString().trim();\nconst marcaTemporalRaw = row['Marca temporal'] || new Date().toISOString();\n\n// Parseo defensivo: Google Forms/Sheets en español exporta DD/M/YYYY H:mm:ss\n// (día y mes sin cero a la izquierda), que no es ISO y Airtable/Luxon no puede\n// interpretar solo. Lo convertimos acá, una sola vez, para toda la ejecución.\nfunction parseMarcaTemporal(raw) {\n  const s = String(raw).trim();\n  if (/^\\d{4}-\\d{2}-\\d{2}/.test(s)) {\n    const d = new Date(s);\n    if (!isNaN(d.getTime())) return d;\n  }\n  const m = s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})[ T]?(\\d{1,2}):(\\d{2})(?::(\\d{2}))?/);\n  if (m) {\n    const [, dd, mm, yyyy, hh, min, ss] = m;\n    return new Date(Number(yyyy), Number(mm) - 1, Number(dd), Number(hh), Number(min), Number(ss || 0));\n  }\n  const fallback = new Date(s);\n  return isNaN(fallback.getTime()) ? null : fallback;\n}\n\nconst marcaTemporalParsed = parseMarcaTemporal(marcaTemporalRaw);\nconst marcaTemporalISO = marcaTemporalParsed ? marcaTemporalParsed.toISOString() : null;\n\n// ID determinístico (evita duplicados si el trigger reprocesa la misma fila)\n// OJO: usa el string crudo (marcaTemporalRaw), igual que siempre, para no\n// cambiar el ticket_id de filas que ya se procesaron antes de este fix.\nconst base = (email + '|' + marcaTemporalRaw + '|' + mensaje).toLowerCase();\nlet hash = 0;\nfor (let i = 0; i < base.length; i++) {\n  hash = (hash * 31 + base.charCodeAt(i)) >>> 0;\n}\nconst ticket_id = 'TCK-' + hash;\n\nreturn {\n  ticket_id,\n  ticket_nombre: nombre,\n  ticket_email: email,\n  ticket_categoria: categoria,\n  ticket_mensaje: mensaje,\n  ticket_marca_temporal: marcaTemporalRaw,\n  ticket_marca_temporal_iso: marcaTemporalISO,\n};"
+      },
+      "id": "86274632-0472-430b-a93c-8c57f5e86a85",
+      "name": "Code - Normalizar Datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -10416,
+        18224
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  ticket_id: $json.ticket_id || 'N/A',\n  nodo_origen: 'IF - Datos Completos',\n  tipo_error: 'Validación fallida',\n  detalle_error: 'Faltan datos obligatorios en el ticket (email, mensaje o categoría vacíos).',\n};"
+      },
+      "id": "d68725d8-c4ed-4c3f-be40-35b04ff502ba",
+      "name": "Code - Error: Validacion Datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -9920,
+        18912
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_TICKETS }}"
+        },
+        "filterByFormula": "={{ \"{Ticket ID} = '\" + $json.ticket_id + \"'\" }}",
+        "options": {}
+      },
+      "id": "a5d82569-32dc-453d-ac9f-03fbbca57e59",
+      "name": "Airtable - Buscar Duplicado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -10032,
+        18192
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "HEyTo1wolMBgjTfu",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_TICKETS }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Categoría Declarada": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}",
+            "Estado": "Pendiente",
+            "Ticket ID": "={{ $('Code - Normalizar Datos').item.json.ticket_id }}",
+            "Nombre Cliente": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}",
+            "Mensaje Original": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}",
+            "Fecha de Recepción": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal_iso }}",
+            "Panel KPIs": "={{ [$('Merge - Tupla de Fecha (KPIs)').item.json.id] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje Original",
+              "displayName": "Mensaje Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Esperando Aprobación",
+                  "value": "Esperando Aprobación"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre Cliente",
+              "displayName": "Nombre Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría Declarada",
+              "displayName": "Categoría Declarada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría IA",
+              "displayName": "Categoría IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Crítica",
+                  "value": "Crítica"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta Final Enviada",
+              "displayName": "Respuesta Final Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modelo IA usado",
+              "displayName": "Modelo IA usado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Claude Haiku",
+                  "value": "Claude Haiku"
+                },
+                {
+                  "name": "Claude Sonnet",
+                  "value": "Claude Sonnet"
+                },
+                {
+                  "name": "Batch API",
+                  "value": "Batch API"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp Procesado",
+              "displayName": "Timestamp Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Agente Asignado",
+              "displayName": "Agente Asignado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Errores",
+              "displayName": "Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Panel KPIs",
+              "displayName": "Panel KPIs",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "c0b0ae02-485a-4a0a-9422-4f05a25e643b",
+      "name": "Airtable - Crear Ticket",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -9680,
+        18192
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').first().json.ticket_id,\n  nodo_origen: 'Airtable - Crear Ticket',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "29a70780-855e-4049-8f21-1618cf427bfa",
+      "name": "Code - Error: Crear Ticket",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -9472,
+        18448
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "ticket_id",
+              "type": "string",
+              "value": "={{ $('Code - Normalizar Datos').item.json.ticket_id }}"
+            },
+            {
+              "id": "a2",
+              "name": "ticket_nombre",
+              "type": "string",
+              "value": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}"
+            },
+            {
+              "id": "a3",
+              "name": "ticket_email",
+              "type": "string",
+              "value": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}"
+            },
+            {
+              "id": "a4",
+              "name": "ticket_categoria",
+              "type": "string",
+              "value": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}"
+            },
+            {
+              "id": "a5",
+              "name": "ticket_mensaje",
+              "type": "string",
+              "value": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}"
+            },
+            {
+              "id": "a6",
+              "name": "ticket_airtable_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "178fec5a-4e01-43d7-87b5-8000064176fa",
+      "name": "Set - Consolidar Ticket",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -9424,
+        18176
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.anthropic_body) }}",
+        "options": {}
+      },
+      "id": "73c45c04-d645-4086-8a59-12723ca5b835",
+      "name": "HTTP Request - Claude Haiku",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -8784,
+        18176
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "l293eNrlhbhVhE6B",
+          "name": "Header Auth account - Anthropic x api-key"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').item.json.ticket_id,\n  nodo_origen: 'HTTP Request - Claude Haiku',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "5eb85bad-5fa4-4c63-9522-786b97cec8a5",
+      "name": "Code - Error: Claude Haiku",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8528,
+        18496
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const resp = $json;\nlet text = '';\ntry { text = resp.content[0].text; } catch (e) { text = '{}'; }\nlet parsed = {};\ntry {\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : text);\n} catch (e) {\n  parsed = { categoria_ia: 'Otro', urgencia_ia: 'Media' };\n}\nreturn {\n  categoria_ia: parsed.categoria_ia || 'Otro',\n  urgencia_ia: parsed.urgencia_ia || 'Media',\n};"
+      },
+      "id": "597fd861-72a6-4588-bdfa-589c3334aa6c",
+      "name": "Code - Parsear Clasificacion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8528,
+        18256
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.anthropic_body) }}",
+        "options": {}
+      },
+      "id": "f2340fe3-b928-4400-92bf-de192b626622",
+      "name": "HTTP Request - Claude Sonnet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -7888,
+        18256
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "l293eNrlhbhVhE6B",
+          "name": "Header Auth account - Anthropic x api-key"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').item.json.ticket_id,\n  nodo_origen: 'HTTP Request - Claude Sonnet',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "7034dcd3-c0ff-4734-80f7-81f0e7526a77",
+      "name": "Code - Error: Claude Sonnet",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7600,
+        18512
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const resp = $json;\nlet text = '';\ntry { text = resp.content[0].text; } catch (e) { text = '{}'; }\nlet parsed = {};\ntry {\n  const match = text.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : text);\n} catch (e) {\n  parsed = { respuesta: 'Gracias por tu mensaje. Nuestro equipo de soporte lo está revisando y te responderá a la brevedad.' };\n}\nreturn {\n  respuesta_ia: parsed.respuesta || 'Gracias por tu mensaje. Nuestro equipo de soporte lo está revisando y te responderá a la brevedad.',\n};"
+      },
+      "id": "1df4dfe9-99a4-4117-89c2-cbffdac2285c",
+      "name": "Code - Parsear Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7600,
+        18240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').item.json.ticket_id,\n  nodo_origen: 'Slack - HITL Aprobacion',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "d3b7f9ee-2dc8-4e40-a0c0-84c61557fa92",
+      "name": "Code - Error: HITL Aprobacion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -6656,
+        18544
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Set - Consolidar Ticket').item.json.ticket_email }}",
+        "subject": "={{ 'Respuesta a tu consulta - ' + $vars.COMPANY_NAME }}",
+        "message": "=\n{{ $('Code - Parsear Respuesta').item.json.respuesta_ia.replace(/\\n/g, '<br>') }}",
+        "options": {}
+      },
+      "id": "df819a5c-3203-4663-be5d-c5b8b5335273",
+      "name": "Gmail - Enviar Respuesta",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -6048,
+        18192
+      ],
+      "webhookId": "2056630f-ffb0-485a-89b6-6b513665e4a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XDBtWsYDRX2xZX0N",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').item.json.ticket_id,\n  nodo_origen: 'Gmail - Enviar Respuesta',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "5e61f037-1723-4059-b11e-8368ed2b36d9",
+      "name": "Code - Error: Gmail Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5792,
+        18560
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $vars.SLACK_CHANNEL_SOPORTE_RECHAZADOS }}",
+          "mode": "name"
+        },
+        "text": "={{ '⚠️ Respuesta de IA rechazada para el ticket ' + $('Set - Consolidar Ticket').item.json.ticket_id + '. Requiere revisión manual de un agente.' }}",
+        "otherOptions": {}
+      },
+      "id": "05d3b60e-657a-45ff-ac61-ffaf7f3ae909",
+      "name": "Slack - Notificar Rechazo",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -5792,
+        18928
+      ],
+      "webhookId": "a3e21897-aee6-41ee-b802-5d3e5fb0ce12",
+      "credentials": {
+        "slackApi": {
+          "id": "Xv1xbtF07ZFoJKzk",
+          "name": "NubeSoft"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_ERRORES }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nodo que falló": "={{ $json.nodo_origen }}",
+            "Tipo de Error": "={{ $json.tipo_error }}",
+            "Detalle": "={{ 'Ticket: ' + ($json.ticket_id || 'N/A') + ' — ' + $json.detalle_error }}",
+            "Timestamp": "={{ $now.toISO() }}",
+            "Estado": "Abierto",
+            "Ticket ID": "={{ $json.ticket_id }}",
+            "Panel KPIs": "={{ [$('Merge - Tupla de Fecha (KPIs)').item.json.id] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Error ID",
+              "displayName": "Error ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nodo que falló",
+              "displayName": "Nodo que falló",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tipo de Error",
+              "displayName": "Tipo de Error",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Timeout",
+                  "value": "Timeout"
+                },
+                {
+                  "name": "API Error",
+                  "value": "API Error"
+                },
+                {
+                  "name": "Validación fallida",
+                  "value": "Validación fallida"
+                },
+                {
+                  "name": "Rate limit",
+                  "value": "Rate limit"
+                },
+                {
+                  "name": "Desconocido",
+                  "value": "Desconocido"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Detalle",
+              "displayName": "Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Abierto",
+                  "value": "Abierto"
+                },
+                {
+                  "name": "En revisión",
+                  "value": "En revisión"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Panel KPIs",
+              "displayName": "Panel KPIs",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f27c8ca4-919f-4bb9-bab2-d07916c14829",
+      "name": "Airtable - Registrar Error",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -8720,
+        18912
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').item.json.ticket_id,\n  nodo_origen: 'Airtable - Buscar Duplicado',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "ed0853d5-3c69-417a-841a-e552ce444f3a",
+      "name": "Code - Error: Buscar Duplicado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -9472,
+        18608
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ $vars.AIRTABLE_TABLE_FAQS }}",
+          "mode": "id"
+        },
+        "filterByFormula": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -8352,
+        18256
+      ],
+      "id": "20aac9f5-2c64-45f1-8b5e-1b791ddf6b64",
+      "name": "Airtable - Buscar FAQ",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ID }}",
+          "mode": "id"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "id": "cac7e221-cc4e-459c-980a-76c49ecf7f11",
+      "name": "Trigger - Nuevo Reclamo o Consulta",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -12112,
+        18192
+      ],
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "o8z75jrLUHrEx2Kx",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -10832,
+        18192
+      ],
+      "id": "e9951e8f-2403-42fe-98f8-8ee1687797e0",
+      "name": "Loop por Cada Ítem"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.ticket_email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.ticket_mensaje }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.ticket_categoria }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8108b195-9665-47e7-bdf6-fcef5b28ed96",
+      "name": "IF - Datos Completos?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10224,
+        18208
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "42c0572d-bb11-436d-8707-3a9be52c0f12",
+      "name": "IF - Ya Existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -9856,
+        18176
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const categorias = ($vars.CATEGORIAS_TICKET || '').split(',').map(s => s.trim()).filter(Boolean);\nconst urgencias = ($vars.URGENCIAS_TICKET || '').split(',').map(s => s.trim()).filter(Boolean);\nconst ticket = $('Set - Consolidar Ticket').item.json;\n\nconst prompt = 'Sos un clasificador de tickets de soporte para ' + $vars.COMPANY_NAME + '.\\n' +\n  'Categorías válidas: ' + categorias.join(', ') + '.\\n' +\n  'Niveles de urgencia válidos: ' + urgencias.join(', ') + '.\\n\\n' +\n  'Ticket del cliente:\\n' +\n  'Categoría declarada por el cliente: ' + ticket.ticket_categoria + '\\n' +\n  'Mensaje: \"' + ticket.ticket_mensaje + '\"\\n\\n' +\n  'Devolvé ÚNICAMENTE un JSON válido con este formato exacto, sin texto adicional:\\n' +\n  '{\"categoria_ia\": \"<una de las categorías válidas>\", \"urgencia_ia\": \"<uno de los niveles válidos>\"}';\n\nreturn {\n  anthropic_body: {\n    model: $vars.CLAUDE_HAIKU_MODEL,\n    max_tokens: Number($vars.CLAUDE_MAX_TOKENS_CLASIFICACION),\n    messages: [{ role: 'user', content: prompt }],\n  },\n};"
+      },
+      "id": "41662fb4-ff4c-4d75-bedf-51f7c2d4d71a",
+      "name": "Code - Generar Prompt para Clasificar con IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -9136,
+        18176
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ticket = $('Set - Consolidar Ticket').first().json;\nconst clasificacion = $('Code - Parsear Clasificacion').first().json;\n\nconst faqItems = $input.all().map(item => item.json.fields || {}).filter(f => f['Pregunta']);\nconst kb = faqItems.map(f => '- ' + f['Categoría'] + ' | ' + f['Pregunta'] + ': ' + f['Respuesta']).join('\\n');\n\nconst systemText = 'Sos un agente de atención al cliente de ' + $vars.COMPANY_NAME + '. Redactá una respuesta breve, empática y profesional en español para el ticket de soporte que se te va a pasar. No inventes información que no tengas (números de pedido, fechas de entrega, montos) — si hace falta ese dato, pedíselo al cliente o indicá que el equipo lo revisará.\\n\\n' +\n  'Base de conocimiento de referencia:\\n' + kb + '\\n\\n' +\n  'Devolvé ÚNICAMENTE un JSON válido con este formato exacto, sin texto adicional:\\n' +\n  '{\"respuesta\": \"<el texto de la respuesta al cliente>\"}';\n\nconst userText = 'Nombre del cliente: ' + ticket.ticket_nombre + '\\n' +\n  'Categoría: ' + clasificacion.categoria_ia + '\\n' +\n  'Urgencia: ' + clasificacion.urgencia_ia + '\\n' +\n  'Mensaje del cliente: \"' + ticket.ticket_mensaje + '\"';\n\nreturn [{\n  json: {\n    anthropic_body: {\n      model: $vars.CLAUDE_SONNET_MODEL,\n      max_tokens: Number($vars.CLAUDE_MAX_TOKENS_RESPUESTA),\n      system: [\n        { type: 'text', text: systemText, cache_control: { type: 'ephemeral' } }\n      ],\n      messages: [{ role: 'user', content: userText }],\n    },\n  },\n}];"
+      },
+      "id": "03404c7c-8ec0-4c97-8251-e33930bad3f3",
+      "name": "Code - Generar Prompt para Respuesta por IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8128,
+        18256
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f6cd7436-74c7-435d-988b-03c4114afffe",
+      "name": "IF - Aprobado por Humano?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -6656,
+        18208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_TICKETS }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Set - Consolidar Ticket').item.json.ticket_airtable_id }}",
+            "Estado": "Aprobado por Humano"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje Original",
+              "displayName": "Mensaje Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Esperando Aprobación",
+                  "value": "Esperando Aprobación"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado - Revisar",
+                  "value": "Rechazado - Revisar"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre Cliente",
+              "displayName": "Nombre Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría Declarada",
+              "displayName": "Categoría Declarada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría IA",
+              "displayName": "Categoría IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Crítica",
+                  "value": "Crítica"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta Final Enviada",
+              "displayName": "Respuesta Final Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modelo IA usado",
+              "displayName": "Modelo IA usado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Claude Haiku",
+                  "value": "Claude Haiku"
+                },
+                {
+                  "name": "Claude Sonnet",
+                  "value": "Claude Sonnet"
+                },
+                {
+                  "name": "Batch API",
+                  "value": "Batch API"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp Procesado",
+              "displayName": "Timestamp Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Agente Asignado",
+              "displayName": "Agente Asignado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Errores",
+              "displayName": "Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "62e7d70d-3515-44d6-96e8-b644f8697ec2",
+      "name": "Airtable - Actualizar Aprobación",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -6272,
+        18192
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $vars.SLACK_CHANNEL_SOPORTE }}"
+        },
+        "message": "={{ '🎫 Nuevo ticket procesado por IA — ' + $('Set - Consolidar Ticket').item.json.ticket_id + '\\n\\n' + '*Cliente:* ' + $('Set - Consolidar Ticket').item.json.ticket_nombre + ' (' + $('Set - Consolidar Ticket').item.json.ticket_email + ')\\n' + '*Categoría IA:* ' + $('Code - Parsear Clasificacion').item.json.categoria_ia + ' · *Urgencia IA:* ' + $('Code - Parsear Clasificacion').item.json.urgencia_ia + '\\n\\n' + '*Mensaje del cliente:*\\n' + $('Set - Consolidar Ticket').item.json.ticket_mensaje + '\\n\\n' + '*Respuesta propuesta por IA:*\\n' + $('Code - Parsear Respuesta').item.json.respuesta_ia }}",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "id": "a1713677-ca6d-462e-a148-ff0c8d63a98f",
+      "name": "Slack - HITL por Aprobación",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        -7040,
+        18224
+      ],
+      "webhookId": "2e31fc37-bd52-4572-9324-444fce824a2e",
+      "credentials": {
+        "slackApi": {
+          "id": "Xv1xbtF07ZFoJKzk",
+          "name": "NubeSoft"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_TICKETS }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Set - Consolidar Ticket').item.json.ticket_airtable_id }}",
+            "Estado": "Procesado por IA",
+            "Categoría IA": "={{ $('Code - Parsear Clasificacion').item.json.categoria_ia }}",
+            "Respuesta IA": "={{ $json.respuesta_ia }}",
+            "Urgencia": "={{ $('Code - Parsear Clasificacion').item.json.urgencia_ia }}",
+            "Timestamp Procesado": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje Original",
+              "displayName": "Mensaje Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Esperando Aprobación",
+                  "value": "Esperando Aprobación"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado - Revisar",
+                  "value": "Rechazado - Revisar"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre Cliente",
+              "displayName": "Nombre Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría Declarada",
+              "displayName": "Categoría Declarada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría IA",
+              "displayName": "Categoría IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Crítica",
+                  "value": "Crítica"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp Procesado",
+              "displayName": "Timestamp Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Errores",
+              "displayName": "Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "8c767f12-569e-4fbe-93e9-e0b0ffb19fd4",
+      "name": "Airtable - Actualizar Respuesta IA",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -7328,
+        18240
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_TICKETS }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Set - Consolidar Ticket').item.json.ticket_airtable_id }}",
+            "Estado": "Resuelto",
+            "Fecha Resuelto": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje Original",
+              "displayName": "Mensaje Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Esperando Aprobación",
+                  "value": "Esperando Aprobación"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado - Revisar",
+                  "value": "Rechazado - Revisar"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre Cliente",
+              "displayName": "Nombre Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría Declarada",
+              "displayName": "Categoría Declarada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría IA",
+              "displayName": "Categoría IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Crítica",
+                  "value": "Crítica"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta Final Enviada",
+              "displayName": "Respuesta Final Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modelo IA usado",
+              "displayName": "Modelo IA usado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Claude Haiku",
+                  "value": "Claude Haiku"
+                },
+                {
+                  "name": "Claude Sonnet",
+                  "value": "Claude Sonnet"
+                },
+                {
+                  "name": "Batch API",
+                  "value": "Batch API"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp Procesado",
+              "displayName": "Timestamp Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Agente Asignado",
+              "displayName": "Agente Asignado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Errores",
+              "displayName": "Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "ac8818b6-6009-4546-94d7-a302b4b1b043",
+      "name": "Airtable - Actualiza Respondido",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -5792,
+        17984
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_TICKETS }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Set - Consolidar Ticket').item.json.ticket_airtable_id }}",
+            "Estado": "Rechazado"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mensaje Original",
+              "displayName": "Mensaje Original",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Esperando Aprobación",
+                  "value": "Esperando Aprobación"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                },
+                {
+                  "name": "Resuelto",
+                  "value": "Resuelto"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre Cliente",
+              "displayName": "Nombre Cliente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría Declarada",
+              "displayName": "Categoría Declarada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Categoría IA",
+              "displayName": "Categoría IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pedido no llegó",
+                  "value": "Pedido no llegó"
+                },
+                {
+                  "name": "Producto defectuoso",
+                  "value": "Producto defectuoso"
+                },
+                {
+                  "name": "Devolución/Reembolso",
+                  "value": "Devolución/Reembolso"
+                },
+                {
+                  "name": "Pago/Facturación",
+                  "value": "Pago/Facturación"
+                },
+                {
+                  "name": "Consulta general",
+                  "value": "Consulta general"
+                },
+                {
+                  "name": "Otro",
+                  "value": "Otro"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Baja",
+                  "value": "Baja"
+                },
+                {
+                  "name": "Media",
+                  "value": "Media"
+                },
+                {
+                  "name": "Alta",
+                  "value": "Alta"
+                },
+                {
+                  "name": "Crítica",
+                  "value": "Crítica"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta IA",
+              "displayName": "Respuesta IA",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Respuesta Final Enviada",
+              "displayName": "Respuesta Final Enviada",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modelo IA usado",
+              "displayName": "Modelo IA usado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Claude Haiku",
+                  "value": "Claude Haiku"
+                },
+                {
+                  "name": "Claude Sonnet",
+                  "value": "Claude Sonnet"
+                },
+                {
+                  "name": "Batch API",
+                  "value": "Batch API"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp Procesado",
+              "displayName": "Timestamp Procesado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Agente Asignado",
+              "displayName": "Agente Asignado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Errores",
+              "displayName": "Errores",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a38d0d0a-395a-4f65-aa1c-dec0a190a3f7",
+      "name": "Airtable - Actualiza Rechazado",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -6272,
+        18448
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const errMsg = ($json.error && ($json.error.message || $json.error)) || 'Error desconocido';\nlet tipo = 'API Error';\nif (/rate.?limit/i.test(errMsg)) tipo = 'Rate limit';\nelse if (/timeout/i.test(errMsg)) tipo = 'Timeout';\n\nreturn {\n  ticket_id: $('Code - Normalizar Datos').item.json.ticket_id,\n  nodo_origen: 'Airtable - Update Procesado IA',\n  tipo_error: tipo,\n  detalle_error: errMsg.toString().slice(0, 500),\n};"
+      },
+      "id": "39414db4-b70c-4bd9-acfc-9708aa94f3d7",
+      "name": "Code - Error al Procesar por IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7024,
+        18528
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ca934061-af66-4209-918b-89e9642b53de",
+      "name": "NoOp - Como ya existe, no sigo",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -9616,
+        17968
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const usage = $json.usage || {};\nconst ticket = $('Set - Consolidar Ticket').first().json;\n\nconst inputTokens = usage.input_tokens || 0;\nconst outputTokens = usage.output_tokens || 0;\n\nconst precioInput = Number($vars.PRECIO_HAIKU_INPUT) / 1000000;\nconst precioOutput = Number($vars.PRECIO_HAIKU_OUTPUT) / 1000000;\n\nconst costoReal = (inputTokens * precioInput) + (outputTokens * precioOutput);\n\nreturn {\n  json: {\n    ticket_id: ticket.ticket_id,\n    tarea: 'Clasificación',\n    modelo: $vars.CLAUDE_HAIKU_MODEL,\n    input_tokens: inputTokens,\n    output_tokens: outputTokens,\n    cache_creation_input_tokens: 0,\n    cache_read_input_tokens: 0,\n    uso_rag: false,\n    costo_real_usd: Number(costoReal.toFixed(6)),\n    costo_sin_caching_usd: Number(costoReal.toFixed(6)),\n    ahorro_caching_usd: 0,\n    ahorro_caching_pct: 0,\n  },\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8496,
+        17968
+      ],
+      "id": "f42189e8-6bb0-4618-8446-fa3ab03b0419",
+      "name": "Code - Métricas Haiku"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ $vars.AIRTABLE_TABLE_METRICAS }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "uso_rag": "={{ $json.uso_rag }}",
+            "input_tokens": "={{ $json.input_tokens }}",
+            "output_tokens": "={{ $json.output_tokens }}",
+            "cache_creation_input_tokens": "={{ $json.cache_creation_input_tokens }}",
+            "cache_read_input_tokens": "={{ $json.cache_read_input_tokens }}",
+            "costo_real_usd": "={{ $json.costo_real_usd }}",
+            "costo_sin_caching_usd": "={{ $json.costo_sin_caching_usd }}",
+            "ahorro_caching_usd": "={{ $json.ahorro_caching_usd }}",
+            "ahorro_caching_pct": "={{ $json.ahorro_caching_pct }}",
+            "Tarea": "={{ $json.tarea }}",
+            "Modelo": "={{ $json.modelo }}",
+            "Ticket ID": "={{ $json.ticket_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tarea",
+              "displayName": "Tarea",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modelo",
+              "displayName": "Modelo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "input_tokens",
+              "displayName": "input_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "output_tokens",
+              "displayName": "output_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "cache_creation_input_tokens",
+              "displayName": "cache_creation_input_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "cache_read_input_tokens",
+              "displayName": "cache_read_input_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "uso_rag",
+              "displayName": "uso_rag",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "costo_real_usd",
+              "displayName": "costo_real_usd",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "costo_sin_caching_usd",
+              "displayName": "costo_sin_caching_usd",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ahorro_caching_usd",
+              "displayName": "ahorro_caching_usd",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ahorro_caching_pct",
+              "displayName": "ahorro_caching_pct",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -7328,
+        18016
+      ],
+      "id": "6b51d920-741b-4bb1-a11a-ab5444b91b69",
+      "name": "Airtable - Registrar Métrica Sonnet",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "HEyTo1wolMBgjTfu",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "={{ $vars.AIRTABLE_TABLE_METRICAS }}",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "uso_rag": "={{ $json.uso_rag }}",
+            "input_tokens": "={{ $json.input_tokens }}",
+            "output_tokens": "={{ $json.output_tokens }}",
+            "cache_creation_input_tokens": "={{ $json.cache_creation_input_tokens }}",
+            "cache_read_input_tokens": "={{ $json.cache_read_input_tokens }}",
+            "costo_real_usd": "={{ $json.costo_real_usd }}",
+            "costo_sin_caching_usd": "={{ $json.costo_sin_caching_usd }}",
+            "ahorro_caching_usd": "={{ $json.ahorro_caching_usd }}",
+            "ahorro_caching_pct": "={{ $json.ahorro_caching_pct }}",
+            "Tarea": "={{ $json.tarea }}",
+            "Modelo": "={{ $json.modelo }}",
+            "Ticket ID": "={{ $json.ticket_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tarea",
+              "displayName": "Tarea",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Modelo",
+              "displayName": "Modelo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "input_tokens",
+              "displayName": "input_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "output_tokens",
+              "displayName": "output_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "cache_creation_input_tokens",
+              "displayName": "cache_creation_input_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "cache_read_input_tokens",
+              "displayName": "cache_read_input_tokens",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "uso_rag",
+              "displayName": "uso_rag",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "costo_real_usd",
+              "displayName": "costo_real_usd",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "costo_sin_caching_usd",
+              "displayName": "costo_sin_caching_usd",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ahorro_caching_usd",
+              "displayName": "ahorro_caching_usd",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ahorro_caching_pct",
+              "displayName": "ahorro_caching_pct",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -8320,
+        17968
+      ],
+      "id": "9f997635-235b-4aba-86a8-e383ffa13a2b",
+      "name": "Airtable - Registrar Métrica Haiku",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "HEyTo1wolMBgjTfu",
+          "name": "Airtable Personal Access Token account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const usage = $json.usage || {};\nconst ticket = $('Set - Consolidar Ticket').first().json;\n\nconst inputTokens = usage.input_tokens || 0;\nconst outputTokens = usage.output_tokens || 0;\nconst cacheWriteTokens = usage.cache_creation_input_tokens || 0;\nconst cacheReadTokens = usage.cache_read_input_tokens || 0;\n\nconst precioInput = Number($vars.PRECIO_SONNET_INPUT) / 1000000;\nconst precioOutput = Number($vars.PRECIO_SONNET_OUTPUT) / 1000000;\nconst precioCacheWrite = Number($vars.PRECIO_SONNET_CACHE_WRITE) / 1000000;\nconst precioCacheRead = Number($vars.PRECIO_SONNET_CACHE_READ) / 1000000;\n\nconst costoReal = (inputTokens * precioInput)\n  + (cacheWriteTokens * precioCacheWrite)\n  + (cacheReadTokens * precioCacheRead)\n  + (outputTokens * precioOutput);\n\nconst costoSinCaching = ((inputTokens + cacheWriteTokens + cacheReadTokens) * precioInput)\n  + (outputTokens * precioOutput);\n\nconst ahorroUsd = costoSinCaching - costoReal;\nconst ahorroPct = costoSinCaching > 0 ? (ahorroUsd / costoSinCaching) * 100 : 0;\n\nreturn {\n  json: {\n    ticket_id: ticket.ticket_id,\n    tarea: 'Redacción',\n    modelo: $vars.CLAUDE_SONNET_MODEL,\n    input_tokens: inputTokens,\n    output_tokens: outputTokens,\n    cache_creation_input_tokens: cacheWriteTokens,\n    cache_read_input_tokens: cacheReadTokens,\n    uso_rag: (cacheWriteTokens + cacheReadTokens) > 0,\n    costo_real_usd: Number(costoReal.toFixed(6)),\n    costo_sin_caching_usd: Number(costoSinCaching.toFixed(6)),\n    ahorro_caching_usd: Number(ahorroUsd.toFixed(6)),\n    ahorro_caching_pct: Number(ahorroPct.toFixed(2)),\n  },\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7600,
+        18016
+      ],
+      "id": "9d9d334c-622f-4fe4-8186-e7aff837cfe0",
+      "name": "Code - Métricas Sonnet"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -8096,
+        17968
+      ],
+      "id": "035af876-ff19-4d41-bc27-6236d2de41d0",
+      "name": "Finalizar Flujo Alternativo Clasificación",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -7040,
+        18016
+      ],
+      "id": "144a0a9b-5af9-476a-a381-cd887cc02014",
+      "name": "Finalizar Flujo Alternativo Respuesta",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json['Ticket ID'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json['Error'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "684894b4-7533-4a1a-8ec2-d1ea7b6f26ef",
+      "name": "IF - Ya fue Procesada?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10608,
+        18208
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "0f1deeca-fa68-416d-9b10-879e7e7a03ec",
+      "name": "NoOp - Ya Procesada, Ignorar",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -10352,
+        17952
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_IMPROCESABLES_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Nombre completo": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Categoría del problema": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}",
+            "Describe tu problema": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}",
+            "Timestamp": "={{ $now.toISO() }}",
+            "Nodo que falló": "={{ $json.nodo_origen }}",
+            "Tipo de Error": "={{ $json.tipo_error }}",
+            "Detalle": "={{ $json.detalle_error }}",
+            "Ticket ID": "={{ $json.ticket_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nodo que falló",
+              "displayName": "Nodo que falló",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tipo de Error",
+              "displayName": "Tipo de Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Detalle",
+              "displayName": "Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "58ef37f2-c3e9-49db-b1ac-6f624f10d45c",
+      "name": "Google Sheets - Registrar Improcesable (Validación)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -9728,
+        18784
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_IMPROCESABLES_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Nombre completo": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Categoría del problema": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}",
+            "Describe tu problema": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}",
+            "Timestamp": "={{ $now.toISO() }}",
+            "Ticket ID": "={{ $json['Ticket ID'] }}",
+            "Nodo que falló": "No se generó ticket nuevo",
+            "Tipo de Error": "Duplicado",
+            "Detalle": "Ya existía un ticket para este reclamo; no se generó uno nuevo."
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nodo que falló",
+              "displayName": "Nodo que falló",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tipo de Error",
+              "displayName": "Tipo de Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Detalle",
+              "displayName": "Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "add4ab76-b661-4920-a442-2c9b34ec23ec",
+      "name": "Google Sheets - Registrar Improcesable (Duplicado)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -9424,
+        17968
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ERRORES_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Nombre completo": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Categoría del problema": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}",
+            "Describe tu problema": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}",
+            "Timestamp": "={{ $now.toISO() }}",
+            "Ticket ID": "={{ $json.ticket_id }}",
+            "Nodo que falló": "={{ $json.nodo_origen }}",
+            "Tipo de Error": "={{ $json.tipo_error }}",
+            "Detalle": "={{ $json.detalle_error }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nodo que falló",
+              "displayName": "Nodo que falló",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tipo de Error",
+              "displayName": "Tipo de Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Detalle",
+              "displayName": "Detalle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "7dc5debe-cfbb-42ec-ac66-f3d4a543f46d",
+      "name": "Google Sheets - Registrar Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -8944,
+        18336
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_PROCESADOS_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Nombre completo": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Categoría del problema": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}",
+            "Describe tu problema": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}",
+            "Timestamp": "={{ $now.toISO() }}",
+            "Ticket ID": "={{ $('Set - Consolidar Ticket').item.json.ticket_id }}",
+            "Urgencia": "={{ $('Code - Parsear Clasificacion').item.json.urgencia_ia }}",
+            "Resultado": "Resuelto"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resultado",
+              "displayName": "Resultado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "4abb50fe-5f02-4667-af9a-be7c025362e4",
+      "name": "Google Sheets - Registrar Procesado (Resuelto)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -5520,
+        17840
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_PROCESADOS_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Nombre completo": "={{ $('Code - Normalizar Datos').item.json.ticket_nombre }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Categoría del problema": "={{ $('Code - Normalizar Datos').item.json.ticket_categoria }}",
+            "Describe tu problema": "={{ $('Code - Normalizar Datos').item.json.ticket_mensaje }}",
+            "Timestamp": "={{ $now.toISO() }}",
+            "Ticket ID": "={{ $('Set - Consolidar Ticket').item.json.ticket_id }}",
+            "Urgencia": "={{ $('Code - Parsear Clasificacion').item.json.urgencia_ia }}",
+            "Resultado": "Rechazado"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgencia",
+              "displayName": "Urgencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resultado",
+              "displayName": "Resultado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "eb58a9b8-9c12-44f2-bd7f-ea436efcb605",
+      "name": "Google Sheets - Registrar Procesado (Rechazado)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -5536,
+        18768
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Error": "={{ $json.detalle_error }}",
+            "row_number": 0,
+            "Ticket ID": "={{ $json.ticket_id }}"
+          },
+          "matchingColumns": [
+            "Marca temporal",
+            "Correo electrónico"
+          ],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "770dd912-1d81-4d8a-9599-f271de13fbc1",
+      "name": "Google Sheets - Marcar Error (Validación)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -9728,
+        18608
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "row_number": 0,
+            "Ticket ID": "={{ $json['Ticket ID'] }}"
+          },
+          "matchingColumns": [
+            "Marca temporal",
+            "Correo electrónico"
+          ],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "3f8b776c-a533-4a80-a368-bcc37ea910d7",
+      "name": "Google Sheets - Marcar Ticket ID (Duplicado)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -9424,
+        17792
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Error": "={{ $json.detalle_error }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Marca temporal",
+            "Correo electrónico"
+          ],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1d2b331f-e97c-450b-adc6-7f28a8f6c5a2",
+      "name": "Google Sheets - Marcar Error",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -8928,
+        18512
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Ticket ID": "={{ $('Set - Consolidar Ticket').item.json.ticket_id }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Marca temporal",
+            "Correo electrónico"
+          ],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "eed7f50b-0e0b-4710-9093-96b8072490f2",
+      "name": "Google Sheets - Marcar Ticket ID (Resuelto)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -5520,
+        18016
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_ID }}"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.GOOGLE_SHEET_TAB_ID }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Marca temporal": "={{ $('Code - Normalizar Datos').item.json.ticket_marca_temporal }}",
+            "Correo electrónico": "={{ $('Code - Normalizar Datos').item.json.ticket_email }}",
+            "Ticket ID": "={{ $('Set - Consolidar Ticket').item.json.ticket_id }}",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Marca temporal",
+            "Correo electrónico"
+          ],
+          "schema": [
+            {
+              "id": "Marca temporal",
+              "displayName": "Marca temporal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre completo",
+              "displayName": "Nombre completo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Correo electrónico",
+              "displayName": "Correo electrónico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Categoría del problema",
+              "displayName": "Categoría del problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Describe tu problema",
+              "displayName": "Describe tu problema",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ticket ID",
+              "displayName": "Ticket ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "dfddf033-b659-44c3-a476-61c797df6031",
+      "name": "Google Sheets - Marcar Ticket ID (Rechazado)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -5536,
+        18960
+      ],
+      "notesInFlow": false,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "viA4Pq71SMQJDrjo",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_PANEL_KPIS }}"
+        },
+        "filterByFormula": "={{ \"{Fecha} = '\" + $now.toISO().slice(0,10) + \"'\" }}",
+        "options": {}
+      },
+      "id": "52d88f0f-c354-46cc-b3c4-001ce2a1b228",
+      "name": "Airtable - Buscar Tupla de Fecha (KPIs)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -11888,
+        18192
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4a75d385-6809-4c44-9cf2-fbd6b4f2c65d",
+      "name": "IF - ¿Existe Tupla de Hoy?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -11680,
+        18192
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_BASE_ID }}"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.AIRTABLE_TABLE_PANEL_KPIS }}"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now.toISO().slice(0,10) }}",
+            "KPIs Global": "={{ [$vars.AIRTABLE_RECORD_KPI_GLOBAL_ID] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "KPIs Global",
+              "displayName": "KPIs Global",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "f3df2944-1745-4a4e-878c-3d30280b8944",
+      "name": "Airtable - Crear Tupla de Fecha (KPIs)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -11472,
+        18320
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "cUChTF3BF9XJluIK",
+          "name": "Airtable Personal Access Token account 2"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "7f285074-620a-4625-8f79-0e4698b3c6ab",
+      "name": "Merge - Tupla de Fecha (KPIs)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -11280,
+        18192
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// El paso anterior (Buscar/Crear la tupla del día en Panel KPIs) devolvió\n// el registro de Panel KPIs, no los tickets originales. Ese registro solo\n// sirve para que 'Merge - Tupla de Fecha (KPIs)' quede disponible como\n// referencia (via $('Merge - Tupla de Fecha (KPIs)')) mas adelante en el\n// loop. Acá recuperamos los items reales que entraron por el Trigger,\n// para que el Loop itere sobre los tickets de verdad y no sobre la tupla de KPIs.\nreturn $('Trigger - Nuevo Reclamo o Consulta').all();"
+      },
+      "id": "19647a59-1b77-4a99-bfbe-809527eada10",
+      "name": "Code - Restaurar Tickets Originales",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -11056,
+        18192
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code - Normalizar Datos": {
+      "main": [
+        [
+          {
+            "node": "IF - Datos Completos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Buscar Duplicado": {
+      "main": [
+        [
+          {
+            "node": "IF - Ya Existe?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: Buscar Duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Crear Ticket": {
+      "main": [
+        [
+          {
+            "node": "Set - Consolidar Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: Crear Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Consolidar Ticket": {
+      "main": [
+        [
+          {
+            "node": "Code - Generar Prompt para Clasificar con IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Claude Haiku": {
+      "main": [
+        [
+          {
+            "node": "Code - Parsear Clasificacion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code - Métricas Haiku",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: Claude Haiku",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parsear Clasificacion": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Buscar FAQ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Claude Sonnet": {
+      "main": [
+        [
+          {
+            "node": "Code - Parsear Respuesta",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code - Métricas Sonnet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: Claude Sonnet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Parsear Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Actualizar Respuesta IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - Enviar Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Actualiza Respondido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: Gmail Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: Validacion Datos": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Improcesable (Validación)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error (Validación)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: Crear Ticket": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: Claude Haiku": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: Claude Sonnet": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: HITL Aprobacion": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: Gmail Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Registrar Error": {
+      "main": [
+        [
+          {
+            "node": "Loop por Cada Ítem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Notificar Rechazo": {
+      "main": [
+        [
+          {
+            "node": "Loop por Cada Ítem",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Procesado (Rechazado)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Ticket ID (Rechazado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error: Buscar Duplicado": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Buscar FAQ": {
+      "main": [
+        [
+          {
+            "node": "Code - Generar Prompt para Respuesta por IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger - Nuevo Reclamo o Consulta": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Buscar Tupla de Fecha (KPIs)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop por Cada Ítem": {
+      "main": [
+        [],
+        [
+          {
+            "node": "IF - Ya fue Procesada?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Datos Completos?": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Buscar Duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: Validacion Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Ya Existe?": {
+      "main": [
+        [
+          {
+            "node": "NoOp - Como ya existe, no sigo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable - Crear Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Generar Prompt para Clasificar con IA": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Claude Haiku",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Generar Prompt para Respuesta por IA": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Claude Sonnet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Aprobado por Humano?": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Actualizar Aprobación",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable - Actualiza Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Actualizar Aprobación": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Enviar Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - HITL por Aprobación": {
+      "main": [
+        [
+          {
+            "node": "IF - Aprobado por Humano?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error: HITL Aprobacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Actualizar Respuesta IA": {
+      "main": [
+        [
+          {
+            "node": "Slack - HITL por Aprobación",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Error al Procesar por IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Actualiza Respondido": {
+      "main": [
+        [
+          {
+            "node": "Loop por Cada Ítem",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Procesado (Resuelto)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Ticket ID (Resuelto)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Actualiza Rechazado": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notificar Rechazo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Error al Procesar por IA": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Error",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoOp - Como ya existe, no sigo": {
+      "main": [
+        [
+          {
+            "node": "Loop por Cada Ítem",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Registrar Improcesable (Duplicado)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google Sheets - Marcar Ticket ID (Duplicado)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Métricas Haiku": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Métrica Haiku",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Métricas Sonnet": {
+      "main": [
+        [
+          {
+            "node": "Airtable - Registrar Métrica Sonnet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Registrar Métrica Haiku": {
+      "main": [
+        [
+          {
+            "node": "Finalizar Flujo Alternativo Clasificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Registrar Métrica Sonnet": {
+      "main": [
+        [
+          {
+            "node": "Finalizar Flujo Alternativo Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Ya fue Procesada?": {
+      "main": [
+        [
+          {
+            "node": "NoOp - Ya Procesada, Ignorar",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Normalizar Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NoOp - Ya Procesada, Ignorar": {
+      "main": [
+        [
+          {
+            "node": "Loop por Cada Ítem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Buscar Tupla de Fecha (KPIs)": {
+      "main": [
+        [
+          {
+            "node": "IF - ¿Existe Tupla de Hoy?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - ¿Existe Tupla de Hoy?": {
+      "main": [
+        [
+          {
+            "node": "Merge - Tupla de Fecha (KPIs)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Airtable - Crear Tupla de Fecha (KPIs)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Airtable - Crear Tupla de Fecha (KPIs)": {
+      "main": [
+        [
+          {
+            "node": "Merge - Tupla de Fecha (KPIs)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge - Tupla de Fecha (KPIs)": {
+      "main": [
+        [
+          {
+            "node": "Code - Restaurar Tickets Originales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Restaurar Tickets Originales": {
+      "main": [
+        [
+          {
+            "node": "Loop por Cada Ítem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5dafaaf3-0d35-4ad6-8ad0-baad2e45a4c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e0e5b810dedcabad0b0edf15136cd541469ddae4b42485ada14b79bc2a9eb59"
+  },
+  "nodeGroups": [],
+  "id": "20Nr76pDcCoB2j1a",
+  "tags": []
+}
