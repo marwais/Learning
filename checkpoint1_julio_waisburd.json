@@ -1,0 +1,239 @@
+{
+  "name": "AI Automation Avanzado - 20260920",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a7963162-dadd-4283-bca3-c9941a7090c4",
+      "name": "When chat message received",
+      "webhookId": "14ece6d6-03b2-4600-8075-f5b6266b42c7",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -48,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# ROL Y AMBITO\nEres \"AgendaBot\", un asistente virtual de coordinacion de agenda para un estudio profesional. Tu ambito se limita EXCLUSIVAMENTE a: gestionar disponibilidad de horarios, registrar solicitudes de turnos y responder consultas sobre la agenda.\nNO estas autorizado a: cancelar turnos ya confirmados sin aprobacion humana; modificar precios, aranceles o condiciones comerciales; emitir cobros o reembolsos; ni brindar asesoramiento profesional (medico, legal, financiero) que exceda la coordinacion de citas.\n\n# OBJETIVO OPERATIVO\nConvertir un mensaje desestructurado del usuario en una solicitud de turno clara y registrada, o responder con la disponibilidad correcta, dejando todo listo para la supervision humana.\n\n# REGLAS DE USO DE HERRAMIENTAS\nDispones de la herramienta \"Agenda_Turnos\" (Google Sheets). Usala para:\n1. Consultar los turnos ya registrados ANTES de proponer o confirmar un horario, para evitar superposiciones.\n2. Registrar una nueva solicitud de turno SOLO cuando cuentes con: nombre del solicitante, fecha y franja horaria.\nSi falta alguno de esos datos, preguntalo al usuario antes de escribir en la planilla. Nunca inventes disponibilidad ni datos que no provengan de la herramienta.\n\n# PROTOCOLO DE ESCALAMIENTO (GUARDRAILS)\nSi el usuario solicita algo fuera de tu ambito (cancelaciones, reembolsos, urgencias medicas o asesoramiento profesional), deten tu ciclo de inmediato y responde exactamente: \"Estoy transfiriendo tu caso a una persona del equipo para que lo revise.\"\n\n# ESTILO\nRedacta en espanol rioplatense, neutro y profesional. Queda prohibido el lenguaje inclusivo: no uses desdoblamientos (\"los y las\") ni las terminaciones con \"@\", \"x\" o \"e\" (escribi \"los pacientes\", nunca \"l@s pacientes\" ni \"les pacientes\").",
+          "maxIterations": 8
+        }
+      },
+      "id": "b4331542-f397-4a4f-817e-00f1dca5f199",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-5",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 5"
+        },
+        "options": {}
+      },
+      "id": "79f85a27-7fc5-4412-9606-2958de2f9d19",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        240
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "rXAkwberTG9uWsyH",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Acceso a la planilla maestra de agenda 'Agenda_Turnos'. ACTIVA esta herramienta de forma autonoma cuando: (1) el usuario pida un turno, cita o reunion y necesites verificar si la fecha y hora solicitada ya esta ocupada antes de confirmarla; (2) debas registrar una nueva solicitud de turno una vez que cuentes con nombre, fecha y franja horaria; (3) el usuario consulte que horarios hay disponibles o que turnos tiene ya agendados. NO la actives para saludos, conversacion general ni preguntas ajenas a la coordinacion de agenda. Cada fila de la planilla representa un turno con las columnas: Fecha, Hora, Nombre, Motivo, Estado.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1IjnCbHrSslWrcryhGU-vB5iT0lRt62b6l5C0FBVAMmg",
+          "mode": "list",
+          "cachedResultName": "Agenda_Turnos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IjnCbHrSslWrcryhGU-vB5iT0lRt62b6l5C0FBVAMmg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IjnCbHrSslWrcryhGU-vB5iT0lRt62b6l5C0FBVAMmg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $fromAI('Fecha', 'Fecha del turno solicitado en formato YYYY-MM-DD', 'string') }}",
+            "Hora": "={{ $fromAI('Hora', 'Hora del turno en formato HH:MM de 24 horas', 'string') }}",
+            "Nombre": "={{ $fromAI('Nombre', 'Nombre completo del solicitante del turno', 'string') }}",
+            "Motivo": "={{ $fromAI('Motivo', 'Motivo o tipo de consulta del turno', 'string') }}",
+            "Estado": "={{ $fromAI('Estado', 'Estado del turno; por defecto Solicitado', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hora",
+              "displayName": "Hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Motivo",
+              "displayName": "Motivo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "b7d058d9-a721-4ee9-9f62-c5744d690c07",
+      "name": "Agenda_Turnos",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        352,
+        240
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SHDKsDM9UfoFISKh",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "mwaisburd@gmail.com",
+        "subject": "AgendaBot - Reporte de ejecucion",
+        "emailType": "text",
+        "message": "=Resultado del agente AgendaBot:\n\n{{ $json.output }}",
+        "options": {}
+      },
+      "id": "40f26798-2da8-4d08-88f4-5133030778da",
+      "name": "Reporte de observabilidad",
+      "webhookId": "30f10bd4-abc7-46ac-a797-0cfe0a9773ec",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        0
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "BuOy8mAHjWQqUkbD",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agenda_Turnos": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reporte de observabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
