@@ -1,0 +1,32 @@
+{
+  "fuente": "Google Sheets",
+  "nombre": "Agenda_Turnos",
+  "hoja": "Hoja 1(gid=0)",
+  "columnas": [
+    {
+      "nombre": "ID",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Fecha",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Hora",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Nombre",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Motivo",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Estado",
+      "tipo": "texto"
+    }
+  ],
+  "notas": "ID unico por turno (T+timestamp). Fecha en DD/MM/AAAA. Estado: Asignado | Reprogramado."
+}
