@@ -1,0 +1,6 @@
+# Archivos temporales de Office (lock)
+~$*
+# Otros temporales
+*.tmp
+Thumbs.db
+.DS_Store
