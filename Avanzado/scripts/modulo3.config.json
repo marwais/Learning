@@ -1,0 +1,18 @@
+{
+  "modulo": 3,
+  "out_dir": "../Modulo3",
+  "n8n_base": "http://localhost:5678",
+  "workflows": {
+    "UyAhEXvY7SmGvfnf": "AI Automation Avanzado - M3.json",
+    "h94DkIbXdDOxLEdQ": "Worker1_RegistrarTurno (M3).json",
+    "79Y18L3eh4h5mcQA": "Worker2_Confirmacion (M3).json",
+    "2WyIZUMSwh68Ngyo": "Worker3_ConsultarTurno (M3).json",
+    "KDcqpmTHMGbbkUfD": "Worker4_ModificarTurno (M3).json"
+  },
+  "google_sheets": [
+    { "id": "1-imrSO38Bl-xtowwv8oWNsG29e9iC3niUlggp9ESSLE", "base_name": "Agenda_Turnos (03)" }
+  ],
+  "airtable_tables": [
+    { "base": "appO1XQ6layHvQx6e", "table": "tblx4U6nt8mnxNBxu", "base_name": "Memoria_Agente_M3" }
+  ]
+}

@@ -4,7 +4,6 @@
   "tables": [
     {
       "name": "Memoria",
-      "description": "Memoria de largo plazo del agente. Una fila por Session_ID.",
       "fields": [
         {
           "name": "Session_ID",
@@ -15,10 +14,12 @@
           "type": "dateTime",
           "options": {
             "dateFormat": {
-              "name": "iso"
+              "name": "iso",
+              "format": "YYYY-MM-DD"
             },
             "timeFormat": {
-              "name": "24hour"
+              "name": "24hour",
+              "format": "HH:mm"
             },
             "timeZone": "America/Argentina/Buenos_Aires"
           }
