@@ -1123,7 +1123,7 @@
         1120
       ],
       "parameters": {
-        "authentication": "oAuth2",
+        "authentication": "appToken",
         "resource": "contact",
         "operation": "search",
         "filterGroupsUi": {
@@ -1143,6 +1143,12 @@
         },
         "additionalFields": {},
         "options": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hPGs8x3WWMPWG5Sk",
+          "name": "HubSpot AgendaBot (App Token)"
+        }
       }
     },
     {
@@ -1189,11 +1195,17 @@
         1000
       ],
       "parameters": {
-        "authentication": "oAuth2",
+        "authentication": "appToken",
         "resource": "contact",
         "operation": "update",
         "contactId": "={{ $json.id }}",
         "updateFields": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hPGs8x3WWMPWG5Sk",
+          "name": "HubSpot AgendaBot (App Token)"
+        }
       }
     },
     {
@@ -1206,11 +1218,17 @@
         1260
       ],
       "parameters": {
-        "authentication": "oAuth2",
+        "authentication": "appToken",
         "resource": "contact",
         "operation": "create",
         "email": "={{ $('Limpiar payload (Set)').item.json.From }}",
         "additionalFields": {}
+      },
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hPGs8x3WWMPWG5Sk",
+          "name": "HubSpot AgendaBot (App Token)"
+        }
       }
     },
     {
@@ -1256,6 +1274,7 @@
     {
       "id": "3010a1dd-5bc3-422e-916b-1cc219fd6fea",
       "name": "Crear borrador (Gmail)",
+      "webhookId": "d13d4efb-cbcd-4f5c-b713-3d670ce7a953",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
@@ -1277,12 +1296,12 @@
           "id": "LCpAQRDOeUUC99pU",
           "name": "Gmail account"
         }
-      },
-      "webhookId": "d13d4efb-cbcd-4f5c-b713-3d670ce7a953"
+      }
     },
     {
       "id": "b8ff5544-72f9-4875-9323-318369ec162a",
       "name": "Notificar a soporte (Slack)",
+      "webhookId": "bb5c7313-6eba-42f4-962c-74457f1bf534",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
@@ -1290,7 +1309,7 @@
         1120
       ],
       "parameters": {
-        "authentication": "oAuth2",
+        "authentication": "accessToken",
         "resource": "message",
         "operation": "post",
         "select": "channel",
@@ -1303,7 +1322,12 @@
         "text": "=Nuevo borrador de respuesta generado para { $('Limpiar payload (Set)').item.json.From }} - Asunto: { $('Limpiar payload (Set)').item.json.Subject }}",
         "otherOptions": {}
       },
-      "webhookId": "bb5c7313-6eba-42f4-962c-74457f1bf534"
+      "credentials": {
+        "slackApi": {
+          "id": "6kYo49Hy2suBgtSl",
+          "name": "Slack AgendaBot (Bot Token)"
+        }
+      }
     }
   ],
   "connections": {
