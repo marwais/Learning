@@ -1,0 +1,83 @@
+{
+  "base": {
+    "id": "appO1XQ6layHvQx6e",
+    "name": "Memoria_Agente_M3"
+  },
+  "table": {
+    "id": "tblx4U6nt8mnxNBxu",
+    "name": "Memoria"
+  },
+  "fields": [
+    {
+      "name": "Session_ID",
+      "type": "singleLineText",
+      "options": null,
+      "description": "Identificador único de la sesión/usuario (clave de lectura y filtro)."
+    },
+    {
+      "name": "Fecha de Actualización",
+      "type": "dateTime",
+      "options": {
+        "dateFormat": {
+          "name": "iso",
+          "format": "YYYY-MM-DD"
+        },
+        "timeFormat": {
+          "name": "24hour",
+          "format": "HH:mm"
+        },
+        "timeZone": "America/Argentina/Buenos_Aires"
+      },
+      "description": "Cuándo se actualizó el registro por última vez."
+    },
+    {
+      "name": "Resumen Consolidado",
+      "type": "multilineText",
+      "options": null,
+      "description": "Resumen analítico de la última interacción (no la transcripción cruda)."
+    },
+    {
+      "name": "Estado del Caso",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          {
+            "id": "selrRsBNm8CUsLoD5",
+            "name": "En Progreso",
+            "color": "grayLight2"
+          },
+          {
+            "id": "selFPXC8eiYFh5M3H",
+            "name": "Pendiente",
+            "color": "grayLight2"
+          },
+          {
+            "id": "selEM4yyVq9Ey9V6h",
+            "name": "En Revisión",
+            "color": "grayLight2"
+          },
+          {
+            "id": "selmCS5lErXnfs4tO",
+            "name": "Cerrado",
+            "color": "grayLight2"
+          }
+        ]
+      },
+      "description": "Fase viva del proceso."
+    },
+    {
+      "name": "Datos Clave",
+      "type": "multilineText",
+      "options": null,
+      "description": "Hechos accionables e indicadores (presupuesto, preferencias, NPS, etc.)."
+    },
+    {
+      "name": "Mensajes",
+      "type": "number",
+      "options": {
+        "precision": 0
+      },
+      "description": "Contador de intercambios de la sesión (dispara la summarization al superar 5)."
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "name": "Worker1_RegistrarTurno (M3)",
+  "nodes": [
+    {
+      "id": "27b5fcb3-be59-406a-aaf5-0e624455ecb8",
+      "name": "Cuando el Manager lo llama",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "events": [
+          "worklfow_call"
+        ]
+      }
+    },
+    {
+      "id": "29b5768b-db57-47c5-b304-a553db6d85aa",
+      "name": "Registrar en Agenda_Turnos",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-imrSO38Bl-xtowwv8oWNsG29e9iC3niUlggp9ESSLE",
+          "mode": "list",
+          "cachedResultName": "Agenda_Turnos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-imrSO38Bl-xtowwv8oWNsG29e9iC3niUlggp9ESSLE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ 'T' + $now.toMillis() }}",
+            "Fecha": "={{ $json.fecha }}",
+            "Hora": "={{ $json.hora }}",
+            "Nombre": "={{ $json.nombre }}",
+            "Motivo": "={{ $json.motivo }}",
+            "Estado": "Asignado"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Hora",
+              "displayName": "Hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Motivo",
+              "displayName": "Motivo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZLtSYc1x6IEDIsF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "id": "ceccd396-537c-4ad7-a84d-0d3d9e14b9de",
+      "name": "Devolver JSON",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "47049728-eea4-4f71-bb42-1f9f76bbea46",
+              "name": "status",
+              "value": "success",
+              "type": "string"
+            },
+            {
+              "id": "5f0cba2b-53f2-4d08-b635-2b1c566027d4",
+              "name": "data",
+              "value": "={{ { \"id\": $json.ID, \"nombre\": $json.Nombre, \"fecha\": $json.Fecha, \"hora\": $json.Hora, \"motivo\": $json.Motivo, \"estado\": $json.Estado } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Cuando el Manager lo llama": {
+      "main": [
+        [
+          {
+            "node": "Registrar en Agenda_Turnos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar en Agenda_Turnos": {
+      "main": [
+        [
+          {
+            "node": "Devolver JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

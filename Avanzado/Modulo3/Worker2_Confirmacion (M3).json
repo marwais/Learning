@@ -1,0 +1,65 @@
+{
+  "name": "Worker2_Confirmacion (M3)",
+  "nodes": [
+    {
+      "id": "2d1999da-648d-41ec-afd5-0db14b1147df",
+      "name": "Cuando el Manager lo llama",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "events": [
+          "worklfow_call"
+        ]
+      }
+    },
+    {
+      "id": "7d8f69df-f62d-4a79-9d5b-2c00d68c9bee",
+      "name": "Redactar confirmacion",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "46c9c3a6-07e6-4a74-98e0-16d10cacf4d2",
+              "name": "status",
+              "value": "success",
+              "type": "string"
+            },
+            {
+              "id": "6f135022-238a-4403-820e-d1367fd117a6",
+              "name": "data",
+              "value": "={{ { \"mensaje\": 'Hola ' + ($json.data.nombre || '') + ', tu turno de ' + ($json.data.motivo || '') + ' para el ' + ($json.data.fecha || '') + ' a las ' + ($json.data.hora || '') + ' quedo ' + ($json.data.estado || 'confirmado') + '.' } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Cuando el Manager lo llama": {
+      "main": [
+        [
+          {
+            "node": "Redactar confirmacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

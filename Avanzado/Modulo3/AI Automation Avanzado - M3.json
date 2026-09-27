@@ -972,7 +972,6 @@
       ]
     }
   ],
-  "pinData": {},
   "connections": {
     "When chat message received": {
       "main": [
@@ -1281,16 +1280,8 @@
       ]
     }
   },
-  "active": false,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
-  },
-  "versionId": "a3bf6ebb-dddb-421b-8266-8b60394ca449",
-  "meta": {
-    "instanceId": "4f18d94e380895695fefcac0d3b48ce802e905f787465441984f37d641074459"
-  },
-  "nodeGroups": [],
-  "id": "UyAhEXvY7SmGvfnf",
-  "tags": []
+  }
 }
