@@ -1,0 +1,82 @@
+{
+  "base": {
+    "id": "appO1XQ6layHvQx6e"
+  },
+  "table": {
+    "id": "tblaESzgrn2cxeBLT",
+    "name": "Memoria_M4"
+  },
+  "fields": [
+    {
+      "name": "Session_ID",
+      "type": "singleLineText",
+      "options": null,
+      "description": null
+    },
+    {
+      "name": "Fecha de Actualización",
+      "type": "dateTime",
+      "options": {
+        "dateFormat": {
+          "name": "iso",
+          "format": "YYYY-MM-DD"
+        },
+        "timeFormat": {
+          "name": "24hour",
+          "format": "HH:mm"
+        },
+        "timeZone": "America/Argentina/Buenos_Aires"
+      },
+      "description": null
+    },
+    {
+      "name": "Resumen Consolidado",
+      "type": "multilineText",
+      "options": null,
+      "description": null
+    },
+    {
+      "name": "Estado del Caso",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          {
+            "id": "selig4PkXfA1Ab6gK",
+            "name": "En Progreso",
+            "color": "grayLight2"
+          },
+          {
+            "id": "selAK7EWPxYT5Cm88",
+            "name": "Pendiente",
+            "color": "grayLight2"
+          },
+          {
+            "id": "selAC9y4BZgRl2t82",
+            "name": "En Revisión",
+            "color": "grayLight2"
+          },
+          {
+            "id": "selRiKn8JYzOqTUdY",
+            "name": "Cerrado",
+            "color": "grayLight2"
+          }
+        ]
+      },
+      "description": null
+    },
+    {
+      "name": "Datos Clave",
+      "type": "multilineText",
+      "options": null,
+      "description": null
+    },
+    {
+      "name": "Mensajes",
+      "type": "number",
+      "options": {
+        "precision": 0
+      },
+      "description": null
+    }
+  ]
+}

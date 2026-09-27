@@ -13,6 +13,6 @@
     { "id": "1FnfK-V607EYWt8jKoiuStdJ19iP9iikDlFOXcvIEb_U", "base_name": "Agenda_Turnos (04)" }
   ],
   "airtable_tables": [
-    { "base": "appoFAmVgPbffIZAu", "table": "tblXgz1l7NPRWoRZF", "base_name": "Memoria_Agente_M4" }
+    { "base": "appO1XQ6layHvQx6e", "table": "tblaESzgrn2cxeBLT", "base_name": "Memoria_M4" }
   ]
 }

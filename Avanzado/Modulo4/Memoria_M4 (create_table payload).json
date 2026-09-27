@@ -1,35 +1,29 @@
 {
-  "base": {
-    "id": "appoFAmVgPbffIZAu",
-    "name": "Memoria_Agente_M4"
-  },
-  "table": {
-    "id": "tblXgz1l7NPRWoRZF",
-    "name": "Memoria"
-  },
+  "baseId": "appO1XQ6layHvQx6e",
+  "name": "Memoria_M4",
   "fields": [
     {
       "name": "Session_ID",
-      "type": "singleLineText",
-      "options": null
+      "type": "singleLineText"
     },
     {
       "name": "Fecha de Actualización",
       "type": "dateTime",
       "options": {
         "dateFormat": {
-          "name": "iso"
+          "name": "iso",
+          "format": "YYYY-MM-DD"
         },
         "timeFormat": {
-          "name": "24hour"
+          "name": "24hour",
+          "format": "HH:mm"
         },
         "timeZone": "America/Argentina/Buenos_Aires"
       }
     },
     {
       "name": "Resumen Consolidado",
-      "type": "multilineText",
-      "options": null
+      "type": "multilineText"
     },
     {
       "name": "Estado del Caso",
@@ -53,8 +47,7 @@
     },
     {
       "name": "Datos Clave",
-      "type": "multilineText",
-      "options": null
+      "type": "multilineText"
     },
     {
       "name": "Mensajes",
