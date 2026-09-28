@@ -1,0 +1,25 @@
+{
+  "modulo": 5,
+  "out_dir": ".",
+  "n8n_base": "http://localhost:5678",
+  "workflows": {
+    "f1Yl3BRwYouF660l": "AI Automation Avanzado - M5.json",
+    "OhqlaD9owJHhZ0Xp": "Worker1_RegistrarTurno (M5).json",
+    "Ft8psvxAlilfFKuw": "Worker2_Confirmacion (M5).json",
+    "mC0rTN5ylCLiu6gX": "Worker3_ConsultarTurno (M5).json",
+    "47lULDxTZa8YGKjj": "Worker4_ModificarTurno (M5).json"
+  },
+  "airtable_tables": [
+    {
+      "base": "appO1XQ6layHvQx6e",
+      "table": "tblfxL2XyvTGtnvfl",
+      "base_name": "Memoria_M5"
+    }
+  ],
+  "google_sheets": [
+    {
+      "id": "14NKpW0fGnngPTZmkgQssOQdj6-K4wVI13mIARFapT8A",
+      "base_name": "Agenda_Turnos (05)"
+    }
+  ]
+}

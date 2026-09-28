@@ -1,0 +1,58 @@
+{
+  "baseId": "appO1XQ6layHvQx6e",
+  "name": "Memoria_M5",
+  "fields": [
+    {
+      "name": "Session_ID",
+      "type": "singleLineText"
+    },
+    {
+      "name": "Fecha de Actualización",
+      "type": "dateTime",
+      "options": {
+        "dateFormat": {
+          "name": "iso"
+        },
+        "timeFormat": {
+          "name": "24hour"
+        },
+        "timeZone": "America/Argentina/Buenos_Aires"
+      }
+    },
+    {
+      "name": "Resumen Consolidado",
+      "type": "multilineText"
+    },
+    {
+      "name": "Estado del Caso",
+      "type": "singleSelect",
+      "options": {
+        "choices": [
+          {
+            "name": "En Progreso"
+          },
+          {
+            "name": "Pendiente"
+          },
+          {
+            "name": "En Revisión"
+          },
+          {
+            "name": "Cerrado"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Datos Clave",
+      "type": "multilineText"
+    },
+    {
+      "name": "Mensajes",
+      "type": "number",
+      "options": {
+        "precision": 0
+      }
+    }
+  ]
+}

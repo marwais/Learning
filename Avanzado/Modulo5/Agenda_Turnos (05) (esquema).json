@@ -1,0 +1,34 @@
+{
+  "fuente": "Google Sheets",
+  "id": "14NKpW0fGnngPTZmkgQssOQdj6-K4wVI13mIARFapT8A",
+  "columnas": [
+    {
+      "nombre": "ID",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Fecha",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Hora",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Nombre",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Motivo",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Estado",
+      "tipo": "texto"
+    },
+    {
+      "nombre": "Email",
+      "tipo": "texto"
+    }
+  ]
+}
