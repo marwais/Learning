@@ -977,7 +977,7 @@
       "type": "n8n-nodes-base.gmailTrigger",
       "typeVersion": 1.2,
       "position": [
-        -900,
+        -896,
         1040
       ],
       "parameters": {
@@ -988,9 +988,7 @@
             }
           ]
         },
-        "simple": true,
-        "filters": {},
-        "options": {}
+        "filters": {}
       },
       "credentials": {
         "gmailOAuth2": {
@@ -1005,7 +1003,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -620,
+        -624,
         1040
       ],
       "parameters": {
@@ -1065,7 +1063,7 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -360,
+        -368,
         880
       ],
       "parameters": {}
@@ -1076,7 +1074,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -360,
+        -368,
         1120
       ],
       "parameters": {
@@ -1108,7 +1106,6 @@
             }
           ]
         },
-        "includeOtherFields": false,
         "options": {}
       }
     },
@@ -1124,7 +1121,6 @@
       ],
       "parameters": {
         "authentication": "appToken",
-        "resource": "contact",
         "operation": "search",
         "filterGroupsUi": {
           "filterGroupsValues": [
@@ -1133,7 +1129,6 @@
                 "filterValues": [
                   {
                     "propertyName": "email",
-                    "operator": "EQ",
                     "value": "={{ $('Limpiar payload (Set)').item.json.From }}"
                   }
                 ]
@@ -1141,8 +1136,7 @@
             }
           ]
         },
-        "additionalFields": {},
-        "options": {}
+        "additionalFields": {}
       },
       "credentials": {
         "hubspotAppToken": {
@@ -1157,7 +1151,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        200,
+        208,
         1120
       ],
       "parameters": {
@@ -1191,15 +1185,12 @@
       "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.1,
       "position": [
-        460,
-        1000
+        464,
+        1008
       ],
       "parameters": {
         "authentication": "appToken",
-        "resource": "contact",
-        "operation": "update",
-        "contactId": "={{ $json.id }}",
-        "updateFields": {}
+        "operation": "update"
       },
       "credentials": {
         "hubspotAppToken": {
@@ -1214,15 +1205,12 @@
       "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.1,
       "position": [
-        460,
-        1260
+        464,
+        1264
       ],
       "parameters": {
         "authentication": "appToken",
-        "resource": "contact",
-        "operation": "create",
-        "email": "={{ $('Limpiar payload (Set)').item.json.From }}",
-        "additionalFields": {}
+        "operation": "create"
       },
       "credentials": {
         "hubspotAppToken": {
@@ -1237,7 +1225,7 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        760,
+        768,
         1120
       ],
       "parameters": {
@@ -1252,8 +1240,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        760,
-        1320
+        768,
+        1328
       ],
       "parameters": {
         "model": {
@@ -1283,9 +1271,7 @@
       ],
       "parameters": {
         "resource": "draft",
-        "operation": "create",
         "subject": "=RE: { $('Limpiar payload (Set)').item.json.Subject }}",
-        "emailType": "text",
         "message": "={{ $json.output }}",
         "options": {
           "sendTo": "={{ $('Limpiar payload (Set)').item.json.From }}"
@@ -1305,19 +1291,16 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1320,
+        1328,
         1120
       ],
       "parameters": {
-        "authentication": "accessToken",
-        "resource": "message",
-        "operation": "post",
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "",
+          "value": "C0C4YCJ2M60",
           "mode": "list",
-          "cachedResultName": ""
+          "cachedResultName": "soporte"
         },
         "text": "=Nuevo borrador de respuesta generado para { $('Limpiar payload (Set)').item.json.From }} - Asunto: { $('Limpiar payload (Set)').item.json.Subject }}",
         "otherOptions": {}
@@ -1763,6 +1746,7 @@
     }
   },
   "settings": {
-    "executionOrder": "v1"
+    "executionOrder": "v1",
+    "binaryMode": "separate"
   }
 }
