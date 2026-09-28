@@ -8,8 +8,8 @@
       "type": "@n8n/n8n-nodes-langchain.chatTrigger",
       "typeVersion": 1.4,
       "position": [
-        -976,
-        320
+        -1760,
+        736
       ],
       "parameters": {
         "options": {}
@@ -64,7 +64,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        496,
+        464,
         320
       ],
       "parameters": {
@@ -158,7 +158,7 @@
       "alwaysOutputData": true,
       "position": [
         1040,
-        -96
+        -192
       ],
       "parameters": {
         "documentId": {
@@ -198,10 +198,10 @@
       "typeVersion": 2,
       "position": [
         1200,
-        -96
+        -192
       ],
       "parameters": {
-        "jsCode": "const req=$('Contrato de datos').first().json;\nconst now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());\nfunction parseF(f){f=String(f||'').trim();let m=f.match(/^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=f.match(/^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(f);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());}\nfunction sameF(a,b){const x=parseF(a),y=parseF(b);return !!(x&&y&&x.getTime()===y.getTime());}\nconst n=s=>String(s??'').trim().toLowerCase();\nconst rows=$input.all().map(i=>i.json).filter(r=>r&&r.Nombre);\nconst mine=rows.filter(r=>n(r.Nombre)===n(req.nombre) && (function(){const d=parseF(r.Fecha);return d&&d>=today;})());\nlet target=null;\nif(req.motivo) target=mine.find(r=>n(r.Motivo)===n(req.motivo));\nif(!target&&req.fecha_ref&&req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref)&&n(r.Hora)===n(req.hora_ref));\nif(!target&&req.fecha_ref&&!req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref));\nlet out; const falta=[];\nif(!req.nombre) falta.push('nombre');\nif(target){\n  const nf=req.fecha||target.Fecha, nh=req.hora||target.Hora;\n  if(!req.fecha && !req.hora) falta.push('la nueva fecha u hora');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'Para modificar el turno faltan datos: '+falta.join(', ')+'.'}; }\n  else { const choque=mine.find(r=>r.ID!==target.ID&&sameF(r.Fecha,nf)&&n(r.Hora)===n(nh));\n    if(choque) out={accion:'rechazo',mensaje:'Ya tenes un turno el '+nf+' a las '+nh+'.'};\n    else out={accion:'modificar',id:target.ID,nombre:req.nombre,motivo:target.Motivo,fecha:nf,hora:nh}; }\n}else{\n  if(!req.fecha) falta.push('fecha');\n  if(!req.hora) falta.push('hora');\n  if(!req.motivo) falta.push('motivo');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'No se puede agendar la cita: faltan datos obligatorios ('+falta.join(', ')+').'}; }\n  else if(req.motivo&&mine.find(r=>n(r.Motivo)===n(req.motivo))) out={accion:'rechazo',mensaje:'Ya tenes un turno para el motivo \"'+req.motivo+'\".'};\n  else if(mine.find(r=>sameF(r.Fecha,req.fecha)&&n(r.Hora)===n(req.hora))) out={accion:'rechazo',mensaje:'Ya tenes un turno el '+req.fecha+' a las '+req.hora+'.'};\n  else out={accion:'crear',nombre:req.nombre,motivo:req.motivo,fecha:req.fecha,hora:req.hora};\n}\nif(out && (out.accion==='crear'||out.accion==='modificar')) out.email = req.email || '';\nreturn [{ json: out }];"
+        "jsCode": "const req=$('Contrato de datos').first().json;\nconst now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());\nfunction parseF(f){f=String(f||'').trim();let m=f.match(/^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=f.match(/^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(f);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());}\nfunction sameF(a,b){const x=parseF(a),y=parseF(b);return !!(x&&y&&x.getTime()===y.getTime());}\nconst n=s=>String(s??'').trim().toLowerCase();\nconst rows=$input.all().map(i=>i.json).filter(r=>r&&r.Nombre);\nconst mine=rows.filter(r=>n(r.Nombre)===n(req.nombre) && (function(){const d=parseF(r.Fecha);return d&&d>=today;})());\nlet target=null;\nif(req.motivo) target=mine.find(r=>n(r.Motivo)===n(req.motivo));\nif(!target&&req.fecha_ref&&req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref)&&n(r.Hora)===n(req.hora_ref));\nif(!target&&req.fecha_ref&&!req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref));\nlet out; const falta=[];\nif(!req.nombre) falta.push('nombre');\nif(target){\n  const nf=req.fecha||target.Fecha, nh=req.hora||target.Hora;\n  if(!req.fecha && !req.hora) falta.push('la nueva fecha u hora');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'Para modificar el turno faltan datos: '+falta.join(', ')+'.'}; }\n  else { const choque=mine.find(r=>r.ID!==target.ID&&sameF(r.Fecha,nf)&&n(r.Hora)===n(nh));\n    if(choque) out={accion:'rechazo',mensaje:'Ya tenes un turno el '+nf+' a las '+nh+'.'};\n    else out={accion:'modificar',id:target.ID,nombre:req.nombre,motivo:target.Motivo,fecha:nf,hora:nh}; }\n}else{\n  if(!req.fecha) falta.push('fecha');\n  if(!req.hora) falta.push('hora');\n  if(!req.motivo) falta.push('motivo');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'No se puede agendar la cita: faltan datos obligatorios ('+falta.join(', ')+').'}; }\n  else if(req.motivo&&mine.find(r=>n(r.Motivo)===n(req.motivo))) out={accion:'rechazo',mensaje:'Ya tenes un turno para el motivo \"'+req.motivo+'\".'};\n  else if(mine.find(r=>sameF(r.Fecha,req.fecha)&&n(r.Hora)===n(req.hora))) out={accion:'rechazo',mensaje:'Ya tenes un turno el '+req.fecha+' a las '+req.hora+'.'};\n  else out={accion:'crear',nombre:req.nombre,motivo:req.motivo,fecha:req.fecha,hora:req.hora};\n}\nreturn [{ json: out }];"
       }
     },
     {
@@ -211,7 +211,7 @@
       "typeVersion": 3.2,
       "position": [
         1344,
-        -112
+        -208
       ],
       "parameters": {
         "rules": {
@@ -280,7 +280,7 @@
       "typeVersion": 1.2,
       "position": [
         1584,
-        -256
+        -352
       ],
       "parameters": {
         "workflowId": {
@@ -310,7 +310,7 @@
       "typeVersion": 1.2,
       "position": [
         1584,
-        -48
+        -144
       ],
       "parameters": {
         "workflowId": {
@@ -340,7 +340,7 @@
       "typeVersion": 3.4,
       "position": [
         1584,
-        160
+        64
       ],
       "parameters": {
         "assignments": {
@@ -369,7 +369,7 @@
       "typeVersion": 1.2,
       "position": [
         1776,
-        -144
+        -240
       ],
       "parameters": {
         "workflowId": {
@@ -429,8 +429,8 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2080,
-        352
+        3296,
+        368
       ],
       "parameters": {
         "sendTo": "mwaisburd@gmail.com",
@@ -453,8 +453,8 @@
       "typeVersion": 2.2,
       "alwaysOutputData": true,
       "position": [
-        -752,
-        320
+        -768,
+        496
       ],
       "parameters": {
         "operation": "search",
@@ -470,7 +470,7 @@
           "mode": "list",
           "cachedResultName": "Memoria_M4"
         },
-        "filterByFormula": "={{ '{Session_ID} = \"' + $json.sessionId + '\"' }}",
+        "filterByFormula": "={{ '{Session_ID} = \"' + String($json.sessionId).replace(/\"/g,'') + '\"' }}",
         "options": {}
       },
       "credentials": {
@@ -487,7 +487,7 @@
       "typeVersion": 2,
       "position": [
         -528,
-        320
+        336
       ],
       "parameters": {
         "conditions": {
@@ -521,7 +521,7 @@
       "typeVersion": 2.2,
       "position": [
         -304,
-        384
+        432
       ],
       "parameters": {
         "operation": "create",
@@ -656,8 +656,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        2432,
-        352
+        3920,
+        368
       ],
       "parameters": {
         "conditions": {
@@ -689,8 +689,8 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
       "typeVersion": 1.3,
       "position": [
-        2656,
-        432
+        4336,
+        336
       ],
       "parameters": {
         "model": {
@@ -714,8 +714,8 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        2656,
-        256
+        4336,
+        128
       ],
       "parameters": {
         "promptType": "define",
@@ -732,8 +732,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2928,
-        256
+        4608,
+        128
       ],
       "parameters": {
         "jsCode": "const raw = $json.output || '';\nlet o={}; try{ const m=String(raw).match(/\\{[\\s\\S]*\\}/); o=JSON.parse(m?m[0]:raw); }catch(e){ o={}; }\nconst cons = $('Consolidar datos').first().json || {};\nconst accion = o.accion_requerida || '';\nreturn [{ json: {\n  session_id: cons.session_id,\n  resumen: o.asunto_principal || cons.last_summary || '',\n  datos_clave: cons.datos_clave + (accion ? (' | Accion: ' + accion) : ''),\n  estado: cons.estado,\n  mensajes: cons.mensajes\n} }];"
@@ -745,8 +745,8 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.2,
       "position": [
-        2656,
-        608
+        4768,
+        512
       ],
       "parameters": {
         "operation": "upsert",
@@ -854,8 +854,8 @@
       "type": "n8n-nodes-base.airtable",
       "typeVersion": 2.2,
       "position": [
-        3088,
-        256
+        4768,
+        128
       ],
       "parameters": {
         "operation": "upsert",
@@ -964,8 +964,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2256,
-        352
+        3728,
+        368
       ],
       "parameters": {
         "jsCode": "const ctx = $('Preparar contexto').first().json || {};\nconst c = $('Contrato de datos').first().json || {};\nfunction field(s,key){ const parts=String(s||'').split('|'); for (const p of parts){ const t=p.trim(); if (t.toLowerCase().indexOf(key.toLowerCase()+':')===0) return t.slice(key.length+1).trim(); } return ''; }\nconst prev = ctx.datos_clave || '';\nconst nombre=(c.nombre||'').trim(), motivo=(c.motivo||'').trim(), turno=((c.fecha||'')+' '+(c.hora||'')).trim();\nconst paciente = nombre || field(prev,'Paciente');\nconst mot = motivo || field(prev,'Motivo');\nconst tur = turno || field(prev,'Turno');\nconst datos_clave = 'Paciente: ' + paciente + ' | Motivo: ' + mot + ' | Turno: ' + tur;\nreturn [{ json: { session_id: ctx.session_id, mensajes: ctx.mensajes, last_summary: ctx.last_summary, datos_clave: datos_clave, estado: ctx.estado || 'En Progreso' } }];"
@@ -977,8 +977,8 @@
       "type": "n8n-nodes-base.gmailTrigger",
       "typeVersion": 1.2,
       "position": [
-        -1240,
-        700
+        -1760,
+        464
       ],
       "parameters": {
         "pollTimes": {
@@ -1003,8 +1003,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -1040,
-        700
+        -1552,
+        464
       ],
       "parameters": {
         "conditions": {
@@ -1051,6 +1051,15 @@
                 "type": "string",
                 "operation": "contains"
               }
+            },
+            {
+              "id": "e0c5ff6b-b05a-43e4-b9c4-2011214f9bc2",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "noreply@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
             }
           ]
         },
@@ -1063,8 +1072,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -840,
-        860
+        -1344,
+        336
       ],
       "parameters": {}
     },
@@ -1074,8 +1083,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -840,
-        640
+        -1344,
+        480
       ],
       "parameters": {
         "assignments": {
@@ -1116,8 +1125,8 @@
       "typeVersion": 2.1,
       "alwaysOutputData": true,
       "position": [
-        2380,
-        -240
+        2384,
+        -336
       ],
       "parameters": {
         "authentication": "appToken",
@@ -1129,7 +1138,6 @@
                 "filterValues": [
                   {
                     "propertyName": "email",
-                    "operator": "EQ",
                     "value": "={{ $('Validar contacto (Set)').item.json.email }}"
                   }
                 ]
@@ -1153,7 +1161,7 @@
       "typeVersion": 2,
       "position": [
         2560,
-        -240
+        -336
       ],
       "parameters": {
         "conditions": {
@@ -1186,8 +1194,8 @@
       "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.1,
       "position": [
-        2740,
-        -340
+        2752,
+        -432
       ],
       "parameters": {
         "authentication": "appToken",
@@ -1206,16 +1214,12 @@
       "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.1,
       "position": [
-        2740,
-        -140
+        2752,
+        -240
       ],
       "parameters": {
         "authentication": "appToken",
-        "operation": "create",
-        "email": "={{ $('Validar contacto (Set)').item.json.email }}",
-        "additionalFields": {
-          "firstname": "={{ $('Validar contacto (Set)').item.json.firstname }}"
-        }
+        "operation": "create"
       },
       "credentials": {
         "hubspotAppToken": {
@@ -1231,14 +1235,12 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        2940,
-        -240
+        2944,
+        -336
       ],
       "parameters": {
         "resource": "draft",
-        "operation": "create",
         "subject": "=Confirmacion de turno - {{ $('Contrato de datos').item.json.nombre }}",
-        "emailType": "text",
         "message": "=Hola {{ $('Contrato de datos').item.json.nombre }},\n\nBorrador de confirmacion de tu turno de {{ $('Contrato de datos').item.json.motivo }} para el {{ $('Contrato de datos').item.json.fecha }} a las {{ $('Contrato de datos').item.json.hora }}.\n\n(Borrador generado automaticamente para revision humana antes de enviar.)",
         "options": {
           "sendTo": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}"
@@ -1258,8 +1260,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        2280,
-        540
+        3504,
+        368
       ],
       "parameters": {
         "select": "channel",
@@ -1285,11 +1287,11 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -864,
-        480
+        -1040,
+        640
       ],
       "parameters": {
-        "jsCode": "const j=$input.first().json||{};\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst sessionId=j.sessionId||j.From||'';\nconst mensaje=j.chatInput||j.BodyText||j.Subject||'';\nconst email_entrada=isEmail?(j.From||''):'';\nconst canal=isEmail?'email':'chat';\nreturn [{ json: { sessionId, mensaje, email_entrada, canal } }];"
+        "jsCode": "const j=$input.first().json||{};\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst rawFrom=String(j.From||'');\nconst m=rawFrom.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/);\nconst email=m?m[0]:'';\nconst sessionId=isEmail ? (email||rawFrom.replace(/[\"']/g,'')) : String(j.sessionId||'');\nconst mensaje=j.chatInput||j.BodyText||j.Subject||'';\nconst email_entrada=isEmail?email:'';\nconst canal=isEmail?'email':'chat';\nreturn [{ json: { sessionId, mensaje, email_entrada, canal } }];"
       }
     },
     {
@@ -1298,8 +1300,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1980,
-        -140
+        1984,
+        -240
       ],
       "parameters": {
         "conditions": {
@@ -1332,8 +1334,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        2180,
-        -240
+        2192,
+        -336
       ],
       "parameters": {
         "assignments": {
@@ -1352,7 +1354,6 @@
             }
           ]
         },
-        "includeOtherFields": false,
         "options": {}
       }
     }
