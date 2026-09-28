@@ -68,7 +68,7 @@
         320
       ],
       "parameters": {
-        "jsCode": "const raw = $input.first().json.output ?? $input.first().json.text ?? '';\nlet o={};try{const m=String(raw).match(/\\{[\\s\\S]*\\}/);o=JSON.parse(m?m[0]:raw);}catch(e){o={};}\nconst now=new Date();\nfunction fut(d,mo,y){d=parseInt(d);mo=parseInt(mo);if(!d||!mo)return '';let year=y?parseInt(y):now.getFullYear();if(!y){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(new Date(year,mo-1,d)<t)year+=1;}return String(d).padStart(2,'0')+'/'+String(mo).padStart(2,'0')+'/'+year;}\nfunction hh(h){if(!h)return '';h=String(h).trim();if(/^[0-9]{1,2}$/.test(h))return h.padStart(2,'0')+':00';const m=h.match(/^([0-9]{1,2}):([0-9]{2})/);return m?m[1].padStart(2,'0')+':'+m[2]:h;}\nreturn [{ json: {\n  intent:o.intent||'FUERA_DE_ALCANCE', nombre:o.nombre||'', motivo:o.motivo||'',\n  fecha:fut(o.dia,o.mes,o.anio), hora:hh(o.hora),\n  fecha_ref:fut(o.dia_ref,o.mes_ref,o.anio_ref), hora_ref:hh(o.hora_ref), email:(o.email||'')\n} }];"
+        "jsCode": "const raw = $input.first().json.output ?? $input.first().json.text ?? '';\nlet o={};try{const m=String(raw).match(/\\{[\\s\\S]*\\}/);o=JSON.parse(m?m[0]:raw);}catch(e){o={};}\nconst now=new Date();\nfunction fut(d,mo,y){d=parseInt(d);mo=parseInt(mo);if(!d||!mo)return '';let year=y?parseInt(y):now.getFullYear();if(!y){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(new Date(year,mo-1,d)<t)year+=1;}return String(d).padStart(2,'0')+'/'+String(mo).padStart(2,'0')+'/'+year;}\nfunction hh(h){if(!h)return '';h=String(h).trim();if(/^[0-9]{1,2}$/.test(h))return h.padStart(2,'0')+':00';const m=h.match(/^([0-9]{1,2}):([0-9]{2})/);return m?m[1].padStart(2,'0')+':'+m[2]:h;}\nreturn [{ json: {\n  intent:o.intent||'FUERA_DE_ALCANCE', nombre:(o.nombre||($('Normalizar entrada').item.json.nombre_remitente||'')), motivo:o.motivo||'',\n  fecha:fut(o.dia,o.mes,o.anio), hora:hh(o.hora),\n  fecha_ref:fut(o.dia_ref,o.mes_ref,o.anio_ref), hora_ref:hh(o.hora_ref), email:(o.email||($('Normalizar entrada').item.json.email_entrada||''))\n} }];"
       }
     },
     {
@@ -1291,7 +1291,7 @@
         640
       ],
       "parameters": {
-        "jsCode": "const j=$input.first().json||{};\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst rawFrom=String(j.From||'');\nconst m=rawFrom.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/);\nconst email=m?m[0]:'';\nconst sessionId=isEmail ? (email||rawFrom.replace(/[\"']/g,'')) : String(j.sessionId||'');\nconst mensaje=j.chatInput||j.BodyText||j.Subject||'';\nconst email_entrada=isEmail?email:'';\nconst canal=isEmail?'email':'chat';\nreturn [{ json: { sessionId, mensaje, email_entrada, canal } }];"
+        "jsCode": "const j=$input.first().json||{};\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst rawFrom=String(j.From||\"\");\nconst m=rawFrom.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/);\nconst email=m?m[0]:\"\";\nlet disp = rawFrom.includes(\"<\") ? rawFrom.split(\"<\")[0] : \"\";\ndisp = disp.replace(/[\"']/g,\"\").trim();\nif(disp.includes(\"@\")) disp=\"\";\nconst sessionId=isEmail ? (email||rawFrom.replace(/[\"']/g,\"\")) : String(j.sessionId||\"\");\nconst mensaje=j.chatInput||j.BodyText||j.Subject||\"\";\nconst email_entrada=isEmail?email:\"\";\nconst nombre_remitente=isEmail?disp:\"\";\nconst canal=isEmail?\"email\":\"chat\";\nreturn [{ json: { sessionId, mensaje, email_entrada, nombre_remitente, canal } }];"
       }
     },
     {
@@ -1363,7 +1363,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1780,
+        1792,
         160
       ],
       "parameters": {
@@ -1407,16 +1407,15 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1980,
-        60
+        2080,
+        16
       ],
       "parameters": {
         "resource": "message",
-        "operation": "send",
-        "sendTo": "={{ $('Normalizar entrada').item.json.email_entrada }}",
-        "subject": "=Sobre tu pedido de turno",
+        "operation": "reply",
+        "messageId": "={{ $('Email entrante (Gmail Trigger)').item.json.id }}",
         "emailType": "text",
-        "message": "=Hola,\n\n{{ $('Aviso (no se puede)').item.json.data.mensaje }}\n\nRespondé a este correo con el dato que falta y seguimos con tu turno.\n\n(Mensaje automatico del asistente de agenda.)",
+        "message": "=Hola,\n\n{{ $('Aviso (no se puede)').item.json.data.mensaje }}\n\nResponde a este correo con el dato que falta y seguimos con tu turno.\n\n(Mensaje automatico del asistente de agenda.)",
         "options": {}
       },
       "credentials": {
@@ -1432,8 +1431,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3320,
-        256
+        4992,
+        320
       ],
       "parameters": {
         "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje')\n     || 'Listo.';\nreturn [{ json: { output: m } }];"
