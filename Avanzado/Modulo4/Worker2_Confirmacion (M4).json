@@ -37,7 +37,7 @@
             {
               "id": "6f135022-238a-4403-820e-d1367fd117a6",
               "name": "data",
-              "value": "={{ { \"mensaje\": 'Hola ' + ($json.data.nombre || '') + ', tu turno de ' + ($json.data.motivo || '') + ' para el ' + ($json.data.fecha || '') + ' a las ' + ($json.data.hora || '') + ' quedo ' + ($json.data.estado || 'confirmado') + '.' } }}",
+              "value": "={{ { \"mensaje\": 'Hola ' + ($json.data.nombre || '') + ', tu turno de ' + ($json.data.motivo || '') + ' para el ' + ($json.data.fecha || '') + ' a las ' + ($json.data.hora || '') + ' quedó ' + ($json.data.estado || 'confirmado') + '.' } }}",
               "type": "object"
             }
           ]
