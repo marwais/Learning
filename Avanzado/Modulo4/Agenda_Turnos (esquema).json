@@ -26,6 +26,10 @@
     {
       "nombre": "Estado",
       "tipo": "texto"
+    },
+    {
+      "nombre": "Email",
+      "tipo": "texto"
     }
   ],
   "notas": "ID unico por turno (T+timestamp). Fecha en DD/MM/AAAA. Estado: Asignado | Reprogramado."

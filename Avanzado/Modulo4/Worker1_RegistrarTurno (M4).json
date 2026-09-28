@@ -48,7 +48,8 @@
             "Hora": "={{ $json.hora }}",
             "Nombre": "={{ $json.nombre }}",
             "Motivo": "={{ $json.motivo }}",
-            "Estado": "Asignado"
+            "Estado": "Asignado",
+            "Email": "={{ $json.email }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -111,6 +112,16 @@
               "type": "string",
               "canBeUsedToMatch": true,
               "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
             }
           ],
           "attemptToConvertTypes": false,
@@ -146,7 +157,7 @@
             {
               "id": "5f0cba2b-53f2-4d08-b635-2b1c566027d4",
               "name": "data",
-              "value": "={{ { \"id\": $json.ID, \"nombre\": $json.Nombre, \"fecha\": $json.Fecha, \"hora\": $json.Hora, \"motivo\": $json.Motivo, \"estado\": $json.Estado } }}",
+              "value": "={{ { \"id\": $json.ID, \"nombre\": $json.Nombre, \"fecha\": $json.Fecha, \"hora\": $json.Hora, \"motivo\": $json.Motivo, \"estado\": $json.Estado, \"email\": $json.Email } }}",
               "type": "object"
             }
           ]
