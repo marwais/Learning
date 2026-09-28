@@ -1,0 +1,1985 @@
+{
+  "name": "AI Automation Avanzado - M4",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "84072f2a-002e-4e2d-8ba8-4a019401c02c",
+      "name": "When chat message received",
+      "webhookId": "483cdcdc-4265-47d6-ae38-c1040555b9ea",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1760,
+        736
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Normalizar entrada').item.json.mensaje }}",
+        "options": {
+          "systemMessage": "### MEMORIA DE LARGO PLAZO (contexto recuperado de Airtable) ###\n[INICIO DE CONTEXTO COMPARTIDO]\nEstado del caso: {{ $json.estado }}\nResumen de la ultima charla: {{ $json.last_summary }}\nDatos clave del usuario: {{ $json.datos_clave }}\n[FIN DEL CONTEXTO COMPARTIDO]\nUsa ese contexto como memoria previa del usuario; si viene vacio, trata al usuario como nuevo y no inventes datos.\n\nSos el ROUTER de un estudio profesional (coordinacion de agenda). Clasifica el mensaje en esta taxonomia CERRADA: CREAR_TURNO, MODIFICAR_TURNO, CONSULTAR_TURNO, INFO, FUERA_DE_ALCANCE. Extrae los datos. IMPORTANTE con las fechas: NO calcules el anio ni la fecha completa; extrae solo numeros. nombre = persona; motivo = tipo de turno (ej. consulta, kinesiologia, cardiologia), vacio si no lo dice; Fecha OBJETIVO (la nueva, o la del turno a crear): dia (1-31), mes (1-12), anio (SOLO si el usuario lo dice explicitamente; si no, vacio), y hora. Turno ACTUAL a cambiar (solo si lo identifica por fecha/hora): dia_ref, mes_ref, anio_ref, hora_ref; si no, vacios. Responde EXCLUSIVAMENTE con un JSON valido, sin texto ni bloques de codigo: {\"intent\":\"CREAR_TURNO\",\"nombre\":\"\",\"motivo\":\"\",\"dia\":\"\",\"mes\":\"\",\"anio\":\"\",\"hora\":\"\",\"dia_ref\":\"\",\"mes_ref\":\"\",\"anio_ref\":\"\",\"hora_ref\":\"\"}. No inventes datos; deja vacio lo que no este. Espanol rioplatense, sin lenguaje inclusivo con @, x o e.\n\nADEMAS: extrae 'email' = correo electronico del paciente si aparece en el mensaje; si no aparece, dejalo vacio. Si el usuario quiere crear/modificar un turno y no dio su email, pediselo amablemente. Inclui la clave \"email\" en el JSON de salida.",
+          "maxIterations": 5
+        }
+      },
+      "id": "88ae7998-0b26-4a47-b573-99b1036947a4",
+      "name": "Router (AI Agent)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        144,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {}
+      },
+      "id": "85f4c17a-5f58-4362-8fa7-0babb657c740",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        512
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "qyqhv8Oy5wq4bqNd",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output ?? $input.first().json.text ?? '';\nlet o={};try{const m=String(raw).match(/\\{[\\s\\S]*\\}/);o=JSON.parse(m?m[0]:raw);}catch(e){o={};}\nconst now=new Date();\nfunction fut(d,mo,y){d=parseInt(d);mo=parseInt(mo);if(!d||!mo)return '';let year=y?parseInt(y):now.getFullYear();if(!y){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(new Date(year,mo-1,d)<t)year+=1;}return String(d).padStart(2,'0')+'/'+String(mo).padStart(2,'0')+'/'+year;}\nfunction hh(h){if(!h)return '';h=String(h).trim();if(/^[0-9]{1,2}$/.test(h))return h.padStart(2,'0')+':00';const m=h.match(/^([0-9]{1,2}):([0-9]{2})/);return m?m[1].padStart(2,'0')+':'+m[2]:h;}\nreturn [{ json: {\n  intent:o.intent||'FUERA_DE_ALCANCE', nombre:(o.nombre||($('Normalizar entrada').item.json.nombre_remitente||'')), motivo:o.motivo||'',\n  fecha:fut(o.dia,o.mes,o.anio), hora:hh(o.hora),\n  fecha_ref:fut(o.dia_ref,o.mes_ref,o.anio_ref), hora_ref:hh(o.hora_ref), email:(o.email||($('Normalizar entrada').item.json.email_entrada||''))\n} }];"
+      },
+      "id": "e1d116a9-6be0-4073-ad9c-4cc7b861b2d2",
+      "name": "Contrato de datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e893a959-5bef-4413-87d8-a03224f1345b",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "CREAR_TURNO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  },
+                  {
+                    "id": "816f5003-1902-440d-81b7-5ad82db629bf",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "MODIFICAR_TURNO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "GESTIONAR"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "23e79322-8c30-4dd4-a123-0d9ba6bd3f0a",
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "CONSULTAR_TURNO",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "CONSULTAR"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "49dff4b5-2bb9-4734-b100-3fe6dd9d6e53",
+      "name": "Enrutar por intencion",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1FnfK-V607EYWt8jKoiuStdJ19iP9iikDlFOXcvIEb_U",
+          "mode": "list",
+          "cachedResultName": "Agenda_Turnos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1FnfK-V607EYWt8jKoiuStdJ19iP9iikDlFOXcvIEb_U/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Nombre",
+              "lookupValue": "={{ $json.nombre }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d740e8bc-d23f-4711-918e-bd4a1eccc6a2",
+      "name": "Buscar turnos de la persona",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "alwaysOutputData": true,
+      "position": [
+        1040,
+        -192
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZLtSYc1x6IEDIsF",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const req=$('Contrato de datos').first().json;\nconst now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());\nfunction parseF(f){f=String(f||'').trim();let m=f.match(/^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=f.match(/^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(f);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());}\nfunction sameF(a,b){const x=parseF(a),y=parseF(b);return !!(x&&y&&x.getTime()===y.getTime());}\nconst n=s=>String(s??'').trim().toLowerCase();\nconst rows=$input.all().map(i=>i.json).filter(r=>r&&r.Nombre);\nconst mine=rows.filter(r=>n(r.Nombre)===n(req.nombre) && (function(){const d=parseF(r.Fecha);return d&&d>=today;})());\nlet target=null;\nif(req.motivo) target=mine.find(r=>n(r.Motivo)===n(req.motivo));\nif(!target&&req.fecha_ref&&req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref)&&n(r.Hora)===n(req.hora_ref));\nif(!target&&req.fecha_ref&&!req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref));\nlet out; const falta=[];\nif(!req.nombre) falta.push('nombre');\nif(target){\n  const nf=req.fecha||target.Fecha, nh=req.hora||target.Hora;\n  if(!req.fecha && !req.hora) falta.push('la nueva fecha u hora');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'Para modificar el turno faltan datos: '+falta.join(', ')+'.'}; }\n  else { const choque=mine.find(r=>r.ID!==target.ID&&sameF(r.Fecha,nf)&&n(r.Hora)===n(nh));\n    if(choque) out={accion:'rechazo',mensaje:'Ya tenés un turno el '+nf+' a las '+nh+'.'};\n    else out={accion:'modificar',id:target.ID,nombre:req.nombre,motivo:target.Motivo,fecha:nf,hora:nh}; }\n}else{\n  if(!req.fecha) falta.push('fecha');\n  if(!req.hora) falta.push('hora');\n  if(!req.motivo) falta.push('motivo');\n  if(!req.email) falta.push('email');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'No se puede agendar la cita: faltan datos obligatorios ('+falta.join(', ')+').'}; }\n  else if(req.motivo&&mine.find(r=>n(r.Motivo)===n(req.motivo))) out={accion:'rechazo',mensaje:'Ya tenés un turno para el motivo \"'+req.motivo+'\".'};\n  else if(mine.find(r=>sameF(r.Fecha,req.fecha)&&n(r.Hora)===n(req.hora))) out={accion:'rechazo',mensaje:'Ya tenés un turno el '+req.fecha+' a las '+req.hora+'.'};\n  else out={accion:'crear',nombre:req.nombre,motivo:req.motivo,fecha:req.fecha,hora:req.hora};\n}\nif(out && (out.accion==='crear'||out.accion==='modificar')) out.email = req.email || '';\nreturn [{ json: out }];"
+      },
+      "id": "2717b66b-b5ec-44a8-9223-27541d59eb29",
+      "name": "Resolver accion",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -192
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "20708930-1744-4433-822b-b5309e5d56d5",
+                    "leftValue": "={{ $json.accion }}",
+                    "rightValue": "crear",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "crear"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9c8237ca-e33e-4c7f-82d6-ffd12893da23",
+                    "leftValue": "={{ $json.accion }}",
+                    "rightValue": "modificar",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "modificar"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "635816cf-c933-4262-bb5e-2c0a9d064092",
+      "name": "Crear o modificar",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1344,
+        -208
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "5xnwCjGHZ1283HpO",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/o5y3UygTsi1rF9co",
+          "cachedResultName": "Worker1_RegistrarTurno (M4)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "30f127b4-3f7c-4f06-abbe-2aa430b7a527",
+      "name": "Registrar turno (Worker 1)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1584,
+        -352
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "0Whe74RqM1DqACur",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ZrukoBowO1aulUsZ",
+          "cachedResultName": "Worker4_ModificarTurno (M4)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "897f4517-1cdc-43ff-9351-b34af98f625d",
+      "name": "Modificar turno (Worker 4)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1584,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c7dc3c38-213d-4fd2-b0e3-c965f737a2e3",
+              "name": "status",
+              "value": "={{ $json.accion }}",
+              "type": "string"
+            },
+            {
+              "id": "a3b323bb-bd94-4cd0-bfb8-a3866f315c16",
+              "name": "data",
+              "value": "={{ { \"mensaje\": $json.mensaje } }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ae0e9c3f-0dbe-4891-886b-53f2716479a7",
+      "name": "Aviso (no se puede)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1584,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "aSnYVhEQkuu5QbCd",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/UolcVkKPA2jWl7g3",
+          "cachedResultName": "Worker2_Confirmacion (M4)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "c8c63343-ac83-4b9a-8eb8-c3c1fa331d34",
+      "name": "Confirmacion (Worker 2)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "Qxhvn46cyKJKRBuv",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/Xp6Hw7U0faUr7mde",
+          "cachedResultName": "Worker3_ConsultarTurno (M4)"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "62c76cf9-8440-4782-bc86-438455af4f15",
+      "name": "Consultar turno (Worker 3)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "mwaisburd@gmail.com",
+        "subject": "AgendaBot Multi-Agente - Log de ejecucion",
+        "emailType": "text",
+        "message": "=Log de trazabilidad - AgendaBot Multi-Agente\n\nIntent: {{ $('Contrato de datos').item.json.intent }}\nPedido (Router): {{ JSON.stringify($('Contrato de datos').item.json) }}\nResultado del flujo: {{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "7f1cea67-9fe4-438d-b051-4adb48f51f7c",
+      "name": "Log de trazabilidad",
+      "webhookId": "a7a8b43d-d3dc-49d7-9f24-12d8a067406a",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3296,
+        368
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LCpAQRDOeUUC99pU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appO1XQ6layHvQx6e",
+          "mode": "list",
+          "cachedResultName": "Memoria_Agente"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblaESzgrn2cxeBLT",
+          "mode": "list",
+          "cachedResultName": "Memoria_M4"
+        },
+        "filterByFormula": "={{ '{Session_ID} = \"' + String($json.sessionId).replace(/\"/g,'') + '\"' }}",
+        "options": {}
+      },
+      "id": "cf35f3b1-e0da-4724-b1dc-cc55df8fbed5",
+      "name": "Buscar memoria (Airtable)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "alwaysOutputData": true,
+      "position": [
+        -768,
+        496
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "tlRnBKsgQgEbyhnG",
+          "name": "Airtable Memoria M3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a0d64618-0850-40d0-af62-42248cd82906",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0db38962-1633-4424-a255-5039728ef910",
+      "name": "¿Usuario recurrente?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appO1XQ6layHvQx6e",
+          "mode": "list",
+          "cachedResultName": "Memoria_Agente"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblaESzgrn2cxeBLT",
+          "mode": "list",
+          "cachedResultName": "Memoria_M4"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Session_ID": "={{ $('Normalizar entrada').item.json.sessionId }}",
+            "Estado del Caso": "En Progreso",
+            "Fecha de Actualización": "={{ $now.toISO() }}",
+            "Resumen Consolidado": "",
+            "Datos Clave": "",
+            "Mensajes": 0
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha de Actualización",
+              "displayName": "Fecha de Actualización",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resumen Consolidado",
+              "displayName": "Resumen Consolidado",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estado del Caso",
+              "displayName": "Estado del Caso",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Datos Clave",
+              "displayName": "Datos Clave",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Mensajes",
+              "displayName": "Mensajes",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1f1e4f67-7f04-4fd5-8305-c9ea354abad5",
+      "name": "Crear registro inicial",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -304,
+        432
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "tlRnBKsgQgEbyhnG",
+          "name": "Airtable Memoria M3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rec = $('Buscar memoria (Airtable)').first().json || {};\nconst f = rec.fields || {};\nconst chat = $('Normalizar entrada').first().json || {};\nconst nuevo = !rec.id;\nreturn [{ json: {\n  session_id: nuevo ? (chat.sessionId || '') : (f['Session_ID'] || chat.sessionId),\n  es_nuevo: nuevo,\n  estado: nuevo ? 'En Progreso' : (f['Estado del Caso'] || ''),\n  last_summary: nuevo ? '' : (f['Resumen Consolidado'] || ''),\n  datos_clave: nuevo ? '' : (f['Datos Clave'] || ''),\n  mensajes: Number(f['Mensajes'] || 0) + 1\n} }];"
+      },
+      "id": "ead05c24-16e7-4c16-8a81-be23eef6c820",
+      "name": "Preparar contexto",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Normalizar entrada').item.json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "57807b50-1459-47f9-ae2e-ed3971a731e8",
+      "name": "Memoria de sesion",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1878c249-43b6-43a7-b2bb-cb0d8124b63b",
+              "leftValue": "={{ $('Preparar contexto').item.json.mensajes }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c048d222-b98a-4e43-89c7-4f10841b1066",
+      "name": "¿Más de 5 mensajes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3920,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-6",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {}
+      },
+      "id": "27c3be83-64e1-472a-a176-37c797ea0881",
+      "name": "Modelo mini (resumen)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        4336,
+        336
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "qyqhv8Oy5wq4bqNd",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=MEMORIA PREVIA: {{ $('Preparar contexto').item.json.last_summary || '(ninguna)' }} /// DATOS DEL TURNO: {{ $('Consolidar datos').item.json.datos_clave }} /// ULTIMO MENSAJE: {{ $('Normalizar entrada').item.json.mensaje }} /// INTENCION: {{ $('Contrato de datos').item.json.intent }}",
+        "options": {
+          "systemMessage": "Sos el consolidador de memoria de una agenda de clínica. Resumí el intercambio teniendo en cuenta paciente, motivo y turno si aparecen. Devolvé EXCLUSIVAMENTE un JSON valido, sin texto adicional ni bloques de código, con esta forma exacta:{\"asunto_principal\":\"\",\"puntos_clave\":[],\"accion_requerida\":\"\"}. asunto_principal = una frase de que paso en la conversacion. No incluyas HTML, logs ni la transcripcion. Espanol rioplatense.",
+          "maxIterations": 3
+        }
+      },
+      "id": "bf230e5a-9aad-4c99-9e3a-d4769682f6d7",
+      "name": "Resumir (LLM mini)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        4336,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $json.output || '';\nlet o={}; try{ const m=String(raw).match(/\\{[\\s\\S]*\\}/); o=JSON.parse(m?m[0]:raw); }catch(e){ o={}; }\nconst cons = $('Consolidar datos').first().json || {};\nconst accion = o.accion_requerida || '';\nreturn [{ json: {\n  session_id: cons.session_id,\n  resumen: o.asunto_principal || cons.last_summary || '',\n  datos_clave: cons.datos_clave + (accion ? (' | Accion: ' + accion) : ''),\n  estado: cons.estado,\n  mensajes: cons.mensajes\n} }];"
+      },
+      "id": "41d96f63-5634-44e9-a275-3233d1f35015",
+      "name": "Parsear resumen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4608,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appO1XQ6layHvQx6e",
+          "mode": "list",
+          "cachedResultName": "Memoria_Agente"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblaESzgrn2cxeBLT",
+          "mode": "list",
+          "cachedResultName": "Memoria_M4"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Session_ID"
+          ],
+          "value": {
+            "Session_ID": "={{ $('Consolidar datos').item.json.session_id }}",
+            "Datos Clave": "={{ $('Consolidar datos').item.json.datos_clave }}",
+            "Estado del Caso": "={{ $('Consolidar datos').item.json.estado }}",
+            "Fecha de Actualización": "={{ $now.toISO() }}",
+            "Mensajes": "={{ $('Consolidar datos').item.json.mensajes }}"
+          },
+          "schema": [
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha de Actualización",
+              "displayName": "Fecha de Actualización",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resumen Consolidado",
+              "displayName": "Resumen Consolidado",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estado del Caso",
+              "displayName": "Estado del Caso",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Datos Clave",
+              "displayName": "Datos Clave",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Mensajes",
+              "displayName": "Mensajes",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6b203074-08ea-4ac8-9c96-dc634be3624d",
+      "name": "Actualizar contador",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        4768,
+        512
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "tlRnBKsgQgEbyhnG",
+          "name": "Airtable Memoria M3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appO1XQ6layHvQx6e",
+          "mode": "list",
+          "cachedResultName": "Memoria_Agente"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblaESzgrn2cxeBLT",
+          "mode": "list",
+          "cachedResultName": "Memoria_M4"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Session_ID"
+          ],
+          "value": {
+            "Session_ID": "={{ $json.session_id }}",
+            "Resumen Consolidado": "={{ $json.resumen }}",
+            "Datos Clave": "={{ $json.datos_clave }}",
+            "Estado del Caso": "={{ $json.estado }}",
+            "Fecha de Actualización": "={{ $now.toISO() }}",
+            "Mensajes": "={{ $json.mensajes }}"
+          },
+          "schema": [
+            {
+              "id": "Session_ID",
+              "displayName": "Session_ID",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha de Actualización",
+              "displayName": "Fecha de Actualización",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resumen Consolidado",
+              "displayName": "Resumen Consolidado",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Estado del Caso",
+              "displayName": "Estado del Caso",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Datos Clave",
+              "displayName": "Datos Clave",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Mensajes",
+              "displayName": "Mensajes",
+              "type": "string",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5e16ef77-f77f-4cb1-8a1e-236c963217a0",
+      "name": "Guardar memoria (upsert)",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        4768,
+        128
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "tlRnBKsgQgEbyhnG",
+          "name": "Airtable Memoria M3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Preparar contexto').first().json || {};\nconst c = $('Contrato de datos').first().json || {};\nfunction field(s,key){ const parts=String(s||'').split('|'); for (const p of parts){ const t=p.trim(); if (t.toLowerCase().indexOf(key.toLowerCase()+':')===0) return t.slice(key.length+1).trim(); } return ''; }\nconst prev = ctx.datos_clave || '';\nconst nombre=(c.nombre||'').trim(), motivo=(c.motivo||'').trim(), turno=((c.fecha||'')+' '+(c.hora||'')).trim();\nconst paciente = nombre || field(prev,'Paciente');\nconst mot = motivo || field(prev,'Motivo');\nconst tur = turno || field(prev,'Turno');\nconst datos_clave = 'Paciente: ' + paciente + ' | Motivo: ' + mot + ' | Turno: ' + tur;\nreturn [{ json: { session_id: ctx.session_id, mensajes: ctx.mensajes, last_summary: ctx.last_summary, datos_clave: datos_clave, estado: ctx.estado || 'En Progreso' } }];"
+      },
+      "id": "d0f9e276-3895-4157-86de-6ad9d1bb50da",
+      "name": "Consolidar datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3728,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "id": "2a709ba7-d6b5-4f78-9bee-c2e1075d14a9",
+      "name": "Email entrante (Gmail Trigger)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1760,
+        464
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LCpAQRDOeUUC99pU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "d9f75e45-b5a1-47e9-8fd9-6a699ad31b69",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Auto-reply",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "c8bce807-98b6-437c-83c0-fc6dfd587c8c",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Out of office",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "7a978f2a-4bcb-4bcb-bb81-53f013bb5492",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Undeliverable",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "e9223400-5d7c-4f20-b453-c6a0610f0e4d",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "no-reply@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "e0c5ff6b-b05a-43e4-b9c4-2011214f9bc2",
+              "leftValue": "={{ $json.From }}",
+              "rightValue": "noreply@",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "5412ea65-0748-4fa1-b746-13475508256a",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "AgendaBot Multi-Agente",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "578ba250-b2c1-480c-b2b2-24f3f78975cd",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Log de ejecucion",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7e2ca355-c1b1-4369-ac1d-d6b4359349d5",
+      "name": "IF anti auto-reply",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1552,
+        464
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "7fc121d2-f045-4997-97d7-c70be5e9cffb",
+      "name": "Frenar auto-reply",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "46807cf5-8859-4e09-8d4b-8aa0a75cf088",
+              "name": "From",
+              "value": "={{ $json.From }}",
+              "type": "string"
+            },
+            {
+              "id": "5e7bb1a1-3314-40b4-9498-fb39197d28dc",
+              "name": "Subject",
+              "value": "={{ $json.Subject }}",
+              "type": "string"
+            },
+            {
+              "id": "9b59780a-0af4-427f-b06d-a6e9e92f0d38",
+              "name": "BodyText",
+              "value": "={{ $json.text || $json.snippet }}",
+              "type": "string"
+            },
+            {
+              "id": "bc39ec67-7756-4dcd-9c3c-801286b35cc5",
+              "name": "Email_valido",
+              "value": "={{ !!($json.From) }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d43e24ca-54c7-4c68-aa41-0df72c11dc39",
+      "name": "Limpiar payload (Set)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1344,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "operation": "search",
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "propertyName": "email",
+                    "value": "={{ $('Validar contacto (Set)').item.json.email }}"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "id": "e135210e-fba6-4c6d-9900-8d7fb761131b",
+      "name": "Buscar contacto (HubSpot)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "alwaysOutputData": true,
+      "position": [
+        2384,
+        -336
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hPGs8x3WWMPWG5Sk",
+          "name": "HubSpot AgendaBot (App Token)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0686b629-4297-4b40-bf39-de96f08f4d24",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4d4287fe-3ef7-4495-9ba9-bed9c1b9d18a",
+      "name": "Contacto existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "operation": "update"
+      },
+      "id": "0ba896f3-345b-4701-b9e5-0c494d0d6334",
+      "name": "Actualizar contacto (HubSpot)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        2752,
+        -432
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hPGs8x3WWMPWG5Sk",
+          "name": "HubSpot AgendaBot (App Token)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "appToken",
+        "operation": "create"
+      },
+      "id": "f2cd5881-81cc-4fa5-aab6-b286e0b9767f",
+      "name": "Crear contacto (HubSpot)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.1,
+      "position": [
+        2752,
+        -240
+      ],
+      "credentials": {
+        "hubspotAppToken": {
+          "id": "hPGs8x3WWMPWG5Sk",
+          "name": "HubSpot AgendaBot (App Token)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Confirmación de turno - {{ $('Contrato de datos').item.json.nombre }}",
+        "message": "=Hola {{ $('Contrato de datos').item.json.nombre }},\n\nBorrador de confirmación de tu turno de {{ $('Contrato de datos').item.json.motivo }} para el {{ $('Contrato de datos').item.json.fecha }} a las {{ $('Contrato de datos').item.json.hora }}.\n\n(Borrador generado automáticamente para revisión humana antes de enviar.)",
+        "options": {
+          "sendTo": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}"
+        }
+      },
+      "id": "3010a1dd-5bc3-422e-916b-1cc219fd6fea",
+      "name": "Crear borrador (Gmail)",
+      "webhookId": "d13d4efb-cbcd-4f5c-b713-3d670ce7a953",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2944,
+        -336
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LCpAQRDOeUUC99pU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C4YCJ2M60",
+          "mode": "list",
+          "cachedResultName": "soporte"
+        },
+        "text": "=:calendar: AgendaBot [{{ $('Normalizar entrada').item.json.canal }}] {{ $('Contrato de datos').item.json.intent }} - {{ $('Contrato de datos').item.json.nombre }} ({{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}) -> {{ $('Contrato de datos').item.json.fecha }} {{ $('Contrato de datos').item.json.hora }}",
+        "otherOptions": {}
+      },
+      "id": "b8ff5544-72f9-4875-9323-318369ec162a",
+      "name": "Notificar a soporte (Slack)",
+      "webhookId": "bb5c7313-6eba-42f4-962c-74457f1bf534",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3504,
+        368
+      ],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "M9PprPoqQvpvY6pT",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const j=$input.first().json||{};\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst rawFrom=String(j.From||\"\");\nconst m=rawFrom.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/);\nconst email=m?m[0]:\"\";\nlet disp = rawFrom.includes(\"<\") ? rawFrom.split(\"<\")[0] : \"\";\ndisp = disp.replace(/[\"']/g,\"\").trim();\nif(disp.includes(\"@\")) disp=\"\";\nconst sessionId=isEmail ? (email||rawFrom.replace(/[\"']/g,\"\")) : String(j.sessionId||\"\");\nconst mensaje=j.chatInput||j.BodyText||j.Subject||\"\";\nconst email_entrada=isEmail?email:\"\";\nconst nombre_remitente=isEmail?disp:\"\";\nconst canal=isEmail?\"email\":\"chat\";\nreturn [{ json: { sessionId, mensaje, email_entrada, nombre_remitente, canal } }];"
+      },
+      "id": "dbf9a484-a15a-426c-88d3-9ccc89242ae6",
+      "name": "Normalizar entrada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2856dc2b-ab2e-420c-97fb-e4929a264911",
+              "leftValue": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9c10d399-3a53-44ca-a1bd-a7f342bca36c",
+      "name": "¿Hay email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14790dc8-680f-4f0f-8f66-ec00e7124451",
+              "name": "email",
+              "value": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}",
+              "type": "string"
+            },
+            {
+              "id": "5a299b04-1b44-449a-b2f3-54f5ffe2f880",
+              "name": "firstname",
+              "value": "={{ $('Contrato de datos').item.json.nombre }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bef21268-f4be-48f6-91ac-465ef7208ac1",
+      "name": "Validar contacto (Set)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2192,
+        -336
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ed5f20c2-866c-4496-a6cd-6037f3eeaebe",
+              "leftValue": "={{ $('Normalizar entrada').item.json.canal }}",
+              "rightValue": "email",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "a6769a5e-9340-4ce7-b3c9-f31e10521c40",
+              "leftValue": "={{ $('Normalizar entrada').item.json.email_entrada }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bc563d4f-7bc1-414c-9944-e9b0f3c3072d",
+      "name": "¿Vino por email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Email entrante (Gmail Trigger)').item.json.id }}",
+        "emailType": "text",
+        "message": "=Hola,\n\n{{ $('Aviso (no se puede)').item.json.data.mensaje }}\n\nRespondé a este correo con el dato que falta y seguimos con tu turno.\n\n(Mensaje automático del asistente de agenda.)",
+        "options": {}
+      },
+      "id": "3fbdd377-84cc-414f-90f6-260fd59d1e95",
+      "name": "Responder al paciente (email)",
+      "webhookId": "8e00401f-f515-4561-801e-3bb33662565c",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2080,
+        16
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LCpAQRDOeUUC99pU",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje')\n     || 'Listo.';\nreturn [{ json: { output: m } }];"
+      },
+      "id": "22c79f6c-933f-42b2-a26e-252535394da9",
+      "name": "Responder al chat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4992,
+        320
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Normalizar entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Router (AI Agent)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router (AI Agent)": {
+      "main": [
+        [
+          {
+            "node": "Contrato de datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contrato de datos": {
+      "main": [
+        [
+          {
+            "node": "Enrutar por intencion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrutar por intencion": {
+      "main": [
+        [
+          {
+            "node": "Buscar turnos de la persona",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consultar turno (Worker 3)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar turnos de la persona": {
+      "main": [
+        [
+          {
+            "node": "Resolver accion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolver accion": {
+      "main": [
+        [
+          {
+            "node": "Crear o modificar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear o modificar": {
+      "main": [
+        [
+          {
+            "node": "Registrar turno (Worker 1)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Modificar turno (Worker 4)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Aviso (no se puede)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar turno (Worker 1)": {
+      "main": [
+        [
+          {
+            "node": "Confirmacion (Worker 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modificar turno (Worker 4)": {
+      "main": [
+        [
+          {
+            "node": "Confirmacion (Worker 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmacion (Worker 2)": {
+      "main": [
+        [
+          {
+            "node": "¿Hay email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar turno (Worker 3)": {
+      "main": [
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aviso (no se puede)": {
+      "main": [
+        [
+          {
+            "node": "¿Vino por email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar memoria (Airtable)": {
+      "main": [
+        [
+          {
+            "node": "¿Usuario recurrente?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Usuario recurrente?": {
+      "main": [
+        [
+          {
+            "node": "Preparar contexto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear registro inicial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear registro inicial": {
+      "main": [
+        [
+          {
+            "node": "Preparar contexto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar contexto": {
+      "main": [
+        [
+          {
+            "node": "Router (AI Agent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria de sesion": {
+      "ai_memory": [
+        [
+          {
+            "node": "Router (AI Agent)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log de trazabilidad": {
+      "main": [
+        [
+          {
+            "node": "Notificar a soporte (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Más de 5 mensajes?": {
+      "main": [
+        [
+          {
+            "node": "Resumir (LLM mini)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Actualizar contador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo mini (resumen)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Resumir (LLM mini)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resumir (LLM mini)": {
+      "main": [
+        [
+          {
+            "node": "Parsear resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parsear resumen": {
+      "main": [
+        [
+          {
+            "node": "Guardar memoria (upsert)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar datos": {
+      "main": [
+        [
+          {
+            "node": "¿Más de 5 mensajes?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email entrante (Gmail Trigger)": {
+      "main": [
+        [
+          {
+            "node": "IF anti auto-reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF anti auto-reply": {
+      "main": [
+        [
+          {
+            "node": "Frenar auto-reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Limpiar payload (Set)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limpiar payload (Set)": {
+      "main": [
+        [
+          {
+            "node": "Normalizar entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar contacto (HubSpot)": {
+      "main": [
+        [
+          {
+            "node": "Contacto existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacto existe?": {
+      "main": [
+        [
+          {
+            "node": "Actualizar contacto (HubSpot)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear contacto (HubSpot)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contacto (HubSpot)": {
+      "main": [
+        [
+          {
+            "node": "Crear borrador (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear contacto (HubSpot)": {
+      "main": [
+        [
+          {
+            "node": "Crear borrador (Gmail)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear borrador (Gmail)": {
+      "main": [
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar entrada": {
+      "main": [
+        [
+          {
+            "node": "Buscar memoria (Airtable)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay email?": {
+      "main": [
+        [
+          {
+            "node": "Validar contacto (Set)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar contacto (Set)": {
+      "main": [
+        [
+          {
+            "node": "Buscar contacto (HubSpot)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar a soporte (Slack)": {
+      "main": [
+        [
+          {
+            "node": "Consolidar datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Vino por email?": {
+      "main": [
+        [
+          {
+            "node": "Responder al paciente (email)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder al paciente (email)": {
+      "main": [
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar memoria (upsert)": {
+      "main": [
+        [
+          {
+            "node": "Responder al chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contador": {
+      "main": [
+        [
+          {
+            "node": "Responder al chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8e78e11f-6991-4c6c-bcf8-35ff3721c162",
+  "meta": {
+    "instanceId": "4f18d94e380895695fefcac0d3b48ce802e905f787465441984f37d641074459"
+  },
+  "nodeGroups": [],
+  "id": "z0hgFQa3TPxlWFQn",
+  "tags": []
+}
