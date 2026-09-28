@@ -26,9 +26,9 @@
       ],
       "parameters": {
         "promptType": "define",
-        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "text": "={{ $('Normalizar entrada').item.json.mensaje }}",
         "options": {
-          "systemMessage": "### MEMORIA DE LARGO PLAZO (contexto recuperado de Airtable) ###\n[INICIO DE CONTEXTO COMPARTIDO]\nEstado del caso: {{ $json.estado }}\nResumen de la ultima charla: {{ $json.last_summary }}\nDatos clave del usuario: {{ $json.datos_clave }}\n[FIN DEL CONTEXTO COMPARTIDO]\nUsa ese contexto como memoria previa del usuario; si viene vacio, trata al usuario como nuevo y no inventes datos.\n\nSos el ROUTER de un estudio profesional (coordinacion de agenda). Clasifica el mensaje en esta taxonomia CERRADA: CREAR_TURNO, MODIFICAR_TURNO, CONSULTAR_TURNO, INFO, FUERA_DE_ALCANCE. Extrae los datos. IMPORTANTE con las fechas: NO calcules el anio ni la fecha completa; extrae solo numeros. nombre = persona; motivo = tipo de turno (ej. consulta, kinesiologia, cardiologia), vacio si no lo dice; Fecha OBJETIVO (la nueva, o la del turno a crear): dia (1-31), mes (1-12), anio (SOLO si el usuario lo dice explicitamente; si no, vacio), y hora. Turno ACTUAL a cambiar (solo si lo identifica por fecha/hora): dia_ref, mes_ref, anio_ref, hora_ref; si no, vacios. Responde EXCLUSIVAMENTE con un JSON valido, sin texto ni bloques de codigo: {\"intent\":\"CREAR_TURNO\",\"nombre\":\"\",\"motivo\":\"\",\"dia\":\"\",\"mes\":\"\",\"anio\":\"\",\"hora\":\"\",\"dia_ref\":\"\",\"mes_ref\":\"\",\"anio_ref\":\"\",\"hora_ref\":\"\"}. No inventes datos; deja vacio lo que no este. Espanol rioplatense, sin lenguaje inclusivo con @, x o e.",
+          "systemMessage": "### MEMORIA DE LARGO PLAZO (contexto recuperado de Airtable) ###\n[INICIO DE CONTEXTO COMPARTIDO]\nEstado del caso: {{ $json.estado }}\nResumen de la ultima charla: {{ $json.last_summary }}\nDatos clave del usuario: {{ $json.datos_clave }}\n[FIN DEL CONTEXTO COMPARTIDO]\nUsa ese contexto como memoria previa del usuario; si viene vacio, trata al usuario como nuevo y no inventes datos.\n\nSos el ROUTER de un estudio profesional (coordinacion de agenda). Clasifica el mensaje en esta taxonomia CERRADA: CREAR_TURNO, MODIFICAR_TURNO, CONSULTAR_TURNO, INFO, FUERA_DE_ALCANCE. Extrae los datos. IMPORTANTE con las fechas: NO calcules el anio ni la fecha completa; extrae solo numeros. nombre = persona; motivo = tipo de turno (ej. consulta, kinesiologia, cardiologia), vacio si no lo dice; Fecha OBJETIVO (la nueva, o la del turno a crear): dia (1-31), mes (1-12), anio (SOLO si el usuario lo dice explicitamente; si no, vacio), y hora. Turno ACTUAL a cambiar (solo si lo identifica por fecha/hora): dia_ref, mes_ref, anio_ref, hora_ref; si no, vacios. Responde EXCLUSIVAMENTE con un JSON valido, sin texto ni bloques de codigo: {\"intent\":\"CREAR_TURNO\",\"nombre\":\"\",\"motivo\":\"\",\"dia\":\"\",\"mes\":\"\",\"anio\":\"\",\"hora\":\"\",\"dia_ref\":\"\",\"mes_ref\":\"\",\"anio_ref\":\"\",\"hora_ref\":\"\"}. No inventes datos; deja vacio lo que no este. Espanol rioplatense, sin lenguaje inclusivo con @, x o e.\n\nADEMAS: extrae 'email' = correo electronico del paciente si aparece en el mensaje; si no aparece, dejalo vacio. Si el usuario quiere crear/modificar un turno y no dio su email, pediselo amablemente. Inclui la clave \"email\" en el JSON de salida.",
           "maxIterations": 5
         }
       }
@@ -68,7 +68,7 @@
         320
       ],
       "parameters": {
-        "jsCode": "const raw = $input.first().json.output ?? $input.first().json.text ?? '';\nlet o={};try{const m=String(raw).match(/\\{[\\s\\S]*\\}/);o=JSON.parse(m?m[0]:raw);}catch(e){o={};}\nconst now=new Date();\nfunction fut(d,mo,y){d=parseInt(d);mo=parseInt(mo);if(!d||!mo)return '';let year=y?parseInt(y):now.getFullYear();if(!y){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(new Date(year,mo-1,d)<t)year+=1;}return String(d).padStart(2,'0')+'/'+String(mo).padStart(2,'0')+'/'+year;}\nfunction hh(h){if(!h)return '';h=String(h).trim();if(/^[0-9]{1,2}$/.test(h))return h.padStart(2,'0')+':00';const m=h.match(/^([0-9]{1,2}):([0-9]{2})/);return m?m[1].padStart(2,'0')+':'+m[2]:h;}\nreturn [{ json: {\n  intent:o.intent||'FUERA_DE_ALCANCE', nombre:o.nombre||'', motivo:o.motivo||'',\n  fecha:fut(o.dia,o.mes,o.anio), hora:hh(o.hora),\n  fecha_ref:fut(o.dia_ref,o.mes_ref,o.anio_ref), hora_ref:hh(o.hora_ref)\n} }];"
+        "jsCode": "const raw = $input.first().json.output ?? $input.first().json.text ?? '';\nlet o={};try{const m=String(raw).match(/\\{[\\s\\S]*\\}/);o=JSON.parse(m?m[0]:raw);}catch(e){o={};}\nconst now=new Date();\nfunction fut(d,mo,y){d=parseInt(d);mo=parseInt(mo);if(!d||!mo)return '';let year=y?parseInt(y):now.getFullYear();if(!y){const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());if(new Date(year,mo-1,d)<t)year+=1;}return String(d).padStart(2,'0')+'/'+String(mo).padStart(2,'0')+'/'+year;}\nfunction hh(h){if(!h)return '';h=String(h).trim();if(/^[0-9]{1,2}$/.test(h))return h.padStart(2,'0')+':00';const m=h.match(/^([0-9]{1,2}):([0-9]{2})/);return m?m[1].padStart(2,'0')+':'+m[2]:h;}\nreturn [{ json: {\n  intent:o.intent||'FUERA_DE_ALCANCE', nombre:o.nombre||'', motivo:o.motivo||'',\n  fecha:fut(o.dia,o.mes,o.anio), hora:hh(o.hora),\n  fecha_ref:fut(o.dia_ref,o.mes_ref,o.anio_ref), hora_ref:hh(o.hora_ref), email:(o.email||'')\n} }];"
       }
     },
     {
@@ -540,7 +540,7 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Session_ID": "={{ $('When chat message received').item.json.sessionId }}",
+            "Session_ID": "={{ $('Normalizar entrada').item.json.sessionId }}",
             "Estado del Caso": "En Progreso",
             "Fecha de Actualización": "={{ $now.toISO() }}",
             "Resumen Consolidado": "",
@@ -632,7 +632,7 @@
         320
       ],
       "parameters": {
-        "jsCode": "const rec = $('Buscar memoria (Airtable)').first().json || {};\nconst f = rec.fields || {};\nconst chat = $('When chat message received').first().json || {};\nconst nuevo = !rec.id;\nreturn [{ json: {\n  session_id: nuevo ? (chat.sessionId || '') : (f['Session_ID'] || chat.sessionId),\n  es_nuevo: nuevo,\n  estado: nuevo ? 'En Progreso' : (f['Estado del Caso'] || ''),\n  last_summary: nuevo ? '' : (f['Resumen Consolidado'] || ''),\n  datos_clave: nuevo ? '' : (f['Datos Clave'] || ''),\n  mensajes: Number(f['Mensajes'] || 0) + 1\n} }];"
+        "jsCode": "const rec = $('Buscar memoria (Airtable)').first().json || {};\nconst f = rec.fields || {};\nconst chat = $('Normalizar entrada').first().json || {};\nconst nuevo = !rec.id;\nreturn [{ json: {\n  session_id: nuevo ? (chat.sessionId || '') : (f['Session_ID'] || chat.sessionId),\n  es_nuevo: nuevo,\n  estado: nuevo ? 'En Progreso' : (f['Estado del Caso'] || ''),\n  last_summary: nuevo ? '' : (f['Resumen Consolidado'] || ''),\n  datos_clave: nuevo ? '' : (f['Datos Clave'] || ''),\n  mensajes: Number(f['Mensajes'] || 0) + 1\n} }];"
       }
     },
     {
@@ -646,7 +646,7 @@
       ],
       "parameters": {
         "sessionIdType": "customKey",
-        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "sessionKey": "={{ $('Normalizar entrada').item.json.sessionId }}",
         "contextWindowLength": 10
       }
     },
@@ -719,7 +719,7 @@
       ],
       "parameters": {
         "promptType": "define",
-        "text": "=MEMORIA PREVIA: {{ $('Preparar contexto').item.json.last_summary || '(ninguna)' }} /// DATOS DEL TURNO: {{ $('Consolidar datos').item.json.datos_clave }} /// ULTIMO MENSAJE: {{ $('When chat message received').item.json.chatInput }} /// INTENCION: {{ $('Contrato de datos').item.json.intent }}",
+        "text": "=MEMORIA PREVIA: {{ $('Preparar contexto').item.json.last_summary || '(ninguna)' }} /// DATOS DEL TURNO: {{ $('Consolidar datos').item.json.datos_clave }} /// ULTIMO MENSAJE: {{ $('Normalizar entrada').item.json.mensaje }} /// INTENCION: {{ $('Contrato de datos').item.json.intent }}",
         "options": {
           "systemMessage": "Sos el consolidador de memoria de una agenda de clínica. Resumí el intercambio teniendo en cuenta paciente, motivo y turno si aparecen. Devolvé EXCLUSIVAMENTE un JSON valido, sin texto adicional ni bloques de código, con esta forma exacta:{\"asunto_principal\":\"\",\"puntos_clave\":[],\"accion_requerida\":\"\"}. asunto_principal = una frase de que paso en la conversacion. No incluyas HTML, logs ni la transcripcion. Espanol rioplatense.",
           "maxIterations": 3
@@ -977,8 +977,8 @@
       "type": "n8n-nodes-base.gmailTrigger",
       "typeVersion": 1.2,
       "position": [
-        -896,
-        1040
+        -1240,
+        700
       ],
       "parameters": {
         "pollTimes": {
@@ -1003,8 +1003,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -624,
-        1040
+        -1040,
+        700
       ],
       "parameters": {
         "conditions": {
@@ -1063,8 +1063,8 @@
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        -368,
-        880
+        -840,
+        860
       ],
       "parameters": {}
     },
@@ -1074,8 +1074,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -368,
-        1120
+        -840,
+        640
       ],
       "parameters": {
         "assignments": {
@@ -1116,8 +1116,8 @@
       "typeVersion": 2.1,
       "alwaysOutputData": true,
       "position": [
-        -80,
-        1120
+        2380,
+        -240
       ],
       "parameters": {
         "authentication": "appToken",
@@ -1129,7 +1129,8 @@
                 "filterValues": [
                   {
                     "propertyName": "email",
-                    "value": "={{ $('Limpiar payload (Set)').item.json.From }}"
+                    "operator": "EQ",
+                    "value": "={{ $('Validar contacto (Set)').item.json.email }}"
                   }
                 ]
               }
@@ -1151,8 +1152,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        208,
-        1120
+        2560,
+        -240
       ],
       "parameters": {
         "conditions": {
@@ -1185,8 +1186,8 @@
       "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.1,
       "position": [
-        464,
-        1008
+        2740,
+        -340
       ],
       "parameters": {
         "authentication": "appToken",
@@ -1205,57 +1206,21 @@
       "type": "n8n-nodes-base.hubspot",
       "typeVersion": 2.1,
       "position": [
-        464,
-        1264
+        2740,
+        -140
       ],
       "parameters": {
         "authentication": "appToken",
-        "operation": "create"
+        "operation": "create",
+        "email": "={{ $('Validar contacto (Set)').item.json.email }}",
+        "additionalFields": {
+          "firstname": "={{ $('Validar contacto (Set)').item.json.firstname }}"
+        }
       },
       "credentials": {
         "hubspotAppToken": {
           "id": "hPGs8x3WWMPWG5Sk",
           "name": "HubSpot AgendaBot (App Token)"
-        }
-      }
-    },
-    {
-      "id": "ed1e3e82-27dd-4fec-b847-b9bbfe50a51a",
-      "name": "Redactar respuesta (AI Agent)",
-      "type": "@n8n/n8n-nodes-langchain.agent",
-      "typeVersion": 3.1,
-      "position": [
-        768,
-        1120
-      ],
-      "parameters": {
-        "promptType": "define",
-        "text": "=Sos un agente de atencion al cliente de una empresa. Redacta una respuesta breve, cordial y profesional al siguiente correo. Devolve SOLO el cuerpo de la respuesta, sin asunto ni firma.\n\nDe: { $('Limpiar payload (Set)').item.json.From }}\nAsunto: { $('Limpiar payload (Set)').item.json.Subject }}\nMensaje: { $('Limpiar payload (Set)').item.json.BodyText }}",
-        "options": {}
-      }
-    },
-    {
-      "id": "3417eb60-f5f1-4f6f-b000-f88398fed2b6",
-      "name": "Modelo Anthropic (borrador)",
-      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
-      "typeVersion": 1.3,
-      "position": [
-        768,
-        1328
-      ],
-      "parameters": {
-        "model": {
-          "__rl": true,
-          "value": "claude-sonnet-4-6",
-          "mode": "list",
-          "cachedResultName": "Claude Sonnet 4.6"
-        },
-        "options": {}
-      },
-      "credentials": {
-        "anthropicApi": {
-          "id": "qyqhv8Oy5wq4bqNd",
-          "name": "Anthropic account"
         }
       }
     },
@@ -1266,15 +1231,17 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1040,
-        1120
+        2940,
+        -240
       ],
       "parameters": {
         "resource": "draft",
-        "subject": "=RE: { $('Limpiar payload (Set)').item.json.Subject }}",
-        "message": "={{ $json.output }}",
+        "operation": "create",
+        "subject": "=Confirmacion de turno - {{ $('Contrato de datos').item.json.nombre }}",
+        "emailType": "text",
+        "message": "=Hola {{ $('Contrato de datos').item.json.nombre }},\n\nBorrador de confirmacion de tu turno de {{ $('Contrato de datos').item.json.motivo }} para el {{ $('Contrato de datos').item.json.fecha }} a las {{ $('Contrato de datos').item.json.hora }}.\n\n(Borrador generado automaticamente para revision humana antes de enviar.)",
         "options": {
-          "sendTo": "={{ $('Limpiar payload (Set)').item.json.From }}"
+          "sendTo": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}"
         }
       },
       "credentials": {
@@ -1291,8 +1258,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1328,
-        1120
+        2280,
+        540
       ],
       "parameters": {
         "select": "channel",
@@ -1302,7 +1269,7 @@
           "mode": "list",
           "cachedResultName": "soporte"
         },
-        "text": "=Nuevo borrador de respuesta generado para { $('Limpiar payload (Set)').item.json.From }} - Asunto: { $('Limpiar payload (Set)').item.json.Subject }}",
+        "text": "=:calendar: AgendaBot [{{ $('Normalizar entrada').item.json.canal }}] {{ $('Contrato de datos').item.json.intent }} - {{ $('Contrato de datos').item.json.nombre }} ({{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}) -> {{ $('Contrato de datos').item.json.fecha }} {{ $('Contrato de datos').item.json.hora }}",
         "otherOptions": {}
       },
       "credentials": {
@@ -1311,6 +1278,83 @@
           "name": "Slack AgendaBot (Bot Token)"
         }
       }
+    },
+    {
+      "id": "dbf9a484-a15a-426c-88d3-9ccc89242ae6",
+      "name": "Normalizar entrada",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -864,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const j=$input.first().json||{};\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst sessionId=j.sessionId||j.From||'';\nconst mensaje=j.chatInput||j.BodyText||j.Subject||'';\nconst email_entrada=isEmail?(j.From||''):'';\nconst canal=isEmail?'email':'chat';\nreturn [{ json: { sessionId, mensaje, email_entrada, canal } }];"
+      }
+    },
+    {
+      "id": "9c10d399-3a53-44ca-a1bd-a7f342bca36c",
+      "name": "¿Hay email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        -140
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2856dc2b-ab2e-420c-97fb-e4929a264911",
+              "leftValue": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bef21268-f4be-48f6-91ac-465ef7208ac1",
+      "name": "Validar contacto (Set)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2180,
+        -240
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14790dc8-680f-4f0f-8f66-ec00e7124451",
+              "name": "email",
+              "value": "={{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}",
+              "type": "string"
+            },
+            {
+              "id": "5a299b04-1b44-449a-b2f3-54f5ffe2f880",
+              "name": "firstname",
+              "value": "={{ $('Contrato de datos').item.json.nombre }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": false,
+        "options": {}
+      }
     }
   ],
   "connections": {
@@ -1318,7 +1362,7 @@
       "main": [
         [
           {
-            "node": "Buscar memoria (Airtable)",
+            "node": "Normalizar entrada",
             "type": "main",
             "index": 0
           }
@@ -1456,7 +1500,7 @@
       "main": [
         [
           {
-            "node": "Log de trazabilidad",
+            "node": "¿Hay email?",
             "type": "main",
             "index": 0
           }
@@ -1551,7 +1595,7 @@
       "main": [
         [
           {
-            "node": "Consolidar datos",
+            "node": "Notificar a soporte (Slack)",
             "type": "main",
             "index": 0
           }
@@ -1653,7 +1697,7 @@
       "main": [
         [
           {
-            "node": "Buscar contacto (HubSpot)",
+            "node": "Normalizar entrada",
             "type": "main",
             "index": 0
           }
@@ -1693,7 +1737,7 @@
       "main": [
         [
           {
-            "node": "Redactar respuesta (AI Agent)",
+            "node": "Crear borrador (Gmail)",
             "type": "main",
             "index": 0
           }
@@ -1701,28 +1745,6 @@
       ]
     },
     "Crear contacto (HubSpot)": {
-      "main": [
-        [
-          {
-            "node": "Redactar respuesta (AI Agent)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Modelo Anthropic (borrador)": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Redactar respuesta (AI Agent)",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Redactar respuesta (AI Agent)": {
       "main": [
         [
           {
@@ -1737,7 +1759,58 @@
       "main": [
         [
           {
-            "node": "Notificar a soporte (Slack)",
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar entrada": {
+      "main": [
+        [
+          {
+            "node": "Buscar memoria (Airtable)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Hay email?": {
+      "main": [
+        [
+          {
+            "node": "Validar contacto (Set)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar contacto (Set)": {
+      "main": [
+        [
+          {
+            "node": "Buscar contacto (HubSpot)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notificar a soporte (Slack)": {
+      "main": [
+        [
+          {
+            "node": "Consolidar datos",
             "type": "main",
             "index": 0
           }
