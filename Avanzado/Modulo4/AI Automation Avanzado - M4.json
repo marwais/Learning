@@ -1403,6 +1403,7 @@
     {
       "id": "3fbdd377-84cc-414f-90f6-260fd59d1e95",
       "name": "Responder al paciente (email)",
+      "webhookId": "8e00401f-f515-4561-801e-3bb33662565c",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
@@ -1423,8 +1424,20 @@
           "id": "LCpAQRDOeUUC99pU",
           "name": "Gmail account"
         }
-      },
-      "webhookId": "8e00401f-f515-4561-801e-3bb33662565c"
+      }
+    },
+    {
+      "id": "22c79f6c-933f-42b2-a26e-252535394da9",
+      "name": "Responder al chat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3320,
+        256
+      ],
+      "parameters": {
+        "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje')\n     || 'Listo.';\nreturn [{ json: { output: m } }];"
+      }
     }
   ],
   "connections": {
@@ -1910,6 +1923,28 @@
         [
           {
             "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardar memoria (upsert)": {
+      "main": [
+        [
+          {
+            "node": "Responder al chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actualizar contador": {
+      "main": [
+        [
+          {
+            "node": "Responder al chat",
             "type": "main",
             "index": 0
           }
