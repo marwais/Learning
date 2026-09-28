@@ -1060,6 +1060,24 @@
                 "type": "string",
                 "operation": "contains"
               }
+            },
+            {
+              "id": "5412ea65-0748-4fa1-b746-13475508256a",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "AgendaBot Multi-Agente",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "578ba250-b2c1-480c-b2b2-24f3f78975cd",
+              "leftValue": "={{ $json.Subject }}",
+              "rightValue": "Log de ejecucion",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
             }
           ]
         },
