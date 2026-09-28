@@ -1290,12 +1290,13 @@
           "cachedResultName": "soporte"
         },
         "text": "=:calendar: AgendaBot [{{ $('Normalizar entrada').item.json.canal }}] {{ $('Contrato de datos').item.json.intent }} - {{ $('Contrato de datos').item.json.nombre }} ({{ $('Contrato de datos').item.json.email || $('Normalizar entrada').item.json.email_entrada }}) -> {{ $('Contrato de datos').item.json.fecha }} {{ $('Contrato de datos').item.json.hora }}",
-        "otherOptions": {}
+        "otherOptions": {},
+        "authentication": "oAuth2"
       },
       "credentials": {
-        "slackApi": {
-          "id": "6kYo49Hy2suBgtSl",
-          "name": "Slack AgendaBot (Bot Token)"
+        "slackOAuth2Api": {
+          "id": "M9PprPoqQvpvY6pT",
+          "name": "Slack account"
         }
       }
     },
