@@ -1356,6 +1356,75 @@
         },
         "options": {}
       }
+    },
+    {
+      "id": "bc563d4f-7bc1-414c-9944-e9b0f3c3072d",
+      "name": "¿Vino por email?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        160
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ed5f20c2-866c-4496-a6cd-6037f3eeaebe",
+              "leftValue": "={{ $('Normalizar entrada').item.json.canal }}",
+              "rightValue": "email",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "a6769a5e-9340-4ce7-b3c9-f31e10521c40",
+              "leftValue": "={{ $('Normalizar entrada').item.json.email_entrada }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "3fbdd377-84cc-414f-90f6-260fd59d1e95",
+      "name": "Responder al paciente (email)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1980,
+        60
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Normalizar entrada').item.json.email_entrada }}",
+        "subject": "=Sobre tu pedido de turno",
+        "emailType": "text",
+        "message": "=Hola,\n\n{{ $('Aviso (no se puede)').item.json.data.mensaje }}\n\nRespondé a este correo con el dato que falta y seguimos con tu turno.\n\n(Mensaje automatico del asistente de agenda.)",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LCpAQRDOeUUC99pU",
+          "name": "Gmail account"
+        }
+      },
+      "webhookId": "8e00401f-f515-4561-801e-3bb33662565c"
     }
   ],
   "connections": {
@@ -1523,7 +1592,7 @@
       "main": [
         [
           {
-            "node": "Log de trazabilidad",
+            "node": "¿Vino por email?",
             "type": "main",
             "index": 0
           }
@@ -1812,6 +1881,35 @@
         [
           {
             "node": "Consolidar datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Vino por email?": {
+      "main": [
+        [
+          {
+            "node": "Responder al paciente (email)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log de trazabilidad",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder al paciente (email)": {
+      "main": [
+        [
+          {
+            "node": "Log de trazabilidad",
             "type": "main",
             "index": 0
           }
