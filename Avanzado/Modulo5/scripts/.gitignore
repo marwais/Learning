@@ -1,0 +1,5 @@
+# Secretos y artefactos generados (no versionar)
+.env
+kb_b64.txt
+__pycache__/
+*.pyc
