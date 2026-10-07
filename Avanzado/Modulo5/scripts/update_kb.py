@@ -7,8 +7,11 @@ recrear la coleccion Qdrant limpia. Despues SOLO falta correr el trigger
 
 Uso:  python update_kb.py
 """
-import sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+import sys
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 import extract_kb, update_codenode, recreate_qdrant
 
 print("1) Extrayendo texto de los .docx ...")

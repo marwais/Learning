@@ -4,8 +4,11 @@
 
 Requiere: pip install python-docx
 """
-import os, glob, json, base64, sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+import os, glob, json, base64, sys
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 from docx import Document
 from docx.oxml.ns import qn
 import _config as C

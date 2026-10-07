@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """Exporta los workflows de n8n (Manager M5 + 4 workers) a /Avanzado/Modulo5
 como JSON, para versionarlos en el repo."""
-import os, json, sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+import os, json, sys
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 import _config as C
 
 def save(name, wf):

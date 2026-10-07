@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """Mete el contenido de kb_b64.txt en el nodo Code "Cargar documentos LoDeTincho"
 del workflow de n8n (para que la ingesta use el texto actualizado)."""
-import sys, io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+import sys
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 import _config as C
 
 NODE = "Cargar documentos LoDeTincho"

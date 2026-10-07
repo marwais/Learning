@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """Verifica el estado de la coleccion Qdrant: cantidad de puntos y chequeo
 de que no queden datos viejos en los payloads."""
-import sys, io, json
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+import sys, json
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
 import _config as C
 
 OLD = ["0800-666-6587", "4493-2017", "1144932017", "4821-1600", "miportalclinicas"]
