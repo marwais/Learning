@@ -20,9 +20,9 @@ _load_env()
 
 N8N_BASE    = os.environ.get("N8N_BASE", "http://localhost:5678").rstrip("/")
 N8N_KEY     = os.environ.get("N8N_API_KEY", "")
-WORKFLOW_ID = os.environ.get("N8N_WORKFLOW_ID", "f1Yl3BRwYouF660l")
+WORKFLOW_ID = os.environ.get("N8N_WORKFLOW_ID", "ciy1C6pB26Urfmlj")
 QDRANT_URL  = os.environ.get("QDRANT_URL", "http://localhost:6333").rstrip("/")
-COLLECTION  = os.environ.get("QDRANT_COLLECTION", "lodetincho_kb")
+COLLECTION  = os.environ.get("QDRANT_COLLECTION", "kb_lodetincho_m5")
 EMBED_DIM   = int(os.environ.get("EMBED_DIM", "1024"))  # Cohere embed-multilingual-v3.0
 
 # Workers del M5 (para export_workflows.py)
@@ -31,12 +31,13 @@ WORKERS = {
     "Ft8psvxAlilfFKuw": "Worker2_Confirmacion (M5).json",
     "mC0rTN5ylCLiu6gX": "Worker3_ConsultarTurno (M5).json",
     "47lULDxTZa8YGKjj": "Worker4_ModificarTurno (M5).json",
+    "aEnYAA9K1l7YAwRj": "Tool_ConsultarConocimiento (M5).json",
 }
 
 HERE   = os.path.dirname(os.path.abspath(__file__))
 MOD5   = os.path.abspath(os.path.join(HERE, ".."))
 DOCDIR = os.path.join(MOD5, "documentacion")
-B64    = os.path.join(HERE, "kb_b64.txt")
+KBMD   = os.path.join(MOD5, "kb_md")  # markdown de LlamaParse (uno por documento)
 
 def n8n(method, path, body=None):
     if not N8N_KEY:

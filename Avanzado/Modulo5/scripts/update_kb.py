@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
-"""Ciclo completo de actualizacion del conocimiento del RAG.
+"""Ciclo completo de actualización del conocimiento del RAG.
 
-Hace: extraer texto de los .docx -> actualizar el nodo de ingesta en n8n ->
-recrear la coleccion Qdrant limpia. Despues SOLO falta correr el trigger
-"▶ Ingerir KB (RAG)" en n8n (Execute workflow).
+Hace: parsear los documentos nuevos/cambiados con LlamaParse (-> kb_md/) ->
+cargar el markdown en el nodo de ingesta de n8n. Después SOLO falta correr
+"▶ Ingerir KB (RAG)" en n8n, que recrea la colección de Qdrant y la vuelve a llenar.
 
-Uso:  python update_kb.py
+Uso:  python update_kb.py            # parsea solo lo que no tiene .md
+      python update_kb.py --force    # re-parsea todo
 """
 import sys
 try:
     sys.stdout.reconfigure(encoding="utf-8")
 except Exception:
     pass
-import extract_kb, update_codenode, recreate_qdrant
+import parse_kb, update_codenode
 
-print("1) Extrayendo texto de los .docx ...")
-extract_kb.main()
-print("\n2) Actualizando el nodo de ingesta en n8n ...")
+print("1) Parseando con LlamaParse ...")
+parse_kb.main(force="--force" in sys.argv)
+print("\n2) Cargando el markdown en el nodo de ingesta de n8n ...")
 update_codenode.main()
-print("\n3) Recreando la coleccion Qdrant (limpia) ...")
-recreate_qdrant.main()
-print("\n==> LISTO. Ahora en n8n: abri el workflow, desplega el boton")
+print("\n==> LISTO. Ahora en n8n: abrí el workflow M5, desplegá el botón")
 print("    'Execute workflow' -> 'from ▶ Ingerir KB (RAG)' y ejecutalo.")
-print("    Verifica con: python verify_qdrant.py")
+print("    Verificá con: python verify_qdrant.py")

@@ -1,0 +1,173 @@
+{
+  "id": "aEnYAA9K1l7YAwRj",
+  "name": "Tool_ConsultarConocimiento (M5)",
+  "nodes": [
+    {
+      "id": "t1",
+      "name": "Recibe consulta",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "consulta",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "t2",
+      "name": "Parámetros RAG",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "consulta",
+              "value": "={{ $json.consulta }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "top_k",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "a3",
+              "name": "min_score",
+              "value": 0.6,
+              "type": "number"
+            },
+            {
+              "id": "a4",
+              "name": "coleccion",
+              "value": "kb_lodetincho_m5",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "t3",
+      "name": "Embedding de la consulta (Cohere)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cohere.com/v2/embed",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "cohereApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'embed-multilingual-v3.0', input_type: 'search_query', embedding_types: ['float'], texts: [$json.consulta] }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "cohereApi": {
+          "id": "GIJyTK4Omxo0Qr5x",
+          "name": "Cohere n8n"
+        }
+      }
+    },
+    {
+      "id": "t4",
+      "name": "Buscar en Qdrant (Top-K + Min Score)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=http://host.docker.internal:6333/collections/{{ $('Parámetros RAG').first().json.coleccion }}/points/search",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vector: $json.embeddings.float[0], limit: $('Parámetros RAG').first().json.top_k, score_threshold: $('Parámetros RAG').first().json.min_score, with_payload: true }) }}",
+        "options": {}
+      }
+    },
+    {
+      "id": "t5",
+      "name": "Formatear fragmentos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Convierte los hits de Qdrant en un texto de fragmentos numerados con su fuente y score.\nconst p = $('Parámetros RAG').first().json;\nconst hits = $json.result || [];\nif (!hits.length) {\n  return [{ json: { resultado: `SIN_RESULTADOS: ningún fragmento superó el Minimum Score (${p.min_score}). Respondé \"No cuento con ese dato.\"` } }];\n}\nconst bloques = hits.map((h, i) => {\n  const md = (h.payload && h.payload.metadata) || {};\n  const texto = (h.payload && h.payload.content) || '';\n  return `[Fragmento ${i + 1}] fuente: ${md.source || '?'} | sección: ${md.section || '-'} | score: ${h.score.toFixed(3)}\\n${texto}`;\n});\nreturn [{ json: { resultado: bloques.join('\\n\\n---\\n\\n') } }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "Recibe consulta": {
+      "main": [
+        [
+          {
+            "node": "Parámetros RAG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parámetros RAG": {
+      "main": [
+        [
+          {
+            "node": "Embedding de la consulta (Cohere)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding de la consulta (Cohere)": {
+      "main": [
+        [
+          {
+            "node": "Buscar en Qdrant (Top-K + Min Score)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar en Qdrant (Top-K + Min Score)": {
+      "main": [
+        [
+          {
+            "node": "Formatear fragmentos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

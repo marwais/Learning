@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Exporta los workflows de n8n (Manager M5 + 4 workers) a /Avanzado/Modulo5
+"""Exporta los workflows de n8n (Manager M5 + 4 workers + herramienta RAG) a /Avanzado/Modulo5
 como JSON, para versionarlos en el repo."""
 import os, json, sys
 try:
@@ -10,7 +10,9 @@ import _config as C
 
 def save(name, wf):
     out = os.path.join(C.MOD5, name)
-    data = {"name": wf["name"], "nodes": wf["nodes"],
+    # El id se incluye para que `n8n import:workflow` lo conserve en otra máquina:
+    # el Manager llama a los workers y a la herramienta RAG por id.
+    data = {"id": wf["id"], "name": wf["name"], "nodes": wf["nodes"],
             "connections": wf["connections"],
             "settings": wf.get("settings", {"executionOrder": "v1"})}
     open(out, "w", encoding="utf-8", newline="").write(json.dumps(data, ensure_ascii=False, indent=2))
