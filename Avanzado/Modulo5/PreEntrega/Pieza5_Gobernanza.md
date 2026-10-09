@@ -1,6 +1,6 @@
 # Pieza 5 — Plan de gobernanza de la base de conocimiento (RAG)
 
-**Base de conocimiento:** 16 documentos institucionales de la Clínica LoDeTincho (sitio anonimizado). **Parseo:** LlamaParse, tier Agentic → markdown versionado en `kb_md/`. **Indexado:** n8n, un fragmento por sección → embeddings Cohere `embed-multilingual-v3.0` → **Qdrant persistente**, colección `kb_lodetincho_m5` (195 fragmentos). **Recuperación:** Top-K = 5, Minimum Score = 0.60. **Generación:** Claude Sonnet 4.6.
+**Base de conocimiento:** 16 documentos institucionales de la Clínica LoDeTincho (sitio anonimizado). **Parseo:** LlamaParse, tier Agentic → markdown versionado en `kb_md/`. **Indexado:** n8n, un fragmento por sección → embeddings Cohere `embed-multilingual-v3.0` → **Qdrant persistente**, colección `kb_lodetincho_m5` (195 fragmentos). **Recuperación:** Top-K = 5, Minimum Score = 0.60. **Generación:** Claude Sonnet 4.6, con memoria del paciente. **Validación de salida:** Claude Haiku 4.5.
 
 Objetivo: mantener la base **vigente, consistente y verificable**, y definir **cada cuánto se revisa, quién es responsable y con qué criterio se da de baja o se reemplaza un documento**.
 
@@ -63,6 +63,7 @@ Toda baja o reemplazo la **aprueba el Dueño** y la **ejecuta el Curador**. Qued
 | **Anonimización incompleta** | *Datos impositivos* y *Política de confidencialidad* nombran a "OMINT"; el bot atribuye esos datos a "la clínica". | Completar la anonimización o aclarar en el documento la relación entre la clínica y la razón social. |
 | **El parser alteró texto** | LlamaParse (tier Agentic) cambió "Billinghurst" por "Billinghamurst" y "lodetincho" por "lodetinho" en 5 documentos. | Control automático después de cada parseo: comparar las palabras del `.md` contra el texto del `.docx` y revisar las diferencias antes de ingerir. |
 | **Datos en tablas con recuperación frágil** | En la pregunta de IIBB Mendoza, la primera búsqueda devolvió 0 fragmentos sobre 0.60; recuperó al reformular. | Enriquecer los fragmentos de tabla con una frase descriptiva, o sumar búsqueda híbrida (palabras clave + vectores). |
+| **Tablas con varias normas en una celda** | En la regresión, el bot respondió "19/12 y 30/99" para la percepción de IIBB Mendoza (correcto: 30/99); el validador no lo detecta porque el texto existe en la fuente. | Enriquecer los fragmentos de tabla con una frase que nombre cada columna; revisar las respuestas sobre tablas en el set ciego. |
 | **Datos con vencimiento** | Certificados de no retención con vigencia hasta el 31/07/2026 y el 31/10/2026. | Agendar la revisión antes de cada vencimiento (sección 2). |
 
 ---
@@ -72,7 +73,8 @@ Toda baja o reemplazo la **aprueba el Dueño** y la **ejecuta el Curador**. Qued
 - **Set de preguntas ciegas:** al menos 5, con al menos una cuya respuesta esté fuera de la base y una basada en una tabla. Se renuevan las preguntas en cada corrida, para no "entrenar al examen", y se registran la precisión, las alucinaciones, la fidelidad de la cita y las fallas de recuperación.
 - **Umbral de aceptación:** **≥ 80 % de precisión y 0 alucinaciones.** Por debajo, se abre una acción correctiva antes de dar la base por "sana". Último resultado: 5/5 y 0 alucinaciones (pieza 4).
 - **Recalibración del Min Score:** si cambia el modelo de embeddings o el chunking, se repite la calibración (scores de preguntas dentro y fuera de la base) antes de fijar el umbral.
-- **Herramienta de auditoría:** `python scripts/ver_ejecuciones.py` muestra, para las últimas consultas, la intención detectada, la respuesta, las búsquedas que hizo el agente y los scores obtenidos.
+- **Validador de salida:** cada respuesta del RAG queda marcada como `aprobada`, `rechazada` o `no disponible`, con el motivo. En cada revisión mensual se leen los rechazos: un rechazo repetido sobre el mismo tema indica un documento faltante, un fragmento mal cortado o una regla del prompt que hay que ajustar. El validador controla respaldo, no interpretación (ver pieza 4), así que no reemplaza al set de preguntas ciegas.
+- **Herramienta de auditoría:** `python scripts/ver_ejecuciones.py` muestra, para las últimas consultas, la intención detectada, la respuesta enviada, el resultado del validador (y la respuesta bloqueada, si la hubo), las búsquedas que hizo el agente y los scores obtenidos.
 
 ---
 

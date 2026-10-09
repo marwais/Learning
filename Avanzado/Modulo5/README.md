@@ -6,12 +6,12 @@ Quinta etapa del proyecto integrador **AgendaBot** (curso AI Automation Avanzado
 
 ## Estado — RAG implementado (rehecho desde el M4, 2026-10-07)
 - **Workflows n8n** (el Manager se volvió a crear a partir del M4, apuntado a los recursos del M5):
-  - `AI Automation Avanzado - M5.json` (Manager, `ciy1C6pB26Urfmlj`): M4 + ruta **INFO** → **Agente RAG** + circuito de ingesta **▶ Ingerir KB**.
+  - `AI Automation Avanzado - M5.json` (Manager, `ciy1C6pB26Urfmlj`): M4 + ruta **INFO** → **Agente RAG** (con memoria del paciente: Airtable + sesión) → **validador de salida** (Claude Haiku) + circuito de ingesta **▶ Ingerir KB**.
   - `Tool_ConsultarConocimiento (M5).json` (`aEnYAA9K1l7YAwRj`): herramienta del agente con **Top-K = 5 y Min Score = 0.60** (Cohere → Qdrant `/points/search`).
   - `Worker1..4 (M5).json`: sin cambios respecto del M4, salvo los IDs de recursos.
 - **Base de conocimiento:** 16 documentos de `documentacion/` → **LlamaParse (Agentic)** → `kb_md/*.md` → chunking por sección → **Qdrant** `kb_lodetincho_m5` (195 fragmentos).
 - **Planilla** `Agenda_Turnos (05)` = `14NKpW0fGnngPTZmkgQssOQdj6-K4wVI13mIARFapT8A`. **Memoria** en `Memoria_Agente`, tabla `Memoria_M5` (`tblfxL2XyvTGtnvfl`).
-- **Pre-entrega:** `PreEntrega/PreEntrega_Modulo5_JulioMartinWaisburd.pdf`, generado con `PreEntrega/build_pdf.py` a partir de `Pieza1..5_*.md` y `capturas/`. Validación ciega: 5/5.
+- **Pre-entrega:** `PreEntrega/PreEntrega_Modulo5_JulioMartinWaisburd.pdf`, generado con `PreEntrega/build_pdf.py` a partir de `Pieza1..5_*.md` y `capturas/`. Validación ciega: 5/5; regresión con memoria y validador: 4 + 1 parcial, 0 falsos rechazos.
 - **Runbook:** [`scripts/README.md`](scripts/README.md).
 - **Intento 1** (In-Memory/Gemini → Qdrant, ingesta directa de los .docx): archivado en n8n como "M5 (intento 1)" y en el tag de git `m5-intento1`.
 

@@ -1480,7 +1480,7 @@
         320
       ],
       "parameters": {
-        "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Agente RAG (Consultas)','output')\n     || grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje')\n     || 'Listo.';\nreturn [{ json: { output: m } }];"
+        "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Aplicar validación','output')\n     || grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje')\n     || 'Listo.';\nreturn [{ json: { output: m } }];"
       }
     },
     {
@@ -1658,9 +1658,10 @@
       ],
       "parameters": {
         "promptType": "define",
-        "text": "={{ $('Normalizar entrada').first().json.mensaje }}",
+        "text": "={{ $('Normalizar entrada').first().json.mensaje }}\n\n(Recordatorio interno: si tu respuesta incluye datos de la clínica, consultá \"consultar_conocimiento\" en este turno antes de responder, aunque el dato haya aparecido antes en la conversación.)",
         "options": {
-          "systemMessage": "Sos el asistente de conocimiento de la Clínica LoDeTincho. Respondés consultas informativas de pacientes usando EXCLUSIVAMENTE la base documental oficial, a la que accedés con la herramienta \"consultar_conocimiento\".\n\n## 1. Recuperar antes de responder\n- Para toda consulta sobre la clínica, llamá primero a \"consultar_conocimiento\" con la pregunta del paciente (podés reformularla para que sea más precisa).\n- Si la pregunta tiene varias partes, podés llamarla una vez por parte.\n- Saludos y cortesía se responden sin consultar la herramienta.\n\n## 2. Responder solo con lo recuperado\n- Usá únicamente datos que aparezcan textualmente en los fragmentos devueltos.\n- No completes con datos plausibles: nada de teléfonos, mails, nombres, horarios, precios ni cifras que no estén en los fragmentos.\n- Si preguntan por algo puntual (por ejemplo, una especialidad) y los fragmentos solo traen información relacionada pero no eso exacto, decilo; no presentes lo relacionado como si fuera la respuesta.\n- No afirmes que la clínica NO ofrece algo solo porque no aparece en los fragmentos: la ausencia de un dato no es un dato; en ese caso aplicá la regla \"No sé\".\n- Si dos fragmentos se contradicen, informá ambos valores con su fuente en lugar de elegir uno.\n\n## 3. Regla \"No sé\"\nSi la herramienta devuelve SIN_RESULTADOS, probá UNA vez más reformulando la búsqueda con sinónimos o el nombre del tema (por ejemplo \"CUIT\" → \"datos impositivos razón social CUIT\"; \"precio\" → \"aranceles valores\"). Si después de eso sigue sin resultados, o los fragmentos no contienen la respuesta, respondé exactamente:\n\"No cuento con ese dato en la documentación de la clínica.\"\ny sugerí comunicarse con la Central de Turnos. En ese caso no agregues cita ni datos sacados de otros fragmentos.\n\n## 4. Citar la fuente\nCerrá toda respuesta basada en la documentación con la fuente de cada dato usado, una línea por fuente, con este formato:\n[Fuente: <fuente> — <sección>]\nusando los campos \"fuente\" y \"sección\" del fragmento.\n\n## 5. Estilo\nEspañol rioplatense, claro y breve (hasta ~150 palabras), con tildes correctas.\n"
+          "systemMessage": "=### MEMORIA DEL PACIENTE (conversaciones previas, desde Airtable) ###\nEstado del caso: {{ $('Preparar contexto').first().json.estado }}\nResumen de la última charla: {{ $('Preparar contexto').first().json.last_summary }}\nDatos clave: {{ $('Preparar contexto').first().json.datos_clave }}\n### FIN DE LA MEMORIA ###\nUsá la memoria y el historial de esta conversación SOLO para personalizar (por ejemplo, saludar por el nombre si lo conocés) y para entender repreguntas (\"¿y a qué hora?\"). Los datos sobre la clínica salen EXCLUSIVAMENTE de los fragmentos de \"consultar_conocimiento\", nunca de la memoria. Si la memoria está vacía, tratá al paciente como nuevo.\n\nSos el asistente de conocimiento de la Clínica LoDeTincho. Respondés consultas informativas de pacientes usando EXCLUSIVAMENTE la base documental oficial, a la que accedés con la herramienta \"consultar_conocimiento\".\n\n## 1. Recuperar antes de responder\n- Para toda consulta sobre la clínica, llamá primero a \"consultar_conocimiento\" con la pregunta del paciente (podés reformularla para que sea más precisa).\n- Si la pregunta tiene varias partes, podés llamarla una vez por parte.\n- Aunque el dato ya haya aparecido antes en la conversación, volvé a consultar la herramienta en cada respuesta que incluya datos de la clínica: el historial sirve para entender la pregunta (por ejemplo, \"¿y los sábados?\"), no como fuente. Un validador revisa cada respuesta contra los fragmentos recuperados EN ESTE TURNO: si das un dato sin haber llamado a la herramienta en este turno, la respuesta se rechaza.\n- Saludos y cortesía se responden sin consultar la herramienta.\n\n## 2. Responder solo con lo recuperado\n- Usá únicamente datos que aparezcan textualmente en los fragmentos devueltos.\n- No completes con datos plausibles: nada de teléfonos, mails, nombres, horarios, precios ni cifras que no estén en los fragmentos.\n- Si preguntan por algo puntual (por ejemplo, una especialidad) y los fragmentos solo traen información relacionada pero no eso exacto, decilo; no presentes lo relacionado como si fuera la respuesta.\n- No afirmes que la clínica NO ofrece algo solo porque no aparece en los fragmentos: la ausencia de un dato no es un dato; en ese caso aplicá la regla \"No sé\".\n- Si dos fragmentos se contradicen, informá ambos valores con su fuente en lugar de elegir uno.\n\n## 3. Regla \"No sé\"\nSi la herramienta devuelve SIN_RESULTADOS, probá UNA vez más reformulando la búsqueda con sinónimos o el nombre del tema (por ejemplo \"CUIT\" → \"datos impositivos razón social CUIT\"; \"precio\" → \"aranceles valores\"). Si después de eso sigue sin resultados, o los fragmentos no contienen la respuesta, respondé exactamente:\n\"No cuento con ese dato en la documentación de la clínica.\"\ny sugerí comunicarse con la Central de Turnos. En ese caso no agregues cita ni datos sacados de otros fragmentos.\n\n## 4. Citar la fuente\nCerrá toda respuesta basada en la documentación con la fuente de cada dato usado, una línea por fuente, con este formato:\n[Fuente: <fuente> — <sección>]\nusando los campos \"fuente\" y \"sección\" del fragmento.\n\n## 5. Estilo\nEspañol rioplatense, claro y breve (hasta ~150 palabras), con tildes correctas.\n",
+          "returnIntermediateSteps": true
         }
       }
     },
@@ -1740,7 +1741,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        1370,
+        1970,
         754
       ],
       "parameters": {
@@ -1784,14 +1785,14 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        1590,
+        2190,
         684
       ],
       "parameters": {
         "operation": "reply",
         "messageId": "={{ $('Email entrante (Gmail Trigger)').first().json.id }}",
         "emailType": "text",
-        "message": "=Hola,\n\n{{ $('Agente RAG (Consultas)').first().json.output }}\n\n(Respuesta automática del asistente de LoDeTincho.)",
+        "message": "=Hola,\n\n{{ $('Aplicar validación').first().json.output }}\n\n(Respuesta automática del asistente de LoDeTincho.)",
         "options": {}
       },
       "credentials": {
@@ -1799,6 +1800,93 @@
           "id": "LCpAQRDOeUUC99pU",
           "name": "Gmail account"
         }
+      }
+    },
+    {
+      "id": "b98230e2-33da-40c2-84b7-a360c6822a02",
+      "name": "Memoria de sesión (RAG)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        954
+      ],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Normalizar entrada').first().json.sessionId }}-rag",
+        "contextWindowLength": 6
+      }
+    },
+    {
+      "id": "25054d6a-a2ed-41b3-aee8-80457c796b9b",
+      "name": "Preparar validación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        754
+      ],
+      "parameters": {
+        "jsCode": "// Junta lo que el validador necesita: pregunta, respuesta y los fragmentos que devolvió la herramienta.\nconst steps = $json.intermediateSteps || [];\nconst frags = steps\n  .filter(s => s.action && s.action.tool === 'consultar_conocimiento')\n  .map(s => typeof s.observation === 'string' ? s.observation : JSON.stringify(s.observation));\nreturn [{ json: {\n  pregunta: $('Normalizar entrada').first().json.mensaje,\n  respuesta: $json.output || '',\n  fragmentos: frags.length ? frags.join('\\n\\n=====\\n\\n') : '(el asistente no consultó la base documental)',\n  busquedas: frags.length\n} }];\n"
+      }
+    },
+    {
+      "id": "f3f799bf-c18f-4a43-9d5b-eb6a8d3ef5c1",
+      "name": "Validador RAG",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput",
+      "position": [
+        1500,
+        754
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=PREGUNTA:\n{{ $json.pregunta }}\n\nFRAGMENTOS RECUPERADOS:\n{{ $json.fragmentos }}\n\nRESPUESTA DEL ASISTENTE:\n{{ $json.respuesta }}",
+        "options": {
+          "systemMessage": "Sos el validador de salida de un asistente RAG de la Clínica LoDeTincho. Recibís la PREGUNTA del paciente, los FRAGMENTOS que el asistente recuperó de la base documental y la RESPUESTA que piensa enviar.\n\nVerificá:\n1. Todo dato concreto sobre la clínica que aparezca en la RESPUESTA (teléfonos, mails, nombres de profesionales, horarios, precios, cifras, direcciones, resoluciones, servicios) está respaldado por los FRAGMENTOS. No cuentan como datos: saludos, el nombre del paciente, la sugerencia genérica de contactar a la Central de Turnos ni frases de cortesía.\n2. Si la RESPUESTA usa datos de los FRAGMENTOS, incluye al menos una cita con el formato [Fuente: ...].\n3. Si la RESPUESTA dice que no cuenta con el dato, no agrega datos ausentes de los FRAGMENTOS.\nUna respuesta a un saludo, sin datos de la clínica, se aprueba aunque no haya fragmentos.\n\nRespondé EXCLUSIVAMENTE con un JSON válido, sin texto adicional: {\"aprobado\": true, \"motivo\": \"frase breve\"}",
+          "maxIterations": 2
+        }
+      }
+    },
+    {
+      "id": "772aa0d1-66f8-4d84-ad5c-62d0496018e1",
+      "name": "Modelo validador (Haiku)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        1500,
+        954
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-haiku-4-5-20251001"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "qyqhv8Oy5wq4bqNd",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "7301476c-c777-4c67-ae5b-8fc2a521d7ef",
+      "name": "Aplicar validación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        754
+      ],
+      "parameters": {
+        "jsCode": "// Si el validador aprueba, sale la respuesta del agente; si la rechaza, sale una respuesta segura.\n// Si el validador falla (sin JSON válido), no se bloquea la respuesta: queda marcada como \"no disponible\".\nconst p = $('Preparar validación').first().json;\nlet v = {};\ntry {\n  const raw = String($json.output ?? $json.text ?? '');\n  const m = raw.match(/\\{[\\s\\S]*\\}/);\n  v = JSON.parse(m ? m[0] : raw);\n} catch (e) { v = {}; }\nconst disponible = typeof v.aprobado === 'boolean';\nconst aprobado = disponible ? v.aprobado : true;\nconst SEGURA = 'No cuento con ese dato en la documentación de la clínica. Te sugiero comunicarte con la Central de Turnos.';\nreturn [{ json: {\n  output: aprobado ? p.respuesta : SEGURA,\n  validacion: disponible ? (aprobado ? 'aprobada' : 'rechazada') : 'no disponible',\n  motivo: v.motivo || (disponible ? '' : 'el validador no devolvió un JSON válido'),\n  respuesta_original: p.respuesta,\n  busquedas: p.busquedas\n} }];\n"
       }
     }
   ],
@@ -2434,7 +2522,7 @@
       "main": [
         [
           {
-            "node": "¿Email? (INFO)",
+            "node": "Preparar validación",
             "type": "main",
             "index": 0
           }
@@ -2454,6 +2542,61 @@
           {
             "node": "Responder al chat",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar validación": {
+      "main": [
+        [
+          {
+            "node": "Validador RAG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validador RAG": {
+      "main": [
+        [
+          {
+            "node": "Aplicar validación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aplicar validación": {
+      "main": [
+        [
+          {
+            "node": "¿Email? (INFO)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria de sesión (RAG)": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agente RAG (Consultas)",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo validador (Haiku)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Validador RAG",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
