@@ -1,0 +1,31 @@
+{
+  "modulo": 6,
+  "out_dir": ".",
+  "n8n_base": "http://localhost:5678",
+  "workflows": {
+    "7ml1Rhe3miNhD1bK": "AI Automation Avanzado - M6.json",
+    "WbCdt7TwUGwz4w3v": "Worker1_RegistrarTurno (M6).json",
+    "Qls4HvCxOli2vPL8": "Worker2_Confirmacion (M6).json",
+    "fkK5HST1ACkB698Z": "Worker3_ConsultarTurno (M6).json",
+    "4WpLeSq0OK0SR7UW": "Worker4_ModificarTurno (M6).json",
+    "bokJvC78dCvIOOcf": "Tool_ConsultarConocimiento (M6).json"
+  },
+  "airtable_tables": [
+    {
+      "base": "appO1XQ6layHvQx6e",
+      "table": "tblk6hJg3wq5UG0Ur",
+      "base_name": "Memoria_M6"
+    }
+  ],
+  "google_sheets": [
+    {
+      "id": "1ite0UG7EYZBk4XCSDZN3GTXeRv6UkzZQhyPei2vc_D0",
+      "base_name": "Agenda_Turnos (06)"
+    }
+  ],
+  "drive_folder": {
+    "id": "1ss0I2z38rS36oC3c-yljB7F7YkXuBswH",
+    "name": "Entregas/06"
+  },
+  "qdrant_collection": "kb_lodetincho_m5"
+}
