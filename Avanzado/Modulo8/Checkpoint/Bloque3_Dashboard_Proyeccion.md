@@ -5,7 +5,14 @@
 | **A** — Sonnet 4.6 | 100% | 20% | 4,2/5 | 3.900 | US$ 0,0218 | **US$ 21,84** | 11,6 s |
 | **B** — Haiku 4.5 | 100% | 20% | 4,4/5 | 3.664 | US$ 0,0108 | **US$ 10,84** | 7,3 s |
 
-Coste por ejecución = agente + Juez. El Juez cuesta lo mismo en ambas (≈ US$ 0,0072 por ejecución): en B representa 59% del total.
+Coste por ejecución = agente + Juez. Desglose:
+
+| | Agente | Juez | Total | Peso del Juez |
+|---|---|---|---|---|
+| A — Sonnet 4.6 | US$ 0,0146 | US$ 0,0072 | US$ 0,0218 | 33 % |
+| B — Haiku 4.5 | US$ 0,0044 | US$ 0,0064 | US$ 0,0108 | 59 % |
+
+El Juez usa el mismo modelo en las dos arquitecturas (Sonnet 4.6), pero su coste varía un poco porque lee la respuesta y los fragmentos de cada agente. La diferencia de coste total entre A y B sale casi toda del agente: Haiku cuesta 3,3 veces menos. En B, el Juez pasa a ser la mayor parte del gasto.
 
 **Precisión y HITL juntos.** B no "gana" escalando más: tiene el mismo HITL Rate (20 %) que A, y en los dos casos es el de urgencia médica, que por diseño debe llegar a una persona. A paridad de precisión y de intervención humana, la diferencia está en el coste y la latencia.
 
