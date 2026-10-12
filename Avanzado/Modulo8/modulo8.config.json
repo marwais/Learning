@@ -1,0 +1,36 @@
+{
+  "modulo": 8,
+  "n8n_base": "http://localhost:5678",
+  "workflows": {
+    "RRZVbEQIOS2JOZ3P": "AI Automation Avanzado - M8.json",
+    "1KsEuWdlWBXHX1Sh": "Worker1_RegistrarTurno (M8).json",
+    "6EPmW6hcX4GuGkU6": "Worker2_Confirmacion (M8).json",
+    "lzAV2fPWPAIfvcFm": "Worker3_ConsultarTurno (M8).json",
+    "ybB4kRcw3sUdGlPD": "Worker4_ModificarTurno (M8).json",
+    "dC9nRHFzLbDvd79A": "Tool_ConsultarConocimiento (M8).json",
+    "3vqMzemD9TStDwi6": "SUPERVISOR_Judge (M8).json",
+    "CwyY9gYj3DGNU93P": "AB_Test (M8).json"
+  },
+  "airtable_tables": [
+    {
+      "base": "appO1XQ6layHvQx6e",
+      "table": "tbl9Jmni1XpwXnONw",
+      "base_name": "Memoria_M8"
+    }
+  ],
+  "google_sheets": [
+    {
+      "id": "1rsbwlKjYOln3QcH0drwmSunNUdY17GQmdWX8d6eR-18",
+      "base_name": "Agenda_Turnos (08)"
+    },
+    {
+      "id": "1O1894tGkQFttThtInYEBC9kb0AvHudRfPL60u4fZyEs",
+      "base_name": "QA_Veredictos (08)"
+    }
+  ],
+  "drive_folder": {
+    "id": "1_oljK2VbrHo0-FmsQmEY4nMSSOdbqv1I",
+    "name": "Entregas/08"
+  },
+  "qdrant_collection": "kb_lodetincho_m5"
+}

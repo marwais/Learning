@@ -9,3 +9,4 @@ Thumbs.db
 __pycache__/
 # HTML intermedio de los PDF de las pre-entregas
 Avanzado/*/PreEntrega/*.html
+Avanzado/*/Checkpoint/*.html

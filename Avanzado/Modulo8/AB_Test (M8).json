@@ -1,0 +1,359 @@
+{
+  "id": "CwyY9gYj3DGNU93P",
+  "name": "AB_Test (M8)",
+  "nodes": [
+    {
+      "id": "96344f70-7c33-4a6f-b946-7933ab2d8ba8",
+      "name": "Caso de prueba (webhook)",
+      "webhookId": "d8069794-4ff3-4b9e-9a24-0f8f6fb917ce",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ab-test-m8",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "5b141f4a-4495-4c55-b24a-77c3c4956b7a",
+      "name": "¿Arquitectura A o B?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "312600d0-6f40-411e-bc97-9d781d6f90e6",
+              "leftValue": "={{ $json.body.arquitectura }}",
+              "rightValue": "A",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "2e02ae46-e21f-4d0c-83d8-836199dc2ebe",
+      "name": "Agente A (Claude Sonnet 4.6)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        480,
+        120
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Caso de prueba (webhook)').first().json.body.pregunta }}",
+        "options": {
+          "systemMessage": "=Sos el asistente de conocimiento de la Clínica LoDeTincho. Respondés consultas informativas de pacientes usando EXCLUSIVAMENTE la base documental oficial, a la que accedés con la herramienta \"consultar_conocimiento\".\n\n## 1. Recuperar antes de responder\n- Para toda consulta sobre la clínica, llamá primero a \"consultar_conocimiento\" con la pregunta del paciente (podés reformularla para que sea más precisa).\n- Si la pregunta tiene varias partes, podés llamarla una vez por parte.\n- Aunque el dato ya haya aparecido antes en la conversación, volvé a consultar la herramienta en cada respuesta que incluya datos de la clínica: el historial sirve para entender la pregunta (por ejemplo, \"¿y los sábados?\"), no como fuente. Un validador revisa cada respuesta contra los fragmentos recuperados EN ESTE TURNO: si das un dato sin haber llamado a la herramienta en este turno, la respuesta se rechaza.\n- Saludos y cortesía se responden sin consultar la herramienta.\n\n## 2. Responder solo con lo recuperado\n- Usá únicamente datos que aparezcan textualmente en los fragmentos devueltos.\n- No completes con datos plausibles: nada de teléfonos, mails, nombres, horarios, precios ni cifras que no estén en los fragmentos.\n- Si preguntan por algo puntual (por ejemplo, una especialidad) y los fragmentos solo traen información relacionada pero no eso exacto, decilo; no presentes lo relacionado como si fuera la respuesta.\n- No afirmes que la clínica NO ofrece algo solo porque no aparece en los fragmentos: la ausencia de un dato no es un dato; en ese caso aplicá la regla \"No sé\".\n- Si dos fragmentos se contradicen, informá ambos valores con su fuente en lugar de elegir uno.\n\n## 3. Regla \"No sé\"\nSi la herramienta devuelve SIN_RESULTADOS, probá UNA vez más reformulando la búsqueda con sinónimos o el nombre del tema (por ejemplo \"CUIT\" → \"datos impositivos razón social CUIT\"; \"precio\" → \"aranceles valores\"). Si después de eso sigue sin resultados, o los fragmentos no contienen la respuesta, respondé exactamente:\n\"No cuento con ese dato en la documentación de la clínica.\"\ny sugerí comunicarse con la Central de Turnos. En ese caso no agregues cita ni datos sacados de otros fragmentos.\n\n## 4. Citar la fuente\nCerrá toda respuesta basada en la documentación con la fuente de cada dato usado, una línea por fuente, con este formato:\n[Fuente: <fuente> — <sección>]\nusando los campos \"fuente\" y \"sección\" del fragmento.\n\n## 5. Estilo\nEspañol rioplatense, claro y breve (hasta ~150 palabras), con tildes correctas.\n",
+          "returnIntermediateSteps": true
+        }
+      }
+    },
+    {
+      "id": "be65f220-22e5-4ba4-b6e6-ee0e433b9928",
+      "name": "Modelo A",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        420,
+        320
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "qyqhv8Oy5wq4bqNd",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "8d28bcce-f78c-48ff-a35a-3c04b8c98822",
+      "name": "Agente B (Claude Haiku 4.5)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        480,
+        520
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Caso de prueba (webhook)').first().json.body.pregunta }}",
+        "options": {
+          "systemMessage": "=Sos el asistente de conocimiento de la Clínica LoDeTincho. Respondés consultas informativas de pacientes usando EXCLUSIVAMENTE la base documental oficial, a la que accedés con la herramienta \"consultar_conocimiento\".\n\n## 1. Recuperar antes de responder\n- Para toda consulta sobre la clínica, llamá primero a \"consultar_conocimiento\" con la pregunta del paciente (podés reformularla para que sea más precisa).\n- Si la pregunta tiene varias partes, podés llamarla una vez por parte.\n- Aunque el dato ya haya aparecido antes en la conversación, volvé a consultar la herramienta en cada respuesta que incluya datos de la clínica: el historial sirve para entender la pregunta (por ejemplo, \"¿y los sábados?\"), no como fuente. Un validador revisa cada respuesta contra los fragmentos recuperados EN ESTE TURNO: si das un dato sin haber llamado a la herramienta en este turno, la respuesta se rechaza.\n- Saludos y cortesía se responden sin consultar la herramienta.\n\n## 2. Responder solo con lo recuperado\n- Usá únicamente datos que aparezcan textualmente en los fragmentos devueltos.\n- No completes con datos plausibles: nada de teléfonos, mails, nombres, horarios, precios ni cifras que no estén en los fragmentos.\n- Si preguntan por algo puntual (por ejemplo, una especialidad) y los fragmentos solo traen información relacionada pero no eso exacto, decilo; no presentes lo relacionado como si fuera la respuesta.\n- No afirmes que la clínica NO ofrece algo solo porque no aparece en los fragmentos: la ausencia de un dato no es un dato; en ese caso aplicá la regla \"No sé\".\n- Si dos fragmentos se contradicen, informá ambos valores con su fuente en lugar de elegir uno.\n\n## 3. Regla \"No sé\"\nSi la herramienta devuelve SIN_RESULTADOS, probá UNA vez más reformulando la búsqueda con sinónimos o el nombre del tema (por ejemplo \"CUIT\" → \"datos impositivos razón social CUIT\"; \"precio\" → \"aranceles valores\"). Si después de eso sigue sin resultados, o los fragmentos no contienen la respuesta, respondé exactamente:\n\"No cuento con ese dato en la documentación de la clínica.\"\ny sugerí comunicarse con la Central de Turnos. En ese caso no agregues cita ni datos sacados de otros fragmentos.\n\n## 4. Citar la fuente\nCerrá toda respuesta basada en la documentación con la fuente de cada dato usado, una línea por fuente, con este formato:\n[Fuente: <fuente> — <sección>]\nusando los campos \"fuente\" y \"sección\" del fragmento.\n\n## 5. Estilo\nEspañol rioplatense, claro y breve (hasta ~150 palabras), con tildes correctas.\n",
+          "returnIntermediateSteps": true
+        }
+      }
+    },
+    {
+      "id": "1ff51b49-ab46-407c-980d-85cbb67ffc67",
+      "name": "Modelo B",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        420,
+        720
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-haiku-4-5-20251001",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "qyqhv8Oy5wq4bqNd",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "id": "9f7bac02-0bfd-4107-af3d-b773774b5558",
+      "name": "consultar_conocimiento",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        620,
+        420
+      ],
+      "parameters": {
+        "description": "Busca en la base documental oficial de la Clínica LoDeTincho (especialidades y profesionales, turnos y canales de contacto, estudios, horarios, maternidad, residencias, novedades, legales). Devuelve los fragmentos más relevantes con su fuente, sección y score de similitud.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "dC9nRHFzLbDvd79A",
+          "cachedResultName": "Tool_ConsultarConocimiento (M8)",
+          "cachedResultUrl": "/workflow/dC9nRHFzLbDvd79A"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "consulta": "={{ $fromAI('consulta', 'Pregunta del paciente, reformulada para buscar en la documentación', 'string') }}"
+          },
+          "matchingColumns": [
+            "consulta"
+          ],
+          "schema": [
+            {
+              "id": "consulta",
+              "displayName": "consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      }
+    },
+    {
+      "id": "08425502-98e6-4d9b-b950-a7a10ebf1d42",
+      "name": "Preparar caso para el Juez",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        820,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Caso A/B para el Juez (sin memoria de paciente: es un caso de prueba).\nconst b = $('Caso de prueba (webhook)').first().json.body || {};\nconst steps = $json.intermediateSteps || [];\nconst frags = steps\n  .filter(s => s.action && String(s.action.tool || '').startsWith('consultar_conocimiento'))\n  .map(s => typeof s.observation === 'string' ? s.observation : JSON.stringify(s.observation));\nreturn [{ json: {\n  origen: 'ab_test', arquitectura: b.arquitectura, caso: b.caso, intento: 1, execution_id: $execution.id,\n  pregunta: b.pregunta, respuesta: b.respuesta_forzada || $json.output || '',  // respuesta_forzada: prueba de la ruta CORREGIR\n  fragmentos: frags.length ? frags.join('\\n\\n=====\\n\\n') : '(el asistente no consultó la base documental)',\n  busquedas: frags.length,\n  contexto_airtable: { estado: '', resumen: '(caso de prueba: paciente sin memoria previa)', datos_clave: '' }\n} }];"
+      }
+    },
+    {
+      "id": "2346938d-e4b0-40f5-af5f-7f18625e96b7",
+      "name": "Supervisor (Juez)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "3vqMzemD9TStDwi6",
+          "cachedResultName": "SUPERVISOR_Judge (M8)",
+          "cachedResultUrl": "/workflow/3vqMzemD9TStDwi6"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      }
+    },
+    {
+      "id": "5da3d037-c6d0-4ee6-bb8a-2914afc7e767",
+      "name": "Responder resultado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1260,
+        300
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Caso de prueba (webhook)": {
+      "main": [
+        [
+          {
+            "node": "¿Arquitectura A o B?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Arquitectura A o B?": {
+      "main": [
+        [
+          {
+            "node": "Agente A (Claude Sonnet 4.6)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agente B (Claude Haiku 4.5)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo A": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente A (Claude Sonnet 4.6)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_conocimiento": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agente A (Claude Sonnet 4.6)",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agente B (Claude Haiku 4.5)",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente A (Claude Sonnet 4.6)": {
+      "main": [
+        [
+          {
+            "node": "Preparar caso para el Juez",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo B": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agente B (Claude Haiku 4.5)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agente B (Claude Haiku 4.5)": {
+      "main": [
+        [
+          {
+            "node": "Preparar caso para el Juez",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar caso para el Juez": {
+      "main": [
+        [
+          {
+            "node": "Supervisor (Juez)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supervisor (Juez)": {
+      "main": [
+        [
+          {
+            "node": "Responder resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
