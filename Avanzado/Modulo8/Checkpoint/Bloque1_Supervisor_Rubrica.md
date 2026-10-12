@@ -16,6 +16,8 @@ El agente principal es el **Manager de AgendaBot** (construido del M1 al M6: mul
 | **Corregir (Self-Healing)** | `CORREGIR` (exactitud 2–3) | La crítica del Juez vuelve al Agente RAG como instrucción ("Tu respuesta anterior fue observada: … Generá una nueva versión"). **Máximo 2 reintentos** (contador por intento); al agotarse, escala |
 | **Escalar (HITL)** | `RECHAZADO` (exactitud 1, o riesgo: urgencia médica, datos sensibles, temas legales o de dinero), tope de reintentos o Juez inválido | Aviso al paciente + **Slack › Send and Wait** con botones **Aprobar** / **Editar**: la ejecución queda en pausa hasta que una persona decide (Editar abre un campo de texto para la respuesta corregida). Decida lo que decida, el caso se **deriva a un operador**: aviso en `#soporte` con canal y sesión para contactar al paciente, y al paciente se le informa que un operador lo va a contactar |
 
+*Send and Wait* de Slack es la implementación del patrón **Wait for Webhook**: el nodo publica la alerta con los botones y deja la ejecución en estado *waiting*; cada botón llama al webhook de reanudación de n8n, que retoma el flujo con la decisión (`approved: true/false`).
+
 *Normalizar veredicto* hace cumplir los umbrales aunque el modelo se equivoque: un ACEPTADO con exactitud menor a 4 baja a CORREGIR y un CORREGIR con exactitud 1 sube a RECHAZADO.
 
 **Evidencia en el Manager (chat de n8n).**
