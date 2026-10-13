@@ -1,0 +1,635 @@
+{
+ "id": "uWguW7styHDMhOD7",
+ "name": "Worker4_ModificarTurno (M9)",
+ "description": null,
+ "active": true,
+ "activeVersionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+ "createdAt": "2026-10-12T22:29:52.542Z",
+ "updatedAt": "2026-10-13T00:45:10.242Z",
+ "isArchived": false,
+ "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+ "versionCounter": 2,
+ "sourceWorkflowId": null,
+ "triggerCount": 0,
+ "nodes": [
+  {
+   "id": "27138163-04d9-4afb-b221-f62be3c89be3",
+   "name": "Cuando el Manager lo llama",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1,
+   "position": [
+    0,
+    0
+   ],
+   "parameters": {
+    "events": [
+     "worklfow_call"
+    ]
+   }
+  },
+  {
+   "id": "3e4c1afd-9144-4c2e-88f8-779d47d0d01f",
+   "name": "Actualizar turno en Sheets",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    240,
+    0
+   ],
+   "parameters": {
+    "operation": "update",
+    "documentId": {
+     "__rl": true,
+     "value": "18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo",
+     "mode": "list",
+     "cachedResultName": "Agenda_Turnos",
+     "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo/edit?usp=drivesdk"
+    },
+    "sheetName": {
+     "__rl": true,
+     "value": "gid=0",
+     "mode": "list",
+     "cachedResultName": "Hoja 1"
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "matchingColumns": [
+      "ID"
+     ],
+     "value": {
+      "ID": "={{ $json.id }}",
+      "Nombre": "={{ $json.nombre }}",
+      "Motivo": "={{ $json.motivo }}",
+      "Fecha": "={{ $json.fecha }}",
+      "Hora": "={{ $json.hora }}",
+      "Estado": "Reprogramado",
+      "traceId": "={{ $json.traceId }}"
+     },
+     "schema": [
+      {
+       "id": "ID",
+       "displayName": "ID",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Fecha",
+       "displayName": "Fecha",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Hora",
+       "displayName": "Hora",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Nombre",
+       "displayName": "Nombre",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Motivo",
+       "displayName": "Motivo",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Estado",
+       "displayName": "Estado",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "traceId",
+       "displayName": "traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      }
+     ],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": false
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "GZLtSYc1x6IEDIsF",
+     "name": "Google Sheets account"
+    }
+   }
+  },
+  {
+   "id": "5650f2ea-2d5a-45c5-905a-796f04d53cc7",
+   "name": "Devolver JSON",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    480,
+    0
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "68e0e025-e421-4848-b8f6-5d312594cac3",
+       "name": "traceId",
+       "value": "={{ $('Cuando el Manager lo llama').first().json.traceId }}",
+       "type": "string"
+      },
+      {
+       "id": "733a7b4a-1ef6-48ef-8959-343bc667ba86",
+       "name": "status",
+       "value": "success",
+       "type": "string"
+      },
+      {
+       "id": "c8a445fe-5b76-45a1-87a2-21c3b4e5c4c5",
+       "name": "data",
+       "value": "={{ { \"id\": $('Cuando el Manager lo llama').item.json.id, \"nombre\": $('Cuando el Manager lo llama').item.json.nombre, \"fecha\": $('Cuando el Manager lo llama').item.json.fecha, \"hora\": $('Cuando el Manager lo llama').item.json.hora, \"motivo\": $('Cuando el Manager lo llama').item.json.motivo, \"estado\": \"Reprogramado\" } }}",
+       "type": "object"
+      }
+     ]
+    },
+    "options": {}
+   }
+  }
+ ],
+ "connections": {
+  "Cuando el Manager lo llama": {
+   "main": [
+    [
+     {
+      "node": "Actualizar turno en Sheets",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Actualizar turno en Sheets": {
+   "main": [
+    [
+     {
+      "node": "Devolver JSON",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "nodeGroups": [],
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "pinData": null,
+ "meta": null,
+ "tags": [],
+ "shared": [
+  {
+   "role": "workflow:owner",
+   "workflowId": "uWguW7styHDMhOD7",
+   "projectId": "lYE2vdxUztdDDDaF",
+   "project": {
+    "id": "lYE2vdxUztdDDDaF",
+    "name": "Julio Martín Waisburd <mwaisburd@gmail.com>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-09-15T16:57:20.878Z",
+    "updatedAt": "2026-09-15T16:58:59.575Z"
+   },
+   "createdAt": "2026-10-12T22:29:52.545Z",
+   "updatedAt": "2026-10-12T22:29:52.545Z"
+  }
+ ],
+ "activeVersion": {
+  "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+  "workflowId": "uWguW7styHDMhOD7",
+  "nodes": [
+   {
+    "id": "27138163-04d9-4afb-b221-f62be3c89be3",
+    "name": "Cuando el Manager lo llama",
+    "type": "n8n-nodes-base.executeWorkflowTrigger",
+    "typeVersion": 1,
+    "position": [
+     0,
+     0
+    ],
+    "parameters": {
+     "events": [
+      "worklfow_call"
+     ]
+    }
+   },
+   {
+    "id": "3e4c1afd-9144-4c2e-88f8-779d47d0d01f",
+    "name": "Actualizar turno en Sheets",
+    "type": "n8n-nodes-base.googleSheets",
+    "typeVersion": 4.5,
+    "position": [
+     240,
+     0
+    ],
+    "parameters": {
+     "operation": "update",
+     "documentId": {
+      "__rl": true,
+      "value": "18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo",
+      "mode": "list",
+      "cachedResultName": "Agenda_Turnos",
+      "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo/edit?usp=drivesdk"
+     },
+     "sheetName": {
+      "__rl": true,
+      "value": "gid=0",
+      "mode": "list",
+      "cachedResultName": "Hoja 1"
+     },
+     "columns": {
+      "mappingMode": "defineBelow",
+      "matchingColumns": [
+       "ID"
+      ],
+      "value": {
+       "ID": "={{ $json.id }}",
+       "Nombre": "={{ $json.nombre }}",
+       "Motivo": "={{ $json.motivo }}",
+       "Fecha": "={{ $json.fecha }}",
+       "Hora": "={{ $json.hora }}",
+       "Estado": "Reprogramado",
+       "traceId": "={{ $json.traceId }}"
+      },
+      "schema": [
+       {
+        "id": "ID",
+        "displayName": "ID",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Fecha",
+        "displayName": "Fecha",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Hora",
+        "displayName": "Hora",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Nombre",
+        "displayName": "Nombre",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Motivo",
+        "displayName": "Motivo",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Estado",
+        "displayName": "Estado",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "traceId",
+        "displayName": "traceId",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       }
+      ],
+      "attemptToConvertTypes": false,
+      "convertFieldsToString": false
+     },
+     "options": {}
+    },
+    "credentials": {
+     "googleSheetsOAuth2Api": {
+      "id": "GZLtSYc1x6IEDIsF",
+      "name": "Google Sheets account"
+     }
+    }
+   },
+   {
+    "id": "5650f2ea-2d5a-45c5-905a-796f04d53cc7",
+    "name": "Devolver JSON",
+    "type": "n8n-nodes-base.set",
+    "typeVersion": 3.4,
+    "position": [
+     480,
+     0
+    ],
+    "parameters": {
+     "assignments": {
+      "assignments": [
+       {
+        "id": "68e0e025-e421-4848-b8f6-5d312594cac3",
+        "name": "traceId",
+        "value": "={{ $('Cuando el Manager lo llama').first().json.traceId }}",
+        "type": "string"
+       },
+       {
+        "id": "733a7b4a-1ef6-48ef-8959-343bc667ba86",
+        "name": "status",
+        "value": "success",
+        "type": "string"
+       },
+       {
+        "id": "c8a445fe-5b76-45a1-87a2-21c3b4e5c4c5",
+        "name": "data",
+        "value": "={{ { \"id\": $('Cuando el Manager lo llama').item.json.id, \"nombre\": $('Cuando el Manager lo llama').item.json.nombre, \"fecha\": $('Cuando el Manager lo llama').item.json.fecha, \"hora\": $('Cuando el Manager lo llama').item.json.hora, \"motivo\": $('Cuando el Manager lo llama').item.json.motivo, \"estado\": \"Reprogramado\" } }}",
+        "type": "object"
+       }
+      ]
+     },
+     "options": {}
+    }
+   }
+  ],
+  "connections": {
+   "Cuando el Manager lo llama": {
+    "main": [
+     [
+      {
+       "node": "Actualizar turno en Sheets",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Actualizar turno en Sheets": {
+    "main": [
+     [
+      {
+       "node": "Devolver JSON",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "nodeGroups": [],
+  "authors": "Julio Martín Waisburd",
+  "name": null,
+  "description": null,
+  "autosaved": false,
+  "createdAt": "2026-10-13T00:16:57.693Z",
+  "updatedAt": "2026-10-13T00:16:57.693Z",
+  "workflowPublishHistory": [
+   {
+    "id": 128,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:57.804Z"
+   },
+   {
+    "id": 130,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:58.017Z"
+   },
+   {
+    "id": 156,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.669Z"
+   },
+   {
+    "id": 158,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.885Z"
+   },
+   {
+    "id": 184,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.577Z"
+   },
+   {
+    "id": 186,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.793Z"
+   },
+   {
+    "id": 212,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.637Z"
+   },
+   {
+    "id": 214,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.847Z"
+   },
+   {
+    "id": 240,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.436Z"
+   },
+   {
+    "id": 242,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.664Z"
+   },
+   {
+    "id": 268,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.355Z"
+   },
+   {
+    "id": 270,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.564Z"
+   },
+   {
+    "id": 129,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:57.916Z"
+   },
+   {
+    "id": 155,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.648Z"
+   },
+   {
+    "id": 157,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.771Z"
+   },
+   {
+    "id": 183,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.560Z"
+   },
+   {
+    "id": 185,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.672Z"
+   },
+   {
+    "id": 211,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.620Z"
+   },
+   {
+    "id": 213,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.740Z"
+   },
+   {
+    "id": 239,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.415Z"
+   },
+   {
+    "id": 241,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.555Z"
+   },
+   {
+    "id": 267,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.336Z"
+   },
+   {
+    "id": 269,
+    "workflowId": "uWguW7styHDMhOD7",
+    "versionId": "df87be19-e4de-494f-b2fb-271e9dd6f0c4",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.429Z"
+   }
+  ]
+ }
+}

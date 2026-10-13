@@ -1,0 +1,369 @@
+{
+ "id": "iOHb0m9dvEewhhsX",
+ "name": "Worker2_Confirmacion (M9)",
+ "description": null,
+ "active": true,
+ "activeVersionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+ "createdAt": "2026-10-12T22:29:52.307Z",
+ "updatedAt": "2026-10-13T00:45:10.629Z",
+ "isArchived": false,
+ "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+ "versionCounter": 2,
+ "sourceWorkflowId": null,
+ "triggerCount": 0,
+ "nodes": [
+  {
+   "id": "2d1999da-648d-41ec-afd5-0db14b1147df",
+   "name": "Cuando el Manager lo llama",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1,
+   "position": [
+    0,
+    0
+   ],
+   "parameters": {
+    "events": [
+     "worklfow_call"
+    ]
+   }
+  },
+  {
+   "id": "7d8f69df-f62d-4a79-9d5b-2c00d68c9bee",
+   "name": "Redactar confirmacion",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    260,
+    0
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "b59803db-ab61-4cbb-908f-212ffc5245ae",
+       "name": "traceId",
+       "value": "={{ $json.traceId }}",
+       "type": "string"
+      },
+      {
+       "id": "46c9c3a6-07e6-4a74-98e0-16d10cacf4d2",
+       "name": "status",
+       "value": "success",
+       "type": "string"
+      },
+      {
+       "id": "6f135022-238a-4403-820e-d1367fd117a6",
+       "name": "data",
+       "value": "={{ { \"mensaje\": 'Hola ' + ($json.data.nombre || '') + ', tu turno de ' + ($json.data.motivo || '') + ' para el ' + ($json.data.fecha || '') + ' a las ' + ($json.data.hora || '') + ' quedó ' + ($json.data.estado || 'confirmado') + '.' } }}",
+       "type": "object"
+      }
+     ]
+    },
+    "options": {}
+   }
+  }
+ ],
+ "connections": {
+  "Cuando el Manager lo llama": {
+   "main": [
+    [
+     {
+      "node": "Redactar confirmacion",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "nodeGroups": [],
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "pinData": null,
+ "meta": null,
+ "tags": [],
+ "shared": [
+  {
+   "role": "workflow:owner",
+   "workflowId": "iOHb0m9dvEewhhsX",
+   "projectId": "lYE2vdxUztdDDDaF",
+   "project": {
+    "id": "lYE2vdxUztdDDDaF",
+    "name": "Julio Martín Waisburd <mwaisburd@gmail.com>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-09-15T16:57:20.878Z",
+    "updatedAt": "2026-09-15T16:58:59.575Z"
+   },
+   "createdAt": "2026-10-12T22:29:52.308Z",
+   "updatedAt": "2026-10-12T22:29:52.308Z"
+  }
+ ],
+ "activeVersion": {
+  "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+  "workflowId": "iOHb0m9dvEewhhsX",
+  "nodes": [
+   {
+    "id": "2d1999da-648d-41ec-afd5-0db14b1147df",
+    "name": "Cuando el Manager lo llama",
+    "type": "n8n-nodes-base.executeWorkflowTrigger",
+    "typeVersion": 1,
+    "position": [
+     0,
+     0
+    ],
+    "parameters": {
+     "events": [
+      "worklfow_call"
+     ]
+    }
+   },
+   {
+    "id": "7d8f69df-f62d-4a79-9d5b-2c00d68c9bee",
+    "name": "Redactar confirmacion",
+    "type": "n8n-nodes-base.set",
+    "typeVersion": 3.4,
+    "position": [
+     260,
+     0
+    ],
+    "parameters": {
+     "assignments": {
+      "assignments": [
+       {
+        "id": "b59803db-ab61-4cbb-908f-212ffc5245ae",
+        "name": "traceId",
+        "value": "={{ $json.traceId }}",
+        "type": "string"
+       },
+       {
+        "id": "46c9c3a6-07e6-4a74-98e0-16d10cacf4d2",
+        "name": "status",
+        "value": "success",
+        "type": "string"
+       },
+       {
+        "id": "6f135022-238a-4403-820e-d1367fd117a6",
+        "name": "data",
+        "value": "={{ { \"mensaje\": 'Hola ' + ($json.data.nombre || '') + ', tu turno de ' + ($json.data.motivo || '') + ' para el ' + ($json.data.fecha || '') + ' a las ' + ($json.data.hora || '') + ' quedó ' + ($json.data.estado || 'confirmado') + '.' } }}",
+        "type": "object"
+       }
+      ]
+     },
+     "options": {}
+    }
+   }
+  ],
+  "connections": {
+   "Cuando el Manager lo llama": {
+    "main": [
+     [
+      {
+       "node": "Redactar confirmacion",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "nodeGroups": [],
+  "authors": "Julio Martín Waisburd",
+  "name": null,
+  "description": null,
+  "autosaved": false,
+  "createdAt": "2026-10-13T00:16:58.078Z",
+  "updatedAt": "2026-10-13T00:16:58.078Z",
+  "workflowPublishHistory": [
+   {
+    "id": 132,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:58.192Z"
+   },
+   {
+    "id": 134,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:58.414Z"
+   },
+   {
+    "id": 160,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:41.086Z"
+   },
+   {
+    "id": 162,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:41.312Z"
+   },
+   {
+    "id": 188,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.966Z"
+   },
+   {
+    "id": 190,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:12.156Z"
+   },
+   {
+    "id": 216,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.999Z"
+   },
+   {
+    "id": 218,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:01.193Z"
+   },
+   {
+    "id": 244,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.818Z"
+   },
+   {
+    "id": 246,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:13.032Z"
+   },
+   {
+    "id": 272,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.765Z"
+   },
+   {
+    "id": 274,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.975Z"
+   },
+   {
+    "id": 133,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:58.318Z"
+   },
+   {
+    "id": 159,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:41.068Z"
+   },
+   {
+    "id": 161,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:41.213Z"
+   },
+   {
+    "id": 187,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.948Z"
+   },
+   {
+    "id": 189,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:12.060Z"
+   },
+   {
+    "id": 215,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.983Z"
+   },
+   {
+    "id": 217,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:01.090Z"
+   },
+   {
+    "id": 243,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.801Z"
+   },
+   {
+    "id": 245,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.925Z"
+   },
+   {
+    "id": 271,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.745Z"
+   },
+   {
+    "id": 273,
+    "workflowId": "iOHb0m9dvEewhhsX",
+    "versionId": "49093a8a-537a-4b82-a837-1c1af2761fec",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.870Z"
+   }
+  ]
+ }
+}

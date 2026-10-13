@@ -1,0 +1,84 @@
+{
+ "modelo": "claude-sonnet-4-6",
+ "fecha": "2026-10-12 21:23",
+ "escenarios": {
+  "A_prompt_sistema_RAG": {
+   "caracteres_bloque_fijo": 3502,
+   "pedidos": [
+    {
+     "pedido": 1,
+     "usage": {
+      "input_tokens": 22,
+      "cache_creation_input_tokens": 1077,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+       "ephemeral_5m_input_tokens": 1077,
+       "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "service_tier": "standard",
+      "inference_geo": "global"
+     },
+     "coste_usd": 0.005005
+    },
+    {
+     "pedido": 2,
+     "usage": {
+      "input_tokens": 27,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 1077,
+      "cache_creation": {
+       "ephemeral_5m_input_tokens": 0,
+       "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "service_tier": "standard",
+      "inference_geo": "global"
+     },
+     "coste_usd": 0.001304
+    }
+   ],
+   "coste_2_pedidos_con_cache": 0.006309,
+   "coste_2_pedidos_sin_cache": 0.008409
+  },
+  "B_manual_completo_KB": {
+   "caracteres_bloque_fijo": 64272,
+   "pedidos": [
+    {
+     "pedido": 1,
+     "usage": {
+      "input_tokens": 22,
+      "cache_creation_input_tokens": 23226,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+       "ephemeral_5m_input_tokens": 23226,
+       "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "service_tier": "standard",
+      "inference_geo": "global"
+     },
+     "coste_usd": 0.088064
+    },
+    {
+     "pedido": 2,
+     "usage": {
+      "input_tokens": 27,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 23226,
+      "cache_creation": {
+       "ephemeral_5m_input_tokens": 0,
+       "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "service_tier": "standard",
+      "inference_geo": "global"
+     },
+     "coste_usd": 0.007949
+    }
+   ],
+   "coste_2_pedidos_con_cache": 0.096013,
+   "coste_2_pedidos_sin_cache": 0.141303
+  }
+ }
+}

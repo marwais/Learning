@@ -1,0 +1,226 @@
+[
+ {
+  "id": "461",
+  "wf": "tool_rag",
+  "intent": "",
+  "traceId": "trc-20261013001742-460-vpek",
+  "tokens": {},
+  "start": "2026-10-13T00:17:50.287Z",
+  "stop": "2026-10-13T00:17:51.496Z"
+ },
+ {
+  "id": "462",
+  "wf": "supervisor",
+  "intent": "",
+  "traceId": "trc-20261013001742-460-vpek",
+  "tokens": {
+   "Modelo del Juez (Claude)": [
+    2140,
+    54,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:17:56.393Z",
+  "stop": "2026-10-13T00:17:59.238Z"
+ },
+ {
+  "id": "463",
+  "wf": "manager",
+  "intent": "CREAR_TURNO",
+  "traceId": "trc-20261013001859-463-7jif",
+  "tokens": {
+   "Anthropic Chat Model": [
+    999,
+    77,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:18:59.546Z",
+  "stop": "2026-10-13T00:19:05.233Z"
+ },
+ {
+  "id": "464",
+  "wf": "manager",
+  "intent": "",
+  "traceId": "",
+  "tokens": {},
+  "start": "2026-10-13T00:19:08.185Z",
+  "stop": "2026-10-13T00:19:08.226Z"
+ },
+ {
+  "id": "465",
+  "wf": "manager",
+  "intent": "CREAR_TURNO",
+  "traceId": "trc-20261013001937-465-ptj8",
+  "tokens": {
+   "Anthropic Chat Model": [
+    1161,
+    85,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:19:37.229Z",
+  "stop": "2026-10-13T00:19:44.983Z"
+ },
+ {
+  "id": "466",
+  "wf": "worker1",
+  "intent": "",
+  "traceId": "trc-20261013001937-465-ptj8",
+  "tokens": {},
+  "start": "2026-10-13T00:19:40.452Z",
+  "stop": "2026-10-13T00:19:41.683Z"
+ },
+ {
+  "id": "467",
+  "wf": "worker2",
+  "intent": "",
+  "traceId": "trc-20261013001937-465-ptj8",
+  "tokens": {},
+  "start": "2026-10-13T00:19:41.719Z",
+  "stop": "2026-10-13T00:19:41.735Z"
+ },
+ {
+  "id": "468",
+  "wf": "manager",
+  "intent": "",
+  "traceId": "",
+  "tokens": {},
+  "start": "2026-10-13T00:20:08.750Z",
+  "stop": "2026-10-13T00:20:08.796Z"
+ },
+ {
+  "id": "469",
+  "wf": "manager",
+  "intent": "FUERA_DE_ALCANCE",
+  "traceId": "trc-20261013002017-469-igej",
+  "tokens": {
+   "Anthropic Chat Model": [
+    1306,
+    65,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:20:17.003Z",
+  "stop": "2026-10-13T00:20:21.826Z"
+ },
+ {
+  "id": "470",
+  "wf": "manager",
+  "intent": "CONSULTAR_TURNO",
+  "traceId": "trc-20261013002059-470-vbzw",
+  "tokens": {
+   "Anthropic Chat Model": [
+    1397,
+    70,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:20:59.660Z",
+  "stop": "2026-10-13T00:21:05.255Z"
+ },
+ {
+  "id": "471",
+  "wf": "worker3",
+  "intent": "",
+  "traceId": "trc-20261013002059-470-vbzw",
+  "tokens": {},
+  "start": "2026-10-13T00:21:02.820Z",
+  "stop": "2026-10-13T00:21:03.475Z"
+ },
+ {
+  "id": "472",
+  "wf": "manager",
+  "intent": "",
+  "traceId": "",
+  "tokens": {},
+  "start": "2026-10-13T00:21:08.735Z",
+  "stop": "2026-10-13T00:21:08.775Z"
+ },
+ {
+  "id": "473",
+  "wf": "manager",
+  "intent": "INFO",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {
+   "Anthropic Chat Model": [
+    1507,
+    57,
+    1
+   ],
+   "Modelo RAG (Anthropic)": [
+    18292,
+    832,
+    4
+   ]
+  },
+  "start": "2026-10-13T00:21:23.520Z",
+  "stop": "2026-10-13T00:21:54.227Z"
+ },
+ {
+  "id": "474",
+  "wf": "tool_rag",
+  "intent": "",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {},
+  "start": "2026-10-13T00:21:28.783Z",
+  "stop": "2026-10-13T00:21:30.197Z"
+ },
+ {
+  "id": "475",
+  "wf": "tool_rag",
+  "intent": "",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {},
+  "start": "2026-10-13T00:21:30.228Z",
+  "stop": "2026-10-13T00:21:30.612Z"
+ },
+ {
+  "id": "476",
+  "wf": "supervisor",
+  "intent": "",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {
+   "Modelo del Juez (Claude)": [
+    2708,
+    206,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:21:35.874Z",
+  "stop": "2026-10-13T00:21:41.616Z"
+ },
+ {
+  "id": "477",
+  "wf": "tool_rag",
+  "intent": "",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {},
+  "start": "2026-10-13T00:21:43.572Z",
+  "stop": "2026-10-13T00:21:44.087Z"
+ },
+ {
+  "id": "478",
+  "wf": "tool_rag",
+  "intent": "",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {},
+  "start": "2026-10-13T00:21:44.121Z",
+  "stop": "2026-10-13T00:21:44.485Z"
+ },
+ {
+  "id": "479",
+  "wf": "supervisor",
+  "intent": "",
+  "traceId": "trc-20261013002123-473-gz6k",
+  "tokens": {
+   "Modelo del Juez (Claude)": [
+    2919,
+    54,
+    1
+   ]
+  },
+  "start": "2026-10-13T00:21:51.915Z",
+  "stop": "2026-10-13T00:21:54.116Z"
+ }
+]

@@ -1,0 +1,39 @@
+{
+  "modulo": 9,
+  "n8n_base": "http://localhost:5678",
+  "workflows": {
+    "GHkCpTeOoNfomfz2": "Tool_ConsultarConocimiento (M9).json",
+    "N0YFqMGhSSucql9D": "Worker1_RegistrarTurno (M9).json",
+    "iOHb0m9dvEewhhsX": "Worker2_Confirmacion (M9).json",
+    "hTRyhmb69Kuqn0Tv": "Worker3_ConsultarTurno (M9).json",
+    "uWguW7styHDMhOD7": "Worker4_ModificarTurno (M9).json",
+    "lwvjwJUMtMeQ4CGc": "SUPERVISOR_Judge (M9).json",
+    "PmVOscqplghfUYzU": "AI Automation Avanzado - M9.json"
+  },
+  "airtable_tables": [
+    {
+      "base": "appO1XQ6layHvQx6e",
+      "table": "tblNsEBHTVb0oLK1n",
+      "base_name": "Memoria_M9"
+    }
+  ],
+  "google_sheets": [
+    {
+      "id": "18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo",
+      "base_name": "Agenda_Turnos (09)"
+    },
+    {
+      "id": "1ras982C-ZORHtRIIBQ96PwPQVy9m0Op5CgZwVea-DLY",
+      "base_name": "QA_Veredictos (09)",
+      "pestanas": [
+        "Untitled (veredictos + log)",
+        "KPIs"
+      ]
+    }
+  ],
+  "drive_folder": {
+    "id": "15PZwmfrNUmO2r-2xTp4bK6sLteXEhn1s",
+    "name": "Entregas/09"
+  },
+  "qdrant_collection": "kb_lodetincho_m5"
+}

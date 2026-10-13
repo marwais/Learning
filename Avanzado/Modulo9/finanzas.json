@@ -1,0 +1,221 @@
+{
+ "supuestos": {
+  "dias_habiles_mes": 22,
+  "valor_hora_admin": 10000,
+  "valor_hora_tecnico": 20000,
+  "horas_mantenimiento_mes": 8,
+  "tipo_cambio": 1400,
+  "mensajes_por_gestion": 2,
+  "tasa_reintento_juez": 0.15,
+  "porcentaje_voz": 0.1,
+  "min_por_audio": 0.5,
+  "setup_horas": 80
+ },
+ "roi": [
+  {
+   "tarea": "Sacar un turno nuevo",
+   "volumen_mes": 1540,
+   "min": 4.0,
+   "horas_base": 102.7,
+   "autonomia": 0.8,
+   "horas_evitadas": 82.1,
+   "ahorro": 821333
+  },
+  {
+   "tarea": "Modificar o cancelar un turno",
+   "volumen_mes": 836,
+   "min": 3.0,
+   "horas_base": 41.8,
+   "autonomia": 0.7,
+   "horas_evitadas": 29.3,
+   "ahorro": 292600
+  },
+  {
+   "tarea": "Consulta informativa (RAG)",
+   "volumen_mes": 1584,
+   "min": 2.5,
+   "horas_base": 66.0,
+   "autonomia": 0.7,
+   "horas_evitadas": 46.2,
+   "ahorro": 462000
+  },
+  {
+   "tarea": "Confirmación o recordatorio",
+   "volumen_mes": 1540,
+   "min": 1.0,
+   "horas_base": 25.7,
+   "autonomia": 1.0,
+   "horas_evitadas": 25.7,
+   "ahorro": 256667
+  }
+ ],
+ "horas_evitadas": 183.3,
+ "beneficio": 1832600,
+ "ejecuciones_mes": 6336,
+ "info_mes": 1584,
+ "gestion_mes": 4752,
+ "router": 0.00476,
+ "escenarios": {
+  "Sin optimizar (M8)": {
+   "info": 47.25,
+   "gestion": 22.61,
+   "resumen": 9.5,
+   "total": 79.36,
+   "por_ejecucion": 0.01253
+  },
+  "M9 actual: Sonnet + caché + resumen Haiku": {
+   "info": 43.12,
+   "gestion": 22.61,
+   "resumen": 3.17,
+   "total": 68.9,
+   "por_ejecucion": 0.01087
+  },
+  "Recomendado: agente Haiku 4.5": {
+   "info": 27.21,
+   "gestion": 22.61,
+   "resumen": 3.17,
+   "total": 52.99,
+   "por_ejecucion": 0.00836
+  }
+ },
+ "por_consulta": {
+  "Optimista (1 intento, sin herramienta extra)": 0.0222,
+  "Realista (1 intento + Juez)": 0.0266,
+  "Fat loop (3 intentos: tope de 2 reintentos)": 0.0702
+ },
+ "ahorro_cache_loop": 0.222,
+ "tco_usd": [
+  [
+   "Tokens Claude (Router, Agente RAG, Juez, resumen)",
+   68.9,
+   "medido M8/M9 × volumen"
+  ],
+  [
+   "Whisper (transcripción de notas de voz)",
+   1.9,
+   "supuesto 10 % voz"
+  ],
+  [
+   "ElevenLabs (respuesta por voz, plan Creator)",
+   22.0,
+   "supuesto: respuestas ≤ 200 caracteres"
+  ],
+  [
+   "Embeddings Cohere (búsquedas RAG)",
+   0.1,
+   "~2 búsquedas × 20 tokens por consulta"
+  ],
+  [
+   "Qdrant Cloud (195 fragmentos)",
+   0.0,
+   "plan gratuito 1 GB"
+  ],
+  [
+   "n8n self-hosted (VPS 2 vCPU / 4 GB)",
+   24.0,
+   "supuesto"
+  ],
+  [
+   "Airtable Team (1 editor)",
+   20.0,
+   "supuesto; hoy plan gratuito"
+  ],
+  [
+   "Gmail, Sheets, Slack, HubSpot CRM, Telegram",
+   0.0,
+   "planes ya existentes o gratuitos"
+  ]
+ ],
+ "tco_total_usd": 136.9,
+ "mantenimiento": 160000,
+ "tco_pesos": 351660,
+ "neto": 1480940,
+ "roi_mensual": 4.21,
+ "setup": 1600000,
+ "payback_meses": 1.08,
+ "pico_extra_usd": 2.82,
+ "cache_api": {
+  "modelo": "claude-sonnet-4-6",
+  "fecha": "2026-10-12 21:23",
+  "escenarios": {
+   "A_prompt_sistema_RAG": {
+    "caracteres_bloque_fijo": 3502,
+    "pedidos": [
+     {
+      "pedido": 1,
+      "usage": {
+       "input_tokens": 22,
+       "cache_creation_input_tokens": 1077,
+       "cache_read_input_tokens": 0,
+       "cache_creation": {
+        "ephemeral_5m_input_tokens": 1077,
+        "ephemeral_1h_input_tokens": 0
+       },
+       "output_tokens": 60,
+       "service_tier": "standard",
+       "inference_geo": "global"
+      },
+      "coste_usd": 0.005005
+     },
+     {
+      "pedido": 2,
+      "usage": {
+       "input_tokens": 27,
+       "cache_creation_input_tokens": 0,
+       "cache_read_input_tokens": 1077,
+       "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+       },
+       "output_tokens": 60,
+       "service_tier": "standard",
+       "inference_geo": "global"
+      },
+      "coste_usd": 0.001304
+     }
+    ],
+    "coste_2_pedidos_con_cache": 0.006309,
+    "coste_2_pedidos_sin_cache": 0.008409
+   },
+   "B_manual_completo_KB": {
+    "caracteres_bloque_fijo": 64272,
+    "pedidos": [
+     {
+      "pedido": 1,
+      "usage": {
+       "input_tokens": 22,
+       "cache_creation_input_tokens": 23226,
+       "cache_read_input_tokens": 0,
+       "cache_creation": {
+        "ephemeral_5m_input_tokens": 23226,
+        "ephemeral_1h_input_tokens": 0
+       },
+       "output_tokens": 60,
+       "service_tier": "standard",
+       "inference_geo": "global"
+      },
+      "coste_usd": 0.088064
+     },
+     {
+      "pedido": 2,
+      "usage": {
+       "input_tokens": 27,
+       "cache_creation_input_tokens": 0,
+       "cache_read_input_tokens": 23226,
+       "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+       },
+       "output_tokens": 60,
+       "service_tier": "standard",
+       "inference_geo": "global"
+      },
+      "coste_usd": 0.007949
+     }
+    ],
+    "coste_2_pedidos_con_cache": 0.096013,
+    "coste_2_pedidos_sin_cache": 0.141303
+   }
+  }
+ }
+}

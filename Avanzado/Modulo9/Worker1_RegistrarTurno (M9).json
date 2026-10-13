@@ -1,0 +1,653 @@
+{
+ "id": "N0YFqMGhSSucql9D",
+ "name": "Worker1_RegistrarTurno (M9)",
+ "description": null,
+ "active": true,
+ "activeVersionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+ "createdAt": "2026-10-12T22:29:52.225Z",
+ "updatedAt": "2026-10-13T00:45:09.741Z",
+ "isArchived": false,
+ "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+ "versionCounter": 2,
+ "sourceWorkflowId": null,
+ "triggerCount": 0,
+ "nodes": [
+  {
+   "id": "27b5fcb3-be59-406a-aaf5-0e624455ecb8",
+   "name": "Cuando el Manager lo llama",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1,
+   "position": [
+    0,
+    0
+   ],
+   "parameters": {
+    "events": [
+     "worklfow_call"
+    ]
+   }
+  },
+  {
+   "id": "29b5768b-db57-47c5-b304-a553db6d85aa",
+   "name": "Registrar en Agenda_Turnos",
+   "type": "n8n-nodes-base.googleSheets",
+   "typeVersion": 4.5,
+   "position": [
+    240,
+    0
+   ],
+   "parameters": {
+    "operation": "append",
+    "documentId": {
+     "__rl": true,
+     "value": "18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo",
+     "mode": "list",
+     "cachedResultName": "Agenda_Turnos",
+     "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo/edit?usp=drivesdk"
+    },
+    "sheetName": {
+     "__rl": true,
+     "value": "gid=0",
+     "mode": "list",
+     "cachedResultName": "Hoja 1"
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "ID": "={{ 'T' + $now.toMillis() }}",
+      "Fecha": "={{ $json.fecha }}",
+      "Hora": "={{ $json.hora }}",
+      "Nombre": "={{ $json.nombre }}",
+      "Motivo": "={{ $json.motivo }}",
+      "Estado": "Asignado",
+      "Email": "={{ $json.email }}",
+      "traceId": "={{ $json.traceId }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "ID",
+       "displayName": "ID",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Fecha",
+       "displayName": "Fecha",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Hora",
+       "displayName": "Hora",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Nombre",
+       "displayName": "Nombre",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Motivo",
+       "displayName": "Motivo",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Estado",
+       "displayName": "Estado",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Email",
+       "displayName": "Email",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "traceId",
+       "displayName": "traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      }
+     ],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": false
+    },
+    "options": {}
+   },
+   "credentials": {
+    "googleSheetsOAuth2Api": {
+     "id": "GZLtSYc1x6IEDIsF",
+     "name": "Google Sheets account"
+    }
+   }
+  },
+  {
+   "id": "ceccd396-537c-4ad7-a84d-0d3d9e14b9de",
+   "name": "Devolver JSON",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    480,
+    0
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "cba972ef-1622-47f1-b196-d0b750f4c8de",
+       "name": "traceId",
+       "value": "={{ $('Cuando el Manager lo llama').first().json.traceId }}",
+       "type": "string"
+      },
+      {
+       "id": "47049728-eea4-4f71-bb42-1f9f76bbea46",
+       "name": "status",
+       "value": "success",
+       "type": "string"
+      },
+      {
+       "id": "5f0cba2b-53f2-4d08-b635-2b1c566027d4",
+       "name": "data",
+       "value": "={{ { \"id\": $json.ID, \"nombre\": $json.Nombre, \"fecha\": $json.Fecha, \"hora\": $json.Hora, \"motivo\": $json.Motivo, \"estado\": $json.Estado, \"email\": $json.Email } }}",
+       "type": "object"
+      }
+     ]
+    },
+    "options": {}
+   }
+  }
+ ],
+ "connections": {
+  "Cuando el Manager lo llama": {
+   "main": [
+    [
+     {
+      "node": "Registrar en Agenda_Turnos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar en Agenda_Turnos": {
+   "main": [
+    [
+     {
+      "node": "Devolver JSON",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "nodeGroups": [],
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "pinData": null,
+ "meta": null,
+ "tags": [],
+ "shared": [
+  {
+   "role": "workflow:owner",
+   "workflowId": "N0YFqMGhSSucql9D",
+   "projectId": "lYE2vdxUztdDDDaF",
+   "project": {
+    "id": "lYE2vdxUztdDDDaF",
+    "name": "Julio Martín Waisburd <mwaisburd@gmail.com>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-09-15T16:57:20.878Z",
+    "updatedAt": "2026-09-15T16:58:59.575Z"
+   },
+   "createdAt": "2026-10-12T22:29:52.227Z",
+   "updatedAt": "2026-10-12T22:29:52.227Z"
+  }
+ ],
+ "activeVersion": {
+  "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+  "workflowId": "N0YFqMGhSSucql9D",
+  "nodes": [
+   {
+    "id": "27b5fcb3-be59-406a-aaf5-0e624455ecb8",
+    "name": "Cuando el Manager lo llama",
+    "type": "n8n-nodes-base.executeWorkflowTrigger",
+    "typeVersion": 1,
+    "position": [
+     0,
+     0
+    ],
+    "parameters": {
+     "events": [
+      "worklfow_call"
+     ]
+    }
+   },
+   {
+    "id": "29b5768b-db57-47c5-b304-a553db6d85aa",
+    "name": "Registrar en Agenda_Turnos",
+    "type": "n8n-nodes-base.googleSheets",
+    "typeVersion": 4.5,
+    "position": [
+     240,
+     0
+    ],
+    "parameters": {
+     "operation": "append",
+     "documentId": {
+      "__rl": true,
+      "value": "18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo",
+      "mode": "list",
+      "cachedResultName": "Agenda_Turnos",
+      "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18iDnwiUt6kEU_bXB2UHsOaYP0RVLD4ERWGFVgR8LGYo/edit?usp=drivesdk"
+     },
+     "sheetName": {
+      "__rl": true,
+      "value": "gid=0",
+      "mode": "list",
+      "cachedResultName": "Hoja 1"
+     },
+     "columns": {
+      "mappingMode": "defineBelow",
+      "value": {
+       "ID": "={{ 'T' + $now.toMillis() }}",
+       "Fecha": "={{ $json.fecha }}",
+       "Hora": "={{ $json.hora }}",
+       "Nombre": "={{ $json.nombre }}",
+       "Motivo": "={{ $json.motivo }}",
+       "Estado": "Asignado",
+       "Email": "={{ $json.email }}",
+       "traceId": "={{ $json.traceId }}"
+      },
+      "matchingColumns": [],
+      "schema": [
+       {
+        "id": "ID",
+        "displayName": "ID",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Fecha",
+        "displayName": "Fecha",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Hora",
+        "displayName": "Hora",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Nombre",
+        "displayName": "Nombre",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Motivo",
+        "displayName": "Motivo",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Estado",
+        "displayName": "Estado",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "Email",
+        "displayName": "Email",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       },
+       {
+        "id": "traceId",
+        "displayName": "traceId",
+        "required": false,
+        "defaultMatch": false,
+        "display": true,
+        "type": "string",
+        "canBeUsedToMatch": true,
+        "removed": false
+       }
+      ],
+      "attemptToConvertTypes": false,
+      "convertFieldsToString": false
+     },
+     "options": {}
+    },
+    "credentials": {
+     "googleSheetsOAuth2Api": {
+      "id": "GZLtSYc1x6IEDIsF",
+      "name": "Google Sheets account"
+     }
+    }
+   },
+   {
+    "id": "ceccd396-537c-4ad7-a84d-0d3d9e14b9de",
+    "name": "Devolver JSON",
+    "type": "n8n-nodes-base.set",
+    "typeVersion": 3.4,
+    "position": [
+     480,
+     0
+    ],
+    "parameters": {
+     "assignments": {
+      "assignments": [
+       {
+        "id": "cba972ef-1622-47f1-b196-d0b750f4c8de",
+        "name": "traceId",
+        "value": "={{ $('Cuando el Manager lo llama').first().json.traceId }}",
+        "type": "string"
+       },
+       {
+        "id": "47049728-eea4-4f71-bb42-1f9f76bbea46",
+        "name": "status",
+        "value": "success",
+        "type": "string"
+       },
+       {
+        "id": "5f0cba2b-53f2-4d08-b635-2b1c566027d4",
+        "name": "data",
+        "value": "={{ { \"id\": $json.ID, \"nombre\": $json.Nombre, \"fecha\": $json.Fecha, \"hora\": $json.Hora, \"motivo\": $json.Motivo, \"estado\": $json.Estado, \"email\": $json.Email } }}",
+        "type": "object"
+       }
+      ]
+     },
+     "options": {}
+    }
+   }
+  ],
+  "connections": {
+   "Cuando el Manager lo llama": {
+    "main": [
+     [
+      {
+       "node": "Registrar en Agenda_Turnos",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Registrar en Agenda_Turnos": {
+    "main": [
+     [
+      {
+       "node": "Devolver JSON",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "nodeGroups": [],
+  "authors": "Julio Martín Waisburd",
+  "name": null,
+  "description": null,
+  "autosaved": false,
+  "createdAt": "2026-10-13T00:16:57.351Z",
+  "updatedAt": "2026-10-13T00:16:57.351Z",
+  "workflowPublishHistory": [
+   {
+    "id": 124,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:57.471Z"
+   },
+   {
+    "id": 126,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:57.631Z"
+   },
+   {
+    "id": 152,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.214Z"
+   },
+   {
+    "id": 154,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.439Z"
+   },
+   {
+    "id": 180,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.208Z"
+   },
+   {
+    "id": 182,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.420Z"
+   },
+   {
+    "id": 208,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.207Z"
+   },
+   {
+    "id": 210,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.459Z"
+   },
+   {
+    "id": 236,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.077Z"
+   },
+   {
+    "id": 238,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.279Z"
+   },
+   {
+    "id": 264,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:09.969Z"
+   },
+   {
+    "id": 266,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.177Z"
+   },
+   {
+    "id": 125,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:57.529Z"
+   },
+   {
+    "id": 151,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.186Z"
+   },
+   {
+    "id": 153,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:40.319Z"
+   },
+   {
+    "id": 179,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.187Z"
+   },
+   {
+    "id": 181,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:11.318Z"
+   },
+   {
+    "id": 207,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.187Z"
+   },
+   {
+    "id": 209,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:00.322Z"
+   },
+   {
+    "id": 235,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.054Z"
+   },
+   {
+    "id": 237,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:12.175Z"
+   },
+   {
+    "id": 263,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:09.947Z"
+   },
+   {
+    "id": 265,
+    "workflowId": "N0YFqMGhSSucql9D",
+    "versionId": "9a30d7d5-0e2c-450b-bdf7-3ffc782a6b06",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:10.072Z"
+   }
+  ]
+ }
+}

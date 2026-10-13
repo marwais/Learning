@@ -1,0 +1,579 @@
+{
+ "id": "GHkCpTeOoNfomfz2",
+ "name": "Tool_ConsultarConocimiento (M9)",
+ "description": null,
+ "active": true,
+ "activeVersionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+ "createdAt": "2026-10-12T22:29:52.112Z",
+ "updatedAt": "2026-10-13T00:45:11.404Z",
+ "isArchived": false,
+ "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+ "versionCounter": 2,
+ "sourceWorkflowId": null,
+ "triggerCount": 0,
+ "nodes": [
+  {
+   "id": "t1",
+   "name": "Recibe consulta",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1.1,
+   "position": [
+    0,
+    0
+   ],
+   "parameters": {
+    "workflowInputs": {
+     "values": [
+      {
+       "name": "consulta",
+       "type": "string"
+      },
+      {
+       "name": "traceId",
+       "type": "string"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "t2",
+   "name": "Parámetros RAG",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    220,
+    0
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "a1",
+       "name": "consulta",
+       "value": "={{ $json.consulta }}",
+       "type": "string"
+      },
+      {
+       "id": "a2",
+       "name": "top_k",
+       "value": 5,
+       "type": "number"
+      },
+      {
+       "id": "a3",
+       "name": "min_score",
+       "value": 0.6,
+       "type": "number"
+      },
+      {
+       "id": "a4",
+       "name": "coleccion",
+       "value": "kb_lodetincho_m5",
+       "type": "string"
+      }
+     ]
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "t3",
+   "name": "Embedding de la consulta (Cohere)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    440,
+    0
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "https://api.cohere.com/v2/embed",
+    "authentication": "predefinedCredentialType",
+    "nodeCredentialType": "cohereApi",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ model: 'embed-multilingual-v3.0', input_type: 'search_query', embedding_types: ['float'], texts: [$json.consulta] }) }}",
+    "options": {}
+   },
+   "credentials": {
+    "cohereApi": {
+     "id": "GIJyTK4Omxo0Qr5x",
+     "name": "Cohere n8n"
+    }
+   }
+  },
+  {
+   "id": "t4",
+   "name": "Buscar en Qdrant (Top-K + Min Score)",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "position": [
+    660,
+    0
+   ],
+   "parameters": {
+    "method": "POST",
+    "url": "=http://host.docker.internal:6333/collections/{{ $('Parámetros RAG').first().json.coleccion }}/points/search",
+    "sendBody": true,
+    "specifyBody": "json",
+    "jsonBody": "={{ JSON.stringify({ vector: $json.embeddings.float[0], limit: $('Parámetros RAG').first().json.top_k, score_threshold: $('Parámetros RAG').first().json.min_score, with_payload: true }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "t5",
+   "name": "Formatear fragmentos",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    880,
+    0
+   ],
+   "parameters": {
+    "jsCode": "// Convierte los hits de Qdrant en un texto de fragmentos numerados con su fuente y score.\nconst p = $('Parámetros RAG').first().json;\nconst hits = $json.result || [];\nif (!hits.length) {\n  return [{ json: { resultado: `SIN_RESULTADOS: ningún fragmento superó el Minimum Score (${p.min_score}). Respondé \"No cuento con ese dato.\"` } }];\n}\nconst bloques = hits.map((h, i) => {\n  const md = (h.payload && h.payload.metadata) || {};\n  const texto = (h.payload && h.payload.content) || '';\n  return `[Fragmento ${i + 1}] fuente: ${md.source || '?'} | sección: ${md.section || '-'} | score: ${h.score.toFixed(3)}\\n${texto}`;\n});\nreturn [{ json: { resultado: bloques.join('\\n\\n---\\n\\n') } }];\n"
+   }
+  }
+ ],
+ "connections": {
+  "Recibe consulta": {
+   "main": [
+    [
+     {
+      "node": "Parámetros RAG",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Parámetros RAG": {
+   "main": [
+    [
+     {
+      "node": "Embedding de la consulta (Cohere)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Embedding de la consulta (Cohere)": {
+   "main": [
+    [
+     {
+      "node": "Buscar en Qdrant (Top-K + Min Score)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Buscar en Qdrant (Top-K + Min Score)": {
+   "main": [
+    [
+     {
+      "node": "Formatear fragmentos",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "nodeGroups": [],
+ "settings": {
+  "executionOrder": "v1"
+ },
+ "staticData": null,
+ "pinData": null,
+ "meta": null,
+ "tags": [],
+ "shared": [
+  {
+   "role": "workflow:owner",
+   "workflowId": "GHkCpTeOoNfomfz2",
+   "projectId": "lYE2vdxUztdDDDaF",
+   "project": {
+    "id": "lYE2vdxUztdDDDaF",
+    "name": "Julio Martín Waisburd <mwaisburd@gmail.com>",
+    "type": "personal",
+    "icon": null,
+    "description": null,
+    "customTelemetryTags": [],
+    "creatorId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-09-15T16:57:20.878Z",
+    "updatedAt": "2026-09-15T16:58:59.575Z"
+   },
+   "createdAt": "2026-10-12T22:29:52.118Z",
+   "updatedAt": "2026-10-12T22:29:52.118Z"
+  }
+ ],
+ "activeVersion": {
+  "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+  "workflowId": "GHkCpTeOoNfomfz2",
+  "nodes": [
+   {
+    "id": "t1",
+    "name": "Recibe consulta",
+    "type": "n8n-nodes-base.executeWorkflowTrigger",
+    "typeVersion": 1.1,
+    "position": [
+     0,
+     0
+    ],
+    "parameters": {
+     "workflowInputs": {
+      "values": [
+       {
+        "name": "consulta",
+        "type": "string"
+       },
+       {
+        "name": "traceId",
+        "type": "string"
+       }
+      ]
+     }
+    }
+   },
+   {
+    "id": "t2",
+    "name": "Parámetros RAG",
+    "type": "n8n-nodes-base.set",
+    "typeVersion": 3.4,
+    "position": [
+     220,
+     0
+    ],
+    "parameters": {
+     "assignments": {
+      "assignments": [
+       {
+        "id": "a1",
+        "name": "consulta",
+        "value": "={{ $json.consulta }}",
+        "type": "string"
+       },
+       {
+        "id": "a2",
+        "name": "top_k",
+        "value": 5,
+        "type": "number"
+       },
+       {
+        "id": "a3",
+        "name": "min_score",
+        "value": 0.6,
+        "type": "number"
+       },
+       {
+        "id": "a4",
+        "name": "coleccion",
+        "value": "kb_lodetincho_m5",
+        "type": "string"
+       }
+      ]
+     },
+     "options": {}
+    }
+   },
+   {
+    "id": "t3",
+    "name": "Embedding de la consulta (Cohere)",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.2,
+    "position": [
+     440,
+     0
+    ],
+    "parameters": {
+     "method": "POST",
+     "url": "https://api.cohere.com/v2/embed",
+     "authentication": "predefinedCredentialType",
+     "nodeCredentialType": "cohereApi",
+     "sendBody": true,
+     "specifyBody": "json",
+     "jsonBody": "={{ JSON.stringify({ model: 'embed-multilingual-v3.0', input_type: 'search_query', embedding_types: ['float'], texts: [$json.consulta] }) }}",
+     "options": {}
+    },
+    "credentials": {
+     "cohereApi": {
+      "id": "GIJyTK4Omxo0Qr5x",
+      "name": "Cohere n8n"
+     }
+    }
+   },
+   {
+    "id": "t4",
+    "name": "Buscar en Qdrant (Top-K + Min Score)",
+    "type": "n8n-nodes-base.httpRequest",
+    "typeVersion": 4.2,
+    "position": [
+     660,
+     0
+    ],
+    "parameters": {
+     "method": "POST",
+     "url": "=http://host.docker.internal:6333/collections/{{ $('Parámetros RAG').first().json.coleccion }}/points/search",
+     "sendBody": true,
+     "specifyBody": "json",
+     "jsonBody": "={{ JSON.stringify({ vector: $json.embeddings.float[0], limit: $('Parámetros RAG').first().json.top_k, score_threshold: $('Parámetros RAG').first().json.min_score, with_payload: true }) }}",
+     "options": {}
+    }
+   },
+   {
+    "id": "t5",
+    "name": "Formatear fragmentos",
+    "type": "n8n-nodes-base.code",
+    "typeVersion": 2,
+    "position": [
+     880,
+     0
+    ],
+    "parameters": {
+     "jsCode": "// Convierte los hits de Qdrant en un texto de fragmentos numerados con su fuente y score.\nconst p = $('Parámetros RAG').first().json;\nconst hits = $json.result || [];\nif (!hits.length) {\n  return [{ json: { resultado: `SIN_RESULTADOS: ningún fragmento superó el Minimum Score (${p.min_score}). Respondé \"No cuento con ese dato.\"` } }];\n}\nconst bloques = hits.map((h, i) => {\n  const md = (h.payload && h.payload.metadata) || {};\n  const texto = (h.payload && h.payload.content) || '';\n  return `[Fragmento ${i + 1}] fuente: ${md.source || '?'} | sección: ${md.section || '-'} | score: ${h.score.toFixed(3)}\\n${texto}`;\n});\nreturn [{ json: { resultado: bloques.join('\\n\\n---\\n\\n') } }];\n"
+    }
+   }
+  ],
+  "connections": {
+   "Recibe consulta": {
+    "main": [
+     [
+      {
+       "node": "Parámetros RAG",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Parámetros RAG": {
+    "main": [
+     [
+      {
+       "node": "Embedding de la consulta (Cohere)",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Embedding de la consulta (Cohere)": {
+    "main": [
+     [
+      {
+       "node": "Buscar en Qdrant (Top-K + Min Score)",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   },
+   "Buscar en Qdrant (Top-K + Min Score)": {
+    "main": [
+     [
+      {
+       "node": "Formatear fragmentos",
+       "type": "main",
+       "index": 0
+      }
+     ]
+    ]
+   }
+  },
+  "nodeGroups": [],
+  "authors": "Julio Martín Waisburd",
+  "name": null,
+  "description": null,
+  "autosaved": false,
+  "createdAt": "2026-10-13T00:16:58.919Z",
+  "updatedAt": "2026-10-13T00:16:58.919Z",
+  "workflowPublishHistory": [
+   {
+    "id": 140,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:59.085Z"
+   },
+   {
+    "id": 142,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:59.277Z"
+   },
+   {
+    "id": 168,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:41.918Z"
+   },
+   {
+    "id": 170,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:42.111Z"
+   },
+   {
+    "id": 196,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:12.679Z"
+   },
+   {
+    "id": 198,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:12.871Z"
+   },
+   {
+    "id": 224,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:01.803Z"
+   },
+   {
+    "id": 226,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:01.999Z"
+   },
+   {
+    "id": 252,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:13.596Z"
+   },
+   {
+    "id": 254,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:13.786Z"
+   },
+   {
+    "id": 280,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:11.513Z"
+   },
+   {
+    "id": 282,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "activated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:11.756Z"
+   },
+   {
+    "id": 141,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:16:59.177Z"
+   },
+   {
+    "id": 167,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:41.897Z"
+   },
+   {
+    "id": 169,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:18:42.011Z"
+   },
+   {
+    "id": 195,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:12.661Z"
+   },
+   {
+    "id": 197,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:25:12.772Z"
+   },
+   {
+    "id": 223,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:01.783Z"
+   },
+   {
+    "id": 225,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:37:01.896Z"
+   },
+   {
+    "id": 251,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:13.580Z"
+   },
+   {
+    "id": 253,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:39:13.690Z"
+   },
+   {
+    "id": 279,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:11.494Z"
+   },
+   {
+    "id": 281,
+    "workflowId": "GHkCpTeOoNfomfz2",
+    "versionId": "986991e8-cd62-427d-8546-75d3d341e3cc",
+    "event": "deactivated",
+    "userId": "174e0a43-00a1-49f6-b3ab-2d6070826915",
+    "createdAt": "2026-10-13T00:45:11.641Z"
+   }
+  ]
+ }
+}
