@@ -10,7 +10,9 @@
 #   2. git pull del repo.
 #   3. Levanta Qdrant y el túnel de Telegram (levantar_tunel.ps1 recrea n8n con la URL nueva) y deja
 #      n8n y cloudflared con --restart=no: solo arrancan cuando se corre este script.
-#   4. Activa en el n8n local los workflows del último módulo (Avanzado/ModuloN/_ids_mN.json).
+#   4. Activa en el n8n local los workflows del último módulo que exista en ESTE n8n
+#      (Avanzado/ModuloN/_ids_mN.json) y apaga los disparadores externos de los módulos anteriores.
+#      Si el último módulo todavía no está en este n8n (se creó en la otra máquina), usa el anterior.
 #
 # Requisitos: Docker Desktop abierto, Avanzado/Modulo5/scripts/.env con N8N_API_KEY (la misma key
 # sirve en las dos máquinas porque la base de n8n se copió entre ellas) y maquinas.json.
@@ -97,14 +99,29 @@ if (-not $listo) { throw "n8n no respondió en $base (revisá: docker logs n8n).
 Start-Sleep -Seconds 8  # n8n reactiva sus workflows al arrancar
 
 # 4. Activar los workflows del último módulo
-$ultimo = Get-ChildItem (Join-Path $Repo "Avanzado") -Directory |
+$locales = @(Get-Workflows $base | ForEach-Object { [string]$_.id })
+$ultimo = $null; $ids = $null
+$modulos = Get-ChildItem (Join-Path $Repo "Avanzado") -Directory |
   Where-Object { $_.Name -match '^Modulo(\d+)$' -and (Get-ChildItem $_.FullName -Filter "_ids_m*.json") } |
-  Sort-Object { [int]($_.Name -replace '\D', '') } | Select-Object -Last 1
+  Sort-Object { [int]($_.Name -replace '\D', '') } -Descending
+foreach ($m in $modulos) {
+  $cand = Get-ChildItem $m.FullName -Filter "_ids_m*.json" | Select-Object -First 1 | Get-Content -Raw -Encoding UTF8 | ConvertFrom-Json
+  if ($locales -contains [string]$cand.manager) { $ultimo = $m; $ids = $cand; break }
+  Write-Warning "  $($m.Name) no está en este n8n (¿se creó en la otra máquina?): se usa el módulo anterior."
+}
+if (-not $ultimo) { throw "Ningún módulo del repo tiene su Manager en este n8n." }
 Write-Host "`n[4/4] Activar workflows de $($ultimo.Name)"
-$ids = Get-ChildItem $ultimo.FullName -Filter "_ids_m*.json" | Select-Object -First 1 | Get-Content -Raw -Encoding UTF8 | ConvertFrom-Json
 # Sub-workflows primero, el Manager al final (necesita a los demás publicados).
 $orden = $ids.PSObject.Properties | Sort-Object { if ($_.Name -eq 'manager') { 1 } else { 0 } }
 $errores = 0
+# Apagar acá los disparadores externos de módulos anteriores (comparten bot de Telegram y casilla de Gmail).
+$idsModulo = @($ids.PSObject.Properties | ForEach-Object { [string]$_.Value })
+foreach ($w in (Get-Workflows $base | Where-Object { $_.active -and ($idsModulo -notcontains $_.id) -and (Test-DisparadorExterno $_) })) {
+  try {
+    Invoke-RestMethod -Method Post -Uri "$base/api/v1/workflows/$($w.id)/deactivate" -Headers $Cab -TimeoutSec 30 | Out-Null
+    Write-Host "  desactivado (módulo anterior): $($w.name)"
+  } catch { $errores++; Write-Warning "  no se pudo desactivar $($w.name): $($_.Exception.Message)" }
+}
 foreach ($p in $orden) {
   try {
     $w = Invoke-RestMethod -Uri "$base/api/v1/workflows/$($p.Value)" -Headers $Cab -TimeoutSec 15

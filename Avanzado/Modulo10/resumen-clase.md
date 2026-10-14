@@ -9,7 +9,7 @@ Clase en vivo 10 "De Sistema Agéntico a Propuesta de Valor" (13/10/2026, grabac
 | 00–13 | Apertura con cámara apagada. |
 | 14–18 | Dónde desplegar n8n: búsqueda de opciones de n8n en la nube vs. autoalojado (VPS) y acceso a n8n Cloud. |
 | 22–26 | Slide de apertura: **"Última clase: de agentes a negocio"**. Temas: modelos comerciales · storytelling ejecutivo · despliegue por fases · ROI · brochure final. Objetivo: *que el sistema agéntico deje de verse como "un flujo en n8n" y se entienda como una propuesta de valor financiable.* |
-| 30–34 | Recorrido por la plataforma: unidad 1 y **consigna del Proyecto Final** (ver [`consigna-proyecto-final.md`](consigna-proyecto-final.md)). |
+| 30–34 | Recorrido por la plataforma: unidad 1 y **consigna del Proyecto Final** (ver [`../Modulo11/consigna.md`](../Modulo11/consigna.md)). |
 | 38–42 | Revisión de un workflow de un alumno (entrega final en curso, error en un nodo HTTP). |
 | 46–78 | **Deck de 18 slides** (detalle abajo). Diagrama de arquitectura armado en Excalidraw en el minuto 64. |
 | 82–97 | Demo: workflow **"Clase Final - Oferta IA Agéntica por Telegram + ROI + Juez + HITL"** (detalle abajo). |

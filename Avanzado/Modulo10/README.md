@@ -10,7 +10,7 @@ Décima etapa del proyecto integrador **AgendaBot** (curso AI Automation Avanzad
 - [x] Esqueleto de la pre-entrega: `PreEntrega/build_pdf.py` (arma el PDF desde `Seccion1..4_*.md`).
 - [x] Brochure redactado: `PreEntrega/Seccion1..4_*.md` (narrativa + diagrama SVG de la arquitectura de valor + business case; roadmap Fase 0–3 con criterios de salida y fallback; pricing híbrido $ 1.600.000 + $ 250.000/mes + $ 300 por turno asistido, ventana de 30 días, escenarios; plan a 30 días, trazabilidad en el CRM y 3 objeciones).
 - [x] PDF: [`PreEntrega/PreEntrega_Modulo10_JulioMartinWaisburd.pdf`](PreEntrega/PreEntrega_Modulo10_JulioMartinWaisburd.pdf) (9 págs.).
-- [ ] Revisión del usuario y entrega.
+- [x] Revisado contra la consigna completa (fila "Qué riesgo mitiga", objeción textual, listas, cifras) y **entregado en la plataforma el 14/10/2026** (commit 77ba07e). Módulo cerrado; sigue el Proyecto Final en [`../Modulo11/`](../Modulo11/README.md).
 
 ## Consigna oficial (Pre-entrega 10: Brochure Técnico-Comercial y Defensa ante Comité)
 Entregable: **un único PDF** `PreEntrega_Modulo10_NombreApellido.pdf`, en lenguaje de negocio (sin "embeddings", "nodos", "tool-calling", "LLM"), de **6 a 10 páginas**, con cuatro secciones:
@@ -34,4 +34,4 @@ Checklist de la consigna: se entiende sin saber qué es n8n · el diagrama muest
 | KPI y trazabilidad | traceId por interacción (M9), columna `traceId` en la agenda, contacto en HubSpot (M4), veredictos en `QA_Veredictos (09)`. |
 
 ## Adelanto: Proyecto Final (vence 13/11/2026 20:59)
-Consigna completa en [`consigna-proyecto-final.md`](consigna-proyecto-final.md). En síntesis: sistema en n8n asincrónico (webhook o chat que responde de inmediato y procesa en segundo plano), Manager-Worker, Juez obligatorio antes de registrar (umbral → HITL), despacho por un canal externo, RAG con "No sé", idempotencia y ramas de error; más el PDF `Apellido_Nombre_ProyectoFinal_AI_Experto.pdf` (DMSA) con 4 secciones.
+Consigna completa en [`../Modulo11/consigna.md`](../Modulo11/consigna.md). En síntesis: sistema en n8n asincrónico (webhook o chat que responde de inmediato y procesa en segundo plano), Manager-Worker, Juez obligatorio antes de registrar (umbral → HITL), despacho por un canal externo, RAG con "No sé", idempotencia y ramas de error; más el PDF `Apellido_Nombre_ProyectoFinal_AI_Experto.pdf` (DMSA) con 4 secciones.

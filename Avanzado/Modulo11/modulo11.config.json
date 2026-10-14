@@ -1,0 +1,57 @@
+{
+  "modulo": 11,
+  "tipo": "Proyecto Final Integrador: sistema en n8n (Componente A) + DMSA en PDF (Componente B)",
+  "sistema_base": {
+    "modulo": 9,
+    "ids": "../Modulo9/_ids_m9.json",
+    "finanzas": "../Modulo9/finanzas.json",
+    "brochure": "../Modulo10/PreEntrega"
+  },
+  "n8n_base": "http://localhost:5678",
+  "workflows": {
+    "Ukqb3UUpTZhgnULF": "Tool_ConsultarConocimiento (M11).json",
+    "NQW5Mkmm0zJc6UJQ": "Worker1_RegistrarTurno (M11).json",
+    "8kgru7BieMefNVvz": "Worker2_Confirmacion (M11).json",
+    "CJKVcfkXPu6oNk8D": "Worker3_ConsultarTurno (M11).json",
+    "wT9rHHVpMreJFqwO": "Worker4_ModificarTurno (M11).json",
+    "x0qFeyPW15wSX0hD": "SUPERVISOR_Judge (M11).json",
+    "zLiXJWDV3i8OGJCK": "AI Automation Avanzado - M11.json"
+  },
+  "airtable_tables": [
+    {
+      "base": "appO1XQ6layHvQx6e",
+      "table": "tblaIZxUOLY1T8g40",
+      "base_name": "Memoria_M11"
+    }
+  ],
+  "google_sheets": [
+    {
+      "id": "19rWr4cy1pVmiDi5iv3Nkr3gZn4ExF12Ep5OkMrxxaWk",
+      "base_name": "Agenda_Turnos (11)"
+    },
+    {
+      "id": "1IYqouMdEh8s0ecJEdDMWjtObglgDA1Nd8E84nWdSEQk",
+      "base_name": "QA_Veredictos (11)",
+      "pestanas": [
+        "Untitled (veredictos + log)",
+        "KPIs"
+      ]
+    }
+  ],
+  "drive_folder": {
+    "id": "15y6JMd_aVrDFc_hL_yMcVolUFcXkUcV7",
+    "name": "Entregas/Trabajo Final",
+    "subcarpetas": {
+      "Del Profe": "1bjfth9DxU5xzt-CpSDgt1zeeDFCVaJIw"
+    }
+  },
+  "material_drive": {
+    "consigna": "1YLBKBRtTbXFiZ9FiCYVUVr-_0g48Ps8GqxPa5-iSIao",
+    "teoria_pptx": "1trsshRvE8A1Tkx2dMnBA87BYv7VaoS7z",
+    "deck_profe_pptx": "1RKbVO5BToOCfHaWIwYxuG6JoovCqB4fG",
+    "devoluciones": "1PagfRWzjIB3s697JLFEM3PI9-Ui-D74KT0F7Q3XR8hg"
+  },
+  "qdrant_collection": "kb_lodetincho_m5",
+  "plazo": "2026-11-13 20:59",
+  "entregable": "Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf"
+}
