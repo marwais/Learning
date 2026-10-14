@@ -22,24 +22,25 @@ Cada conversación nace con un **código de seguimiento** único, que viaja con 
 
 | Dónde | Qué se registra |
 |---|---|
-| **CRM** (ficha del paciente) | `Origen = AgendaBot`, código de seguimiento, canal (chat, email o Telegram), fecha de la última interacción del sistema, turno gestionado, resultado del Supervisor y si hubo escalado a una persona |
+| **CRM** (ficha del paciente) | **Origen = AgendaBot**, código de seguimiento, canal (chat, email o Telegram), fecha de la última interacción del sistema, turno gestionado, resultado del Supervisor y si hubo escalado a una persona |
 | **Agenda de turnos** | Código de seguimiento en cada turno que registró el sistema, estado (confirmado, reprogramado, cancelado) y **asistencia**, que marca la recepción |
 | **Registro de auditoría** | Cada respuesta revisada por el Supervisor, con fecha y hora, la versión de las instrucciones, el puntaje y la decisión. Los datos personales se enmascaran |
 
-**Cómo se factura sin discusiones.** El primer día hábil de cada mes se cruzan la agenda y el CRM. Se facturan solo los turnos con el código del sistema, `Origen = AgendaBot`, asistencia marcada y dentro de la ventana de 30 días. La lista se comparte con la clínica antes de facturar, y cualquier turno se puede verificar con su código. Si alguien del equipo reprograma o vuelve a cargar a mano un turno del sistema, el código original sigue en el CRM: nadie pierde la atribución por un cambio manual, y tampoco se cobra dos veces.
+**Cómo se factura sin discusiones.** El primer día hábil de cada mes se cruzan la agenda y el CRM. Se facturan solo los turnos con el código del sistema, **Origen = AgendaBot**, asistencia marcada y dentro de la ventana de 30 días. La lista se comparte con la clínica antes de facturar, y cualquier turno se puede verificar con su código. Si alguien del equipo reprograma o vuelve a cargar a mano un turno del sistema, el código original sigue en el CRM: nadie pierde la atribución por un cambio manual, y tampoco se cobra dos veces.
 
 ## Defensa ante el comité: tres objeciones
 
 **"Esto ya lo hace mi CRM."**
 El CRM **registra** lo que pasó; AgendaBot **hace el trabajo**. Conversa con el paciente a cualquier hora y por su canal, saca o cambia el turno, lo confirma y deja todo cargado en el CRM con su origen. Hoy 1 de cada 5 contactos fuera de horario espera hasta el día siguiente, y el CRM no los atiende. AgendaBot no reemplaza al CRM: lo alimenta con datos completos y trazables.
 
-**"¿Y si el sistema inventa algo o borra datos?"**
+**"¿Y si el agente alucina y borra datos?"**
 Tres barreras independientes:
-1. **Despliegue por fases:** durante las primeras semanas el sistema solo propone, y no escribe nada sin que una persona lo apruebe con un botón (Fases 0 a 2).
+
+1. **Despliegue por fases:** hasta el día 75 el sistema no escribe nada en la agenda ni en el CRM sin que una persona lo apruebe con un botón (Fases 0 a 2).
 2. **Supervisor de calidad:** cada respuesta informativa se contrasta con la biblioteca oficial antes de salir. Si el dato no está en los documentos, el sistema responde que no lo sabe. En las pruebas, el 70,6 % de las respuestas salió aprobada de entrada; el resto se corrigió o pasó a una persona antes de llegar al paciente.
 3. **Límites de escritura:** el sistema **no tiene permiso para borrar**. Solo registra turnos con los datos completos (nombre, fecha, hora y email) y actualiza su estado: una cancelación queda en el historial. Todo lo rojo (urgencias, reclamos, dinero, historia clínica) va siempre a una persona.
 
 Y el freno de mano está siempre a disposición de la coordinadora.
 
 **"Es caro para el ahorro que genera."**
-Comparado contra el baseline, el sistema libera 183 horas por mes ($ 1.832.600) y cuesta $ 774.360 con todo incluido: servicios, abono y pago por resultado. La clínica gana **$ 1.058.240 netos por mes** y recupera la implementación en **1,5 meses**. Aun en el escenario conservador gana más de $ 700.000 por mes. Además, la mitad del costo variable solo se paga si hay turnos efectivamente usados: si el sistema no genera valor, la clínica no paga por resultado. No vendemos una herramienta: vendemos capacidad para absorber más pacientes sin sumar personal y menos fricción para el paciente.
+Comparado contra el baseline, el sistema libera 183 horas por mes ($ 1.832.600) y cuesta $ 774.360 con todo incluido: servicios, abono y pago por resultado. La clínica gana **$ 1.058.240 netos por mes** y recupera la implementación en **1,5 meses**. Aun en el escenario conservador gana más de $ 700.000 por mes. Además, $ 332.700 de ese costo (el 43 %) es pago por resultado: solo se paga por turnos que los pacientes efectivamente usaron. Si el sistema no genera valor, la clínica no paga esa parte. No vendemos una herramienta: vendemos capacidad para absorber más pacientes sin sumar personal y menos fricción para el paciente.

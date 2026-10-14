@@ -73,7 +73,7 @@ AgendaBot funciona como un **equipo de analistas virtuales especializados**, coo
 
 ## Business case
 
-Números del análisis financiero (Pre-entrega 9), sin cambios. Son **supuestos razonables**, no datos reales de la clínica: se validan en la auditoría del primer mes.
+Números del análisis financiero previo, sin cambios. Son **supuestos razonables**, no datos reales de la clínica: se validan en la auditoría del primer mes.
 
 | Por mes | Monto |
 |---|---|

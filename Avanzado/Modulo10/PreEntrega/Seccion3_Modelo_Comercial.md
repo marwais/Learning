@@ -17,6 +17,7 @@ Los servicios en la nube y de mensajería (**US$ 136,90 por mes**, unos **$ 191.
 **Turno atribuible:** un turno nuevo o reprogramado que el sistema registró de punta a punta y al que **el paciente asistió**.
 
 Cuenta solo si se cumplen las tres condiciones:
+
 1. El turno está en la agenda con el **código de seguimiento** del sistema.
 2. El contacto en el CRM tiene **origen = AgendaBot** y ese mismo código.
 3. La recepción marcó la **asistencia** en la agenda.
@@ -54,5 +55,7 @@ Escenarios por mes. El beneficio son las horas liberadas a $ 10.000 la hora. Los
 | **Costo total** | $ 691.260 | **$ 774.360** | $ 815.760 |
 | **Beneficio neto** | $ 725.940 | **$ 1.058.240** | $ 1.310.040 |
 | **Recupero de la implementación** | 2,2 meses | **1,5 meses** | 1,2 meses |
+
+*En el escenario base, los turnos atribuibles usan el 80 % de autonomía previsto en el análisis financiero para los turnos nuevos (1.540 × 80 % × 90 % de asistencia = 1.109); el 78 % de la tabla es el promedio de todas las gestiones.*
 
 **Incentivos alineados.** El abono garantiza que el sistema se mantenga sano aunque baje la demanda. El pago por resultado nos pone del lado de la clínica: ganamos más solo si más pacientes sacan y usan sus turnos sin pasar por el teléfono. En el escenario conservador la clínica sigue ganando más de $ 700.000 por mes.
