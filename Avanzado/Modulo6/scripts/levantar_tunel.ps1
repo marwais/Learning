@@ -1,6 +1,7 @@
 # Levanta (o reinicia) el quick tunnel de Cloudflare y recrea el contenedor n8n
 # con WEBHOOK_URL apuntando a la URL nueva. Telegram necesita una URL publica HTTPS
 # para su webhook; la del quick tunnel cambia en cada reinicio.
+# --protocol http2: algunas redes bloquean QUIC (UDP 7844) y el túnel no conecta ("failed to dial to edge with quic").
 #
 # Uso:  powershell -File Avanzado\Modulo6\scripts\levantar_tunel.ps1
 # Los datos de n8n no se tocan: viven en %USERPROFILE%\.n8n (bind mount).
@@ -10,7 +11,7 @@ $ErrorActionPreference = "Continue"
 
 cmd /c "docker rm -f cloudflared >nul 2>&1"
 docker run -d --name cloudflared --restart unless-stopped cloudflare/cloudflared:latest `
-  tunnel --no-autoupdate --url http://host.docker.internal:5678 | Out-Null
+  tunnel --no-autoupdate --protocol http2 --url http://host.docker.internal:5678 | Out-Null
 
 $url = $null
 for ($i = 0; $i -lt 30 -and -not $url; $i++) {
