@@ -1,0 +1,19 @@
+{
+  "modulo": 10,
+  "tipo": "documento (brochure técnico-comercial); el sistema presentado es el M9",
+  "sistema_base": {
+    "modulo": 9,
+    "ids": "../Modulo9/_ids_m9.json",
+    "finanzas": "../Modulo9/finanzas.json"
+  },
+  "drive_folder": {
+    "id": "1rH6TuOBtEoIMNQpzwy-4z4z0lcCk7xG5",
+    "name": "Entregas/10"
+  },
+  "material_drive": {
+    "teoria": "1N7Bi1d3B4hs3DQcJKDjIROw4izxEqWPlLfllRZewBAM",
+    "consigna_preentrega": "1JMDrR3hMv7ufu55R4kL329XULf-KRIqCQy3d32gYTEU"
+  },
+  "plazo_preentrega": "2026-10-20 21:00",
+  "plazo_proyecto_final": "2026-11-13 20:59"
+}
