@@ -8,9 +8,9 @@ Décima etapa del proyecto integrador **AgendaBot** (curso AI Automation Avanzad
 - [x] Consigna, teoría y grabación de la clase relevadas ([`resumen-clase.md`](resumen-clase.md), barrido general cada 4 min + cada 1 min en la zona de slides).
 - [x] Carpeta Drive `Entregas/10` (`1rH6TuOBtEoIMNQpzwy-4z4z0lcCk7xG5`).
 - [x] Esqueleto de la pre-entrega: `PreEntrega/build_pdf.py` (arma el PDF desde `Seccion1..4_*.md`).
-- [ ] Redactar las 4 secciones del brochure.
-- [ ] Diagrama de arquitectura de valor (capa de orquestación, sin capturas de n8n).
-- [ ] Generar el PDF, revisión del usuario y entrega.
+- [x] Brochure redactado: `PreEntrega/Seccion1..4_*.md` (narrativa + diagrama SVG de la arquitectura de valor + business case; roadmap Fase 0–3 con criterios de salida y fallback; pricing híbrido $ 1.600.000 + $ 250.000/mes + $ 300 por turno asistido, ventana de 30 días, escenarios; plan a 30 días, trazabilidad en el CRM y 3 objeciones).
+- [x] PDF: [`PreEntrega/PreEntrega_Modulo10_JulioMartinWaisburd.pdf`](PreEntrega/PreEntrega_Modulo10_JulioMartinWaisburd.pdf) (9 págs.).
+- [ ] Revisión del usuario y entrega.
 
 ## Consigna oficial (Pre-entrega 10: Brochure Técnico-Comercial y Defensa ante Comité)
 Entregable: **un único PDF** `PreEntrega_Modulo10_NombreApellido.pdf`, en lenguaje de negocio (sin "embeddings", "nodos", "tool-calling", "LLM"), de **6 a 10 páginas**, con cuatro secciones:
