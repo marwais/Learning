@@ -239,12 +239,12 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    2600,
+    2820,
     620
    ],
    "parameters": {
     "chatId": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
-    "text": "Para no anotar mal tu email, ¿me lo escribís por texto? Por audio se confunden letras.",
+    "text": "Anoté tu pedido. Para no anotar mal tu email, ¿me lo escribís por texto? Por audio se confunden letras.",
     "additionalFields": {
      "appendAttribution": false
     }
@@ -291,7 +291,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    2840,
+    3920,
     880
    ],
    "parameters": {
@@ -312,6 +312,240 @@
     "options": {
      "waitForSubWorkflow": false
     }
+   }
+  },
+  {
+   "id": "e44d83ed-f8bd-4edf-b88e-688b4695506d",
+   "name": "Guardar pedido pendiente",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    2600,
+    620
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "upsert",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "36GmApyPihBWIo00"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "sesion",
+       "condition": "eq",
+       "keyValue": "={{ 'tg-' + $('Mensaje de Telegram').first().json.message.chat.id }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "sesion": "={{ 'tg-' + $('Mensaje de Telegram').first().json.message.chat.id }}",
+      "texto": "={{ $('Transcribir (Whisper)').first().json.text }}",
+      "creado": "={{ $now.toUTC().toISO() }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "sesion",
+       "displayName": "sesion",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "texto",
+       "displayName": "texto",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "creado",
+       "displayName": "creado",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "9e1ea794-5614-4b70-b14a-a502cca984da",
+   "name": "Buscar pedido pendiente",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "alwaysOutputData": true,
+   "position": [
+    2820,
+    880
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "get",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "36GmApyPihBWIo00"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "sesion",
+       "condition": "eq",
+       "keyValue": "={{ $json.sessionId }}"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "789cb71d-3cf5-4d84-b156-ce7c64262aac",
+   "name": "¿Completa un pedido pendiente?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    3040,
+    880
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "7da1ca12-51f5-4f79-9900-7e0183aad09f",
+       "leftValue": "={{ !!$json.texto && DateTime.fromISO($json.creado) > $now.minus({ minutes: 30 }) && $('Entrada Telegram').first().json.mensaje.includes('@') }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "d5700fdc-2a20-4699-99aa-9540ac83e761",
+   "name": "Limpiar pendiente",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    3260,
+    760
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "update",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "36GmApyPihBWIo00"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "sesion",
+       "condition": "eq",
+       "keyValue": "={{ $('Entrada Telegram').first().json.sessionId }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "texto": "",
+      "creado": ""
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "texto",
+       "displayName": "texto",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "creado",
+       "displayName": "creado",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "18a18453-1ba0-4e7a-af05-ad55c10a587c",
+   "name": "Pedido completado",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    3480,
+    760
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Entrada Telegram').first().json, mensaje: $('Buscar pedido pendiente').first().json.texto + ' (Corrección del paciente por texto: su email correcto es ' + $('Entrada Telegram').first().json.mensaje.trim() + '; ignorá cualquier email dictado en el audio.)' }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "c1970987-c237-4521-b6aa-52217131366f",
+   "name": "Pedido tal cual",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    3480,
+    1000
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Entrada Telegram').first().json) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "23a5c739-5944-4408-a655-9078f4b84f40",
+   "name": "Nota 0afa",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    2560,
+    1140
+   ],
+   "parameters": {
+    "width": 1140,
+    "height": 200,
+    "content": "## Pedido pendiente (email dictado)\nSi la nota de voz dicta un email, se guarda la transcripción en la Data Table `pendientes_m11` y se le pide el email por texto. Cuando llega un texto con @ (dentro de 30 min), se une con el pedido guardado y recién ahí pasa al Manager: el pedido no se pierde y el email es el escrito. La transcripción (solo texto) se borra al usarse."
    }
   }
  ],
@@ -411,7 +645,7 @@
    "main": [
     [
      {
-      "node": "Pedir email por escrito",
+      "node": "Guardar pedido pendiente",
       "type": "main",
       "index": 0
      }
@@ -426,6 +660,79 @@
    ]
   },
   "Entrada Telegram": {
+   "main": [
+    [
+     {
+      "node": "Buscar pedido pendiente",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Guardar pedido pendiente": {
+   "main": [
+    [
+     {
+      "node": "Pedir email por escrito",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Buscar pedido pendiente": {
+   "main": [
+    [
+     {
+      "node": "¿Completa un pedido pendiente?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Completa un pedido pendiente?": {
+   "main": [
+    [
+     {
+      "node": "Limpiar pendiente",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Pedido tal cual",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Limpiar pendiente": {
+   "main": [
+    [
+     {
+      "node": "Pedido completado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pedido completado": {
+   "main": [
+    [
+     {
+      "node": "Pasar al Manager",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pedido tal cual": {
    "main": [
     [
      {
