@@ -1,0 +1,158 @@
+{
+ "name": "Respuesta de voz (M11)",
+ "nodes": [
+  {
+   "id": "76da0738-07d9-4fb1-a983-a5b5c64d27f8",
+   "name": "Recibir respuesta",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1.1,
+   "position": [
+    0,
+    300
+   ],
+   "parameters": {
+    "inputSource": "passthrough"
+   }
+  },
+  {
+   "id": "09a629dd-775d-43cd-9b76-34883d4cce24",
+   "name": "Sintetizar voz (ElevenLabs)",
+   "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+   "typeVersion": 1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    240,
+    300
+   ],
+   "parameters": {
+    "resource": "speech",
+    "operation": "textToSpeech",
+    "voice": {
+     "__rl": true,
+     "mode": "id",
+     "value": "pFZP5JQG7iQjIQuC4Bku"
+    },
+    "text": "={{ $json.texto_voz }}",
+    "additionalOptions": {
+     "model": {
+      "__rl": true,
+      "mode": "list",
+      "value": "eleven_multilingual_v2"
+     },
+     "outputFormat": "mp3_44100_128",
+     "languageCode": "es",
+     "voiceSettings": "{\n  \"stability\": 0.55,\n  \"similarity_boost\": 0.75,\n  \"style\": 0,\n  \"use_speaker_boost\": true,\n  \"speed\": 1\n}"
+    }
+   },
+   "credentials": {
+    "elevenLabsApi": {
+     "id": "KGYWyC3rhLqD8YbW",
+     "name": "ElevenLabs account"
+    }
+   }
+  },
+  {
+   "id": "070b945f-d97c-42a1-86ac-d5ae2e3f3aaf",
+   "name": "Enviar nota de voz (Telegram)",
+   "webhookId": "6c6105d9-de62-43b2-a6cf-540975b3e362",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    460,
+    300
+   ],
+   "parameters": {
+    "operation": "sendAudio",
+    "chatId": "={{ $('Recibir respuesta').first().json.tg_chat_id }}",
+    "binaryData": true,
+    "binaryPropertyName": "data",
+    "additionalFields": {
+     "title": "AgendaBot",
+     "fileName": "respuesta.mp3"
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "x7iGZ1Z1LuKEKu80",
+     "name": "Telegram account"
+    }
+   }
+  },
+  {
+   "id": "bd58d11c-f232-4eba-9454-74c8314c2f6a",
+   "name": "Descartar audio (compliance)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    680,
+    300
+   ],
+   "parameters": {
+    "jsCode": "// Compliance: el audio del paciente y el sintetizado no se conservan.\n// Se devuelve solo metadata (sin binario); además el workflow no guarda ejecuciones,\n// así que n8n borra los archivos temporales de la ejecución al terminar.\nreturn $input.all().map(i => ({ json: { enviado: true, chat_id: i.json.result?.chat?.id ?? null, audio_destruido: true } }));"
+   }
+  },
+  {
+   "id": "c8f06f3c-36b4-4f86-8ac0-cb2be1218396",
+   "name": "Nota",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    -40,
+    0
+   ],
+   "parameters": {
+    "width": 920,
+    "height": 240,
+    "content": "## Respuesta de voz (M11): privacidad de los audios\nSintetiza la respuesta (máx. 200 caracteres) con ElevenLabs, la manda como nota de voz y **descarta el binario**: devuelve solo metadatos. Este workflow **no guarda ninguna ejecución** (ni con éxito ni con error), así que el audio solo existe en memoria durante el envío. Lo mismo hace el Canal Telegram con la nota de voz del paciente (devolución de la P6)."
+   }
+  }
+ ],
+ "connections": {
+  "Recibir respuesta": {
+   "main": [
+    [
+     {
+      "node": "Sintetizar voz (ElevenLabs)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Sintetizar voz (ElevenLabs)": {
+   "main": [
+    [
+     {
+      "node": "Enviar nota de voz (Telegram)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Enviar nota de voz (Telegram)": {
+   "main": [
+    [
+     {
+      "node": "Descartar audio (compliance)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "saveExecutionProgress": false,
+  "saveManualExecutions": false,
+  "saveDataErrorExecution": "none",
+  "saveDataSuccessExecution": "none",
+  "errorWorkflow": "UBZ3dbNmFMFuYrAR",
+  "executionOrder": "v1"
+ }
+}

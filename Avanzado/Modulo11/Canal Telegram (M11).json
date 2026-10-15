@@ -438,9 +438,11 @@
   }
  },
  "settings": {
-  "saveDataErrorExecution": "all",
-  "saveDataSuccessExecution": "all",
+  "saveDataErrorExecution": "none",
+  "saveDataSuccessExecution": "none",
   "errorWorkflow": "UBZ3dbNmFMFuYrAR",
-  "executionOrder": "v1"
+  "executionOrder": "v1",
+  "saveExecutionProgress": false,
+  "saveManualExecutions": false
  }
 }

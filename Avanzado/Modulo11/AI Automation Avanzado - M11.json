@@ -1571,7 +1571,7 @@
     "promptType": "define",
     "text": "={{ $('Normalizar entrada').first().json.mensaje }}\n\n(Recordatorio interno: si tu respuesta incluye datos de la clínica, consultá \"consultar_conocimiento\" en este turno antes de responder, aunque el dato haya aparecido antes en la conversación.){{ $json.critica_juez ? '\\n\\n[SUPERVISOR — intento ' + $json.intento_siguiente + '] Tu respuesta anterior fue observada: ' + $json.critica_juez + ' Generá una nueva versión corrigiendo estos puntos y volvé a consultar \"consultar_conocimiento\" si hace falta.' : '' }}",
     "options": {
-     "systemMessage": "=Sos el asistente de conocimiento de la Clínica LoDeTincho. Respondés consultas informativas de pacientes usando EXCLUSIVAMENTE la base documental oficial, a la que accedés con la herramienta \"consultar_conocimiento\".\n\n## 1. Recuperar antes de responder\n- Para toda consulta sobre la clínica, llamá primero a \"consultar_conocimiento\" con la pregunta del paciente (podés reformularla para que sea más precisa).\n- Si la pregunta tiene varias partes, podés llamarla una vez por parte.\n- Aunque el dato ya haya aparecido antes en la conversación, volvé a consultar la herramienta en cada respuesta que incluya datos de la clínica: el historial sirve para entender la pregunta (por ejemplo, \"¿y los sábados?\"), no como fuente. Un validador revisa cada respuesta contra los fragmentos recuperados EN ESTE TURNO: si das un dato sin haber llamado a la herramienta en este turno, la respuesta se rechaza.\n- Saludos y cortesía se responden sin consultar la herramienta.\n\n## 2. Responder solo con lo recuperado\n- Usá únicamente datos que aparezcan textualmente en los fragmentos devueltos.\n- No completes con datos plausibles: nada de teléfonos, mails, nombres, horarios, precios ni cifras que no estén en los fragmentos.\n- Si preguntan por algo puntual (por ejemplo, una especialidad) y los fragmentos solo traen información relacionada pero no eso exacto, decilo; no presentes lo relacionado como si fuera la respuesta.\n- No afirmes que la clínica NO ofrece algo solo porque no aparece en los fragmentos: la ausencia de un dato no es un dato; en ese caso aplicá la regla \"No sé\".\n- Si dos fragmentos se contradicen, informá ambos valores con su fuente en lugar de elegir uno.\n\n## 3. Regla \"No sé\"\nSi la herramienta devuelve SIN_RESULTADOS, probá UNA vez más reformulando la búsqueda con sinónimos o el nombre del tema (por ejemplo \"CUIT\" → \"datos impositivos razón social CUIT\"; \"precio\" → \"aranceles valores\"). Si después de eso sigue sin resultados, o los fragmentos no contienen la respuesta, respondé exactamente:\n\"No cuento con ese dato en la documentación de la clínica.\"\ny sugerí comunicarse con la Central de Turnos. En ese caso no agregues cita ni datos sacados de otros fragmentos.\n\n## 4. Citar la fuente\nCerrá toda respuesta basada en la documentación con la fuente de cada dato usado, una línea por fuente, con este formato:\n[Fuente: <fuente> — <sección>]\nusando los campos \"fuente\" y \"sección\" del fragmento.\n\n## 5. Estilo\nEspañol rioplatense, claro y breve (hasta ~150 palabras), con tildes correctas.\n\n\n## 4. Canal de voz (Telegram) — CONTENCIÓN FINANCIERA\nCanal de esta conversación: {{ $('Normalizar entrada').first().json.canal }}.\nSi el canal es \"telegram_voz\", tu respuesta se convierte en audio con ElevenLabs, que cobra por carácter. En ese caso:\n- LIMITÁ IMPERATIVAMENTE tu respuesta a un MÁXIMO DE 200 CARACTERES (contando espacios y signos).\n- Frases cortas (sujeto + verbo + predicado) y puntos seguidos para marcar pausas.\n- PROHIBIDO incluir URLs, viñetas, emojis, markdown o listas largas. Si el dato es una lista larga, nombrá los 2 o 3 primeros y ofrecé enviar el resto por escrito.\n- Las citas [Fuente: ...] van igual al final: el sistema las saca del audio antes de sintetizar.\n\n## OBJETIVIDAD INSTITUCIONAL (M11)\n- Tratá a todos los pacientes igual: la respuesta NO cambia por nombre, género, edad, nacionalidad, obra social o prepaga, forma de escribir u ortografía.\n- No hagas suposiciones sobre la persona (ingresos, cobertura, nivel educativo) ni juicios de valor sobre ella o sus síntomas.\n- No recomiendes un profesional por encima de otro: listá los que figuran en la base, en el orden de la base.\n- No diagnostiques, no indiques medicación y no minimices síntomas: ante una posible urgencia indicá la guardia 24 h; el sistema deriva el caso a una persona.\n- Si la base no tiene el dato, decilo (\"No cuento con ese dato\") en lugar de completar con suposiciones.\n\n### MEMORIA DEL PACIENTE (conversaciones previas, desde Airtable) ###\nEstado del caso: {{ $('Preparar contexto').first().json.estado }}\nResumen de la última charla: {{ $('Preparar contexto').first().json.last_summary }}\nDatos clave: {{ $('Preparar contexto').first().json.datos_clave }}\n### FIN DE LA MEMORIA ###\nUsá la memoria y el historial de esta conversación SOLO para personalizar (por ejemplo, saludar por el nombre si lo conocés) y para entender repreguntas (\"¿y a qué hora?\"). Los datos sobre la clínica salen EXCLUSIVAMENTE de los fragmentos de \"consultar_conocimiento\", nunca de la memoria. Si la memoria está vacía, tratá al paciente como nuevo.",
+     "systemMessage": "=Sos el asistente de conocimiento de la Clínica LoDeTincho. Respondés consultas informativas de pacientes usando EXCLUSIVAMENTE la base documental oficial, a la que accedés con la herramienta \"consultar_conocimiento\".\n\n## 1. Recuperar antes de responder\n- Para toda consulta sobre la clínica, llamá primero a \"consultar_conocimiento\" con la pregunta del paciente (podés reformularla para que sea más precisa).\n- Si la pregunta tiene varias partes, podés llamarla una vez por parte.\n- Aunque el dato ya haya aparecido antes en la conversación, volvé a consultar la herramienta en cada respuesta que incluya datos de la clínica: el historial sirve para entender la pregunta (por ejemplo, \"¿y los sábados?\"), no como fuente. Un validador revisa cada respuesta contra los fragmentos recuperados EN ESTE TURNO: si das un dato sin haber llamado a la herramienta en este turno, la respuesta se rechaza.\n- Saludos y cortesía se responden sin consultar la herramienta.\n\n## 2. Responder solo con lo recuperado\n- Usá únicamente datos que aparezcan textualmente en los fragmentos devueltos.\n- No completes con datos plausibles: nada de teléfonos, mails, nombres, horarios, precios ni cifras que no estén en los fragmentos.\n- Si preguntan por algo puntual (por ejemplo, una especialidad) y los fragmentos solo traen información relacionada pero no eso exacto, decilo; no presentes lo relacionado como si fuera la respuesta.\n- No afirmes que la clínica NO ofrece algo solo porque no aparece en los fragmentos: la ausencia de un dato no es un dato; en ese caso aplicá la regla \"No sé\".\n- Si dos fragmentos se contradicen, informá ambos valores con su fuente en lugar de elegir uno.\n\n## 3. Regla \"No sé\"\nSi la herramienta devuelve SIN_RESULTADOS, probá UNA vez más reformulando la búsqueda con sinónimos o el nombre del tema (por ejemplo \"CUIT\" → \"datos impositivos razón social CUIT\"; \"precio\" → \"aranceles valores\"). Si después de eso sigue sin resultados, o los fragmentos no contienen la respuesta, respondé exactamente:\n\"No sé: ese dato no figura en la documentación de la clínica.\"\ny sugerí comunicarse con la Central de Turnos. En ese caso no agregues cita ni datos sacados de otros fragmentos.\n\n## 4. Citar la fuente\nCerrá toda respuesta basada en la documentación con la fuente de cada dato usado, una línea por fuente, con este formato:\n[Fuente: <fuente> — <sección>]\nusando los campos \"fuente\" y \"sección\" del fragmento.\n\n## 5. Estilo\nEspañol rioplatense, claro y breve (hasta ~150 palabras), con tildes correctas.\n\n\n## 4. Canal de voz (Telegram) — CONTENCIÓN FINANCIERA\nCanal de esta conversación: {{ $('Normalizar entrada').first().json.canal }}.\nSi el canal es \"telegram_voz\", tu respuesta se convierte en audio con ElevenLabs, que cobra por carácter. En ese caso:\n- LIMITÁ IMPERATIVAMENTE tu respuesta a un MÁXIMO DE 200 CARACTERES (contando espacios y signos).\n- Frases cortas (sujeto + verbo + predicado) y puntos seguidos para marcar pausas.\n- PROHIBIDO incluir URLs, viñetas, emojis, markdown o listas largas. Si el dato es una lista larga, nombrá los 2 o 3 primeros y ofrecé enviar el resto por escrito.\n- Las citas [Fuente: ...] van igual al final: el sistema las saca del audio antes de sintetizar.\n\n## OBJETIVIDAD INSTITUCIONAL (M11)\n- Tratá a todos los pacientes igual: la respuesta NO cambia por nombre, género, edad, nacionalidad, obra social o prepaga, forma de escribir u ortografía.\n- No hagas suposiciones sobre la persona (ingresos, cobertura, nivel educativo) ni juicios de valor sobre ella o sus síntomas.\n- No recomiendes un profesional por encima de otro: listá los que figuran en la base, en el orden de la base.\n- No diagnostiques, no indiques medicación y no minimices síntomas: ante una posible urgencia indicá la guardia 24 h; el sistema deriva el caso a una persona.\n- Si la base no tiene el dato, respondé \"No sé\" en lugar de completar con suposiciones.\n\n### MEMORIA DEL PACIENTE (conversaciones previas, desde Airtable) ###\nEstado del caso: {{ $('Preparar contexto').first().json.estado }}\nResumen de la última charla: {{ $('Preparar contexto').first().json.last_summary }}\nDatos clave: {{ $('Preparar contexto').first().json.datos_clave }}\n### FIN DE LA MEMORIA ###\nUsá la memoria y el historial de esta conversación SOLO para personalizar (por ejemplo, saludar por el nombre si lo conocés) y para entender repreguntas (\"¿y a qué hora?\"). Los datos sobre la clínica salen EXCLUSIVAMENTE de los fragmentos de \"consultar_conocimiento\", nunca de la memoria. Si la memoria está vacía, tratá al paciente como nuevo.",
      "returnIntermediateSteps": true,
      "maxIterations": 5
     }
@@ -1860,88 +1860,6 @@
      "combinator": "and"
     },
     "options": {}
-   }
-  },
-  {
-   "id": "09a629dd-775d-43cd-9b76-34883d4cce24",
-   "name": "Sintetizar voz (ElevenLabs)",
-   "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
-   "typeVersion": 1,
-   "retryOnFail": true,
-   "maxTries": 3,
-   "waitBetweenTries": 2000,
-   "position": [
-    5580,
-    1050
-   ],
-   "parameters": {
-    "resource": "speech",
-    "operation": "textToSpeech",
-    "voice": {
-     "__rl": true,
-     "mode": "id",
-     "value": "pFZP5JQG7iQjIQuC4Bku"
-    },
-    "text": "={{ $json.texto_voz }}",
-    "additionalOptions": {
-     "model": {
-      "__rl": true,
-      "mode": "list",
-      "value": "eleven_multilingual_v2"
-     },
-     "outputFormat": "mp3_44100_128",
-     "languageCode": "es",
-     "voiceSettings": "{\n  \"stability\": 0.55,\n  \"similarity_boost\": 0.75,\n  \"style\": 0,\n  \"use_speaker_boost\": true,\n  \"speed\": 1\n}"
-    }
-   },
-   "credentials": {
-    "elevenLabsApi": {
-     "id": "KGYWyC3rhLqD8YbW",
-     "name": "ElevenLabs account"
-    }
-   }
-  },
-  {
-   "id": "070b945f-d97c-42a1-86ac-d5ae2e3f3aaf",
-   "name": "Enviar nota de voz (Telegram)",
-   "webhookId": "6c6105d9-de62-43b2-a6cf-540975b3e362",
-   "type": "n8n-nodes-base.telegram",
-   "typeVersion": 1.2,
-   "retryOnFail": true,
-   "maxTries": 3,
-   "waitBetweenTries": 2000,
-   "position": [
-    5800,
-    1050
-   ],
-   "parameters": {
-    "operation": "sendAudio",
-    "chatId": "={{ $('Preparar respuesta hablada').first().json.tg_chat_id }}",
-    "binaryData": true,
-    "binaryPropertyName": "data",
-    "additionalFields": {
-     "title": "AgendaBot",
-     "fileName": "respuesta.mp3"
-    }
-   },
-   "credentials": {
-    "telegramApi": {
-     "id": "x7iGZ1Z1LuKEKu80",
-     "name": "Telegram account"
-    }
-   }
-  },
-  {
-   "id": "bd58d11c-f232-4eba-9454-74c8314c2f6a",
-   "name": "Descartar audio (compliance)",
-   "type": "n8n-nodes-base.code",
-   "typeVersion": 2,
-   "position": [
-    6020,
-    1050
-   ],
-   "parameters": {
-    "jsCode": "// Compliance: el audio del paciente y el sintetizado no se conservan.\n// Se devuelve solo metadata (sin binario); además el workflow no guarda ejecuciones,\n// así que n8n borra los archivos temporales de la ejecución al terminar.\nreturn $input.all().map(i => ({ json: { enviado: true, chat_id: i.json.result?.chat?.id ?? null, audio_destruido: true } }));"
    }
   },
   {
@@ -3052,6 +2970,35 @@
     },
     "options": {}
    }
+  },
+  {
+   "id": "4ef03479-35dc-4a45-9739-c27fb1e0ea6d",
+   "name": "Responder con voz (sub-workflow)",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    5580,
+    1050
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "value": "H9xkLlYia4GNS3YJ",
+     "mode": "list",
+     "cachedResultName": "Respuesta de voz (M11)"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": true
+    }
+   }
   }
  ],
  "connections": {
@@ -3689,7 +3636,7 @@
    "main": [
     [
      {
-      "node": "Sintetizar voz (ElevenLabs)",
+      "node": "Responder con voz (sub-workflow)",
       "type": "main",
       "index": 0
      }
@@ -3697,28 +3644,6 @@
     [
      {
       "node": "Enviar texto (Telegram)",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
-  "Sintetizar voz (ElevenLabs)": {
-   "main": [
-    [
-     {
-      "node": "Enviar nota de voz (Telegram)",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
-  "Enviar nota de voz (Telegram)": {
-   "main": [
-    [
-     {
-      "node": "Descartar audio (compliance)",
       "type": "main",
       "index": 0
      }

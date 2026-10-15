@@ -38,7 +38,11 @@
   - **Ingesta KB (M11)** (`1MTk7AYPCxH8R2rh`, manual) es la carga de la base de conocimiento;
   - el Manager bajó de 115 a 94 nodos. Su disparador interno es *Llamada de un canal (Receptor / Telegram)*.
 - [x] **Emails con HITL** (devolución de la P4), revisado: las confirmaciones de turno y los resultados del webhook salen como **borrador**; *Responder INFO (email)* envía solo después del veredicto ACEPTADO o de la aprobación humana en Slack; *Responder al paciente (email)* solo manda avisos fijos del sistema (faltan datos, turno existente, en revisión).
-- [ ] Probar el Canal Telegram con un mensaje real (lo hace el usuario). Prioridad 2 y 3.
+- [x] **Refinamientos por las devoluciones P5 y P6** ([`scripts/refinamientos_devoluciones_m11.py`](scripts/refinamientos_devoluciones_m11.py)):
+  - «No sé» literal en el Agente RAG y en el Juez (`juez-rubrica-v3.1`, sha256 `5d369ceb1dc7`). Probado: "¿tiene estacionamiento?" → "No sé: ese dato no figura en la documentación de la clínica." (Juez ACEPTADO);
+  - purga de audios: **Respuesta de voz (M11)** (`H9xkLlYia4GNS3YJ`) y Canal Telegram no guardan ejecuciones.
+- [ ] Probar el Canal Telegram con un mensaje de texto y una nota de voz reales (lo hace el usuario). Prioridad 2 y 3.
+- [ ] **Decisión del usuario: enfoque No-Code** (devolución de la P7). El sistema usa nodos *Code* (Contrato de datos, Resolver acción, idempotencia, etc.).
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 
