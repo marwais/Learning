@@ -69,7 +69,9 @@
 - [x] **Alertas útiles para el equipo** ([`scripts/alertas_identidad_m11.py`](scripts/alertas_identidad_m11.py), pedido del usuario):
   - las alertas de falla salen **en castellano** (sin saldo, credencial vencida, sin permisos, saturación, sin conexión…), con el detalle técnico original entre paréntesis, el **mensaje del paciente** que originó el caso, su nombre y cómo contactarlo;
   - el aviso de casos rojos suma la identidad del paciente (nombre y link `t.me/@usuario` de Telegram, o el email) y lo que la **memoria** sabe de él (datos clave y resumen). El Canal Telegram ahora guarda el `@usuario`.
-- [ ] **Saldo de la API de Anthropic agotado** (15/10/2026, 14:36): el Router devolvió "credit balance is too low". Sin crédito se paran Router, RAG y Juez; el triaje, el freno de mano y las alertas siguen andando. Lo carga el usuario en console.anthropic.com → Plans & Billing.
+- [x] **Responder al paciente desde Slack** ([`scripts/responder_paciente_m11.py`](scripts/responder_paciente_m11.py); es el "Responder con plantilla" del M7). Después de *Tomo el caso*, Slack pide la respuesta (texto libre, 10 minutos) y AgendaBot la envía por el canal del paciente: por Telegram, en audio si habló o en texto si escribió; por email, solo si hay una respuesta escrita. Por defecto, en Telegram: "Nos estaremos comunicando en breve para continuar." Queda registrada en `escalados_m11`.
+- [x] Saldo de Anthropic recargado por el usuario (15/10/2026); verificado con una consulta de punta a punta.
+- [ ] ~~**Saldo de la API de Anthropic agotado** (15/10/2026, 14:36): el Router devolvió "credit balance is too low". Sin crédito se paran Router, RAG y Juez; el triaje, el freno de mano y las alertas siguen andando. Lo carga el usuario en console.anthropic.com → Plans & Billing.~~
 - [ ] **Prioridad 3: evidencias y DMSA.**
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):

@@ -297,8 +297,8 @@
    ],
    "parameters": {
     "width": 1240,
-    "height": 260,
-    "content": "## Escalado humano (M11): casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados_m11` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código."
+    "height": 330,
+    "content": "## Escalado humano (M11): casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados_m11` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código.\n\n**Responder al paciente**: con *Tomo el caso*, Slack pide la respuesta (texto libre, 10 min). AgendaBot la envía por el canal del paciente (por Telegram, en audio si habló o en texto si escribió; por email, solo si hay respuesta escrita). Por defecto, en Telegram: \"Nos estaremos comunicando en breve para continuar.\""
    }
   },
   {
@@ -336,6 +336,378 @@
     "airtableTokenApi": {
      "id": "tlRnBKsgQgEbyhnG",
      "name": "Airtable Memoria M3"
+    }
+   }
+  },
+  {
+   "id": "854d5252-34c7-43b9-a7ab-f4175c9e275e",
+   "name": "¿Lo tomó una persona?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    1100,
+    560
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "c5699ca0-2491-45b9-a2a1-aa3a7ca552f0",
+       "leftValue": "={{ $json.estado === 'tomado' }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "a1b00f82-2509-4184-a31c-198747710a62",
+   "name": "Respuesta para el paciente (Slack)",
+   "webhookId": "e74cfd6f-0168-4a4a-92a3-0695ae1ef3d8",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "position": [
+    1320,
+    560
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "sendAndWait",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "responseType": "freeText",
+    "message": "=:writing_hand: *Respuesta para {{ $('Recibir caso').first().json.nombre_remitente || 'el paciente' }}* ({{ $('Recibir caso').first().json.categoria }} · traceId {{ $('Recibir caso').first().json.traceId }})\nEscribí lo que AgendaBot le tiene que mandar por su canal ({{ $('Recibir caso').first().json.canal }}). Si no escribís nada en 10 minutos, o escribís un punto, {{ String($('Recibir caso').first().json.canal).startsWith('telegram') || $('Recibir caso').first().json.tg_chat_id ? 'se le envía: _Nos estaremos comunicando en breve para continuar._' : 'no se le envía nada (contactalo vos)' }}",
+    "options": {
+     "limitWaitTime": {
+      "values": {
+       "limitType": "afterTimeInterval",
+       "resumeAmount": 10,
+       "resumeUnit": "minutes"
+      }
+     }
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "58b8426b-951d-4097-8c0c-64d31d2935fc",
+   "name": "Mensaje para el paciente",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1540,
+    560
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "fb25f3e1-50d4-421a-8127-d75969e28db2",
+       "name": "personalizado",
+       "value": "={{ !!String($json.data?.text || '').trim() && String($json.data?.text || '').trim() !== '.' }}",
+       "type": "string"
+      },
+      {
+       "id": "0ac4915f-fa89-434e-a569-ac0ba5d5cfb1",
+       "name": "texto",
+       "value": "={{ (String($json.data?.text || '').trim() && String($json.data?.text || '').trim() !== '.') ? String($json.data.text).trim() : \"Nos estaremos comunicando en breve para continuar.\" }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": false,
+    "options": {}
+   }
+  },
+  {
+   "id": "a90646cb-f020-459c-9958-ba93a611a66d",
+   "name": "Registrar respuesta",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    1760,
+    560
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "update",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "zh7O0Cq0R7IToTYI"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "traceId",
+       "condition": "eq",
+       "keyValue": "={{ $('Recibir caso').first().json.traceId }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "decision": "={{ 'tomado; respuesta al paciente: ' + $json.texto }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "decision",
+       "displayName": "decision",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "86e43d37-aead-447b-b1a2-e2b2f7b99fd0",
+   "name": "¿Paciente en Telegram?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    1980,
+    560
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "0898de24-d0f6-4065-a2c7-e0a43f6ce3c6",
+       "leftValue": "={{ !!$('Recibir caso').first().json.tg_chat_id }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "87b4bd56-952f-468b-93f9-a4240b62b9d8",
+   "name": "¿Mandó audio?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    2200,
+    460
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "13cd1910-69dc-45de-b66e-f30167596fba",
+       "leftValue": "={{ $('Recibir caso').first().json.canal === 'telegram_voz' && $('Mensaje para el paciente').first().json.texto.length <= 200 }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "a9a8b3e9-7125-4966-bc49-29fde2b19f10",
+   "name": "Armar respuesta de voz",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    2420,
+    360
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "5de1ea6a-1924-435f-836d-4dfdd499202c",
+       "name": "texto_voz",
+       "value": "={{ $('Mensaje para el paciente').first().json.texto }}",
+       "type": "string"
+      },
+      {
+       "id": "cea5607d-f7aa-4557-b1d5-494aa8bf1183",
+       "name": "tg_chat_id",
+       "value": "={{ $('Recibir caso').first().json.tg_chat_id }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": false,
+    "options": {}
+   }
+  },
+  {
+   "id": "c501f981-95fa-4177-94f3-595468efeb4b",
+   "name": "Responder por voz (Respuesta de voz)",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    2640,
+    360
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "value": "H9xkLlYia4GNS3YJ",
+     "mode": "list",
+     "cachedResultName": "Respuesta de voz (M11)"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": true
+    }
+   }
+  },
+  {
+   "id": "2b8e2451-7a0b-4193-8de0-476c3a0faa52",
+   "name": "Responder por texto (Telegram)",
+   "webhookId": "ad3cb515-1c7e-4d3e-b6a4-8e53455cf5a5",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    2420,
+    560
+   ],
+   "parameters": {
+    "chatId": "={{ $('Recibir caso').first().json.tg_chat_id }}",
+    "text": "={{ $('Mensaje para el paciente').first().json.texto }}",
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "x7iGZ1Z1LuKEKu80",
+     "name": "Telegram account"
+    }
+   }
+  },
+  {
+   "id": "cd03e416-fc07-4cd6-8178-897410a34fad",
+   "name": "¿Hay email y una respuesta escrita?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    2200,
+    720
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "9b888217-0dc1-4310-8118-9510bdc101ec",
+       "leftValue": "={{ !!$('Recibir caso').first().json.email_entrada && $('Mensaje para el paciente').first().json.personalizado }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "4c690995-2c97-455d-8f79-568dabb58f6a",
+   "name": "Responder por email (Gmail)",
+   "webhookId": "c0003478-e7ea-4af4-af16-a7978950239e",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    2420,
+    720
+   ],
+   "parameters": {
+    "sendTo": "={{ $('Recibir caso').first().json.email_entrada }}",
+    "subject": "Clínica LoDeTincho — sobre tu consulta",
+    "emailType": "text",
+    "message": "=Hola,\n\n{{ $('Mensaje para el paciente').first().json.texto }}\n\n— Central de Turnos, Clínica LoDeTincho",
+    "options": {
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "gmailOAuth2": {
+     "id": "LCpAQRDOeUUC99pU",
+     "name": "Gmail account"
     }
    }
   }
@@ -381,6 +753,11 @@
       "node": "¿Nadie lo tomó?",
       "type": "main",
       "index": 0
+     },
+     {
+      "node": "¿Lo tomó una persona?",
+      "type": "main",
+      "index": 0
      }
     ]
    ]
@@ -401,6 +778,108 @@
     [
      {
       "node": "Avisar al equipo (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Lo tomó una persona?": {
+   "main": [
+    [
+     {
+      "node": "Respuesta para el paciente (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Respuesta para el paciente (Slack)": {
+   "main": [
+    [
+     {
+      "node": "Mensaje para el paciente",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Mensaje para el paciente": {
+   "main": [
+    [
+     {
+      "node": "Registrar respuesta",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar respuesta": {
+   "main": [
+    [
+     {
+      "node": "¿Paciente en Telegram?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Paciente en Telegram?": {
+   "main": [
+    [
+     {
+      "node": "¿Mandó audio?",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "¿Hay email y una respuesta escrita?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Mandó audio?": {
+   "main": [
+    [
+     {
+      "node": "Armar respuesta de voz",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Responder por texto (Telegram)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Armar respuesta de voz": {
+   "main": [
+    [
+     {
+      "node": "Responder por voz (Respuesta de voz)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Hay email y una respuesta escrita?": {
+   "main": [
+    [
+     {
+      "node": "Responder por email (Gmail)",
       "type": "main",
       "index": 0
      }
