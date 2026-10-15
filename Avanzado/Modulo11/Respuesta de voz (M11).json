@@ -43,7 +43,7 @@
      },
      "outputFormat": "mp3_44100_128",
      "languageCode": "es",
-     "voiceSettings": "{\n  \"stability\": 0.55,\n  \"similarity_boost\": 0.75,\n  \"style\": 0,\n  \"use_speaker_boost\": true,\n  \"speed\": 1\n}"
+     "voiceSettings": "{\n  \"stability\": 0.8,\n  \"similarity_boost\": 0.9,\n  \"style\": 0,\n  \"use_speaker_boost\": true,\n  \"speed\": 1\n}"
     }
    },
    "credentials": {
@@ -108,7 +108,7 @@
    "parameters": {
     "width": 920,
     "height": 240,
-    "content": "## Respuesta de voz (M11): privacidad de los audios\nSintetiza la respuesta (máx. 200 caracteres) con ElevenLabs, la manda como nota de voz y **descarta el binario**: devuelve solo metadatos. Este workflow **no guarda ninguna ejecución** (ni con éxito ni con error), así que el audio solo existe en memoria durante el envío. Lo mismo hace el Canal Telegram con la nota de voz del paciente (devolución de la P6)."
+    "content": "## Respuesta de voz (M11): privacidad de los audios\nSintetiza la respuesta (máx. 200 caracteres) con ElevenLabs, la manda como nota de voz y **descarta el binario**: devuelve solo metadatos. Este workflow **no guarda ninguna ejecución** (ni con éxito ni con error), así que el audio solo existe en memoria durante el envío. Lo mismo hace el Canal Telegram con la nota de voz del paciente (devolución de la P6).\n\n**Voz uniforme**: estabilidad 0,80 y similitud 0,90 (con 0,55 la misma voz sonaba distinta entre frases cortas y largas)."
    }
   }
  ],
