@@ -514,7 +514,7 @@
    ],
    "parameters": {
     "mode": "raw",
-    "jsonOutput": "={{ JSON.stringify({ ...$('Entrada Telegram').first().json, mensaje: $('Buscar pedido pendiente').first().json.texto + ' (Corrección del paciente por texto: su email correcto es ' + $('Entrada Telegram').first().json.mensaje.trim() + '; ignorá cualquier email dictado en el audio.)' }) }}",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Entrada Telegram').first().json, mensaje: $('Buscar pedido pendiente').first().json.texto + ' (Datos que el paciente agregó por texto: ' + $('Entrada Telegram').first().json.mensaje.trim() + '. Si incluye un email, ese es el correcto: ignorá cualquier email dictado en el audio.)' }) }}",
     "options": {}
    }
   },

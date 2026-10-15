@@ -62,6 +62,9 @@
 - [x] Gmail reconectado (15/10/2026). `levantar_tunel.ps1` ahora pasa `N8N_EDITOR_BASE_URL=http://localhost:5678/`, así el retorno de OAuth de Google usa localhost y no el túnel (con el túnel, Google daba `redirect_uri_mismatch`).
 - [ ] Riesgo de mantenimiento: HubSpot avisa que el nodo de n8n usa versiones de su API que se dan de baja **después de septiembre de 2027** (lo cubre el abono de soporte del M10).
 - [x] **Canal Telegram: pedido pendiente** ([`scripts/telegram_pendiente_m11.py`](scripts/telegram_pendiente_m11.py)). Era un hueco del M6, encontrado en la prueba del usuario del 15/10: al pedir "escribime el email por texto", el canal descartaba el pedido del audio y el email llegaba suelto ("¿En qué te puedo ayudar?"). Ahora la transcripción se guarda en la Data Table `pendientes_m11`; cuando llega un texto con @ (dentro de 30 min) se une con el pedido y recién ahí pasa al Manager. Se respeta el formato del paciente: si habló, el pedido del email sale **por voz** ("Anoté tu pedido… escribímelo por texto") y debajo una aclaración por texto ("Para evitar errores, el email te lo pido por escrito, por favor.").
+- [x] **Datos faltantes** ([`scripts/faltan_datos_m11.py`](scripts/faltan_datos_m11.py), pedido del usuario):
+  - el aviso dice "Faltan datos que son necesarios para poder agendar turnos: fecha, hora y email." (o "…para poder modificar el turno: …");
+  - si falta el email y el paciente está en Telegram, el pedido queda en `pendientes_m11` y se le pide el email por escrito: por voz si habló, más la aclaración por texto. Cuando lo escribe, el Canal Telegram lo une con el pedido original.
 - [ ] **Prioridad 3: evidencias y DMSA.**
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
