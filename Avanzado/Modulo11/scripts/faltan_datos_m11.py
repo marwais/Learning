@@ -23,7 +23,12 @@ import _config as C  # noqa: E402
 import seguridad_p2_m11 as S  # noqa: E402
 
 IDS = S.IDS
-LISTA = "const lista=a=>a.length>1?a.slice(0,-1).join(', ')+' y '+a[a.length-1]:a[0];\n"
+LISTA = ("// Etiquetas y orden de los datos faltantes en el aviso al paciente.\n"
+         "const ETIQ={fecha:'Fecha',hora:'Hora','la nueva fecha u hora':'la nueva Fecha u Hora',motivo:'Motivo del turno',"
+         "nombre:'su Nombre y Apellido',email:'su Email'};\n"
+         "const ORDEN=['fecha','hora','la nueva fecha u hora','motivo','nombre','email'];\n"
+         "const lista=a=>{const b=[...a].sort((x,y)=>ORDEN.indexOf(x)-ORDEN.indexOf(y)).map(x=>ETIQ[x]||x);"
+         "return b.length>1?b.slice(0,-1).join(', ')+' y '+b[b.length-1]:b[0];};\n")
 MOD_VIEJO = "  if(falta.length){ out={accion:'faltan_datos',mensaje:'Para modificar el turno faltan datos: '+falta.join(', ')+'.'}; }"
 MOD_NUEVO = ("  if(falta.length){ out={accion:'faltan_datos',faltan:falta,falta_email:false,"
              "mensaje:'Faltan datos que son necesarios para poder modificar el turno: '+lista(falta)+'.'}; }")
