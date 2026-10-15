@@ -22,6 +22,9 @@
    "type": "n8n-nodes-base.googleSheets",
    "typeVersion": 4.5,
    "alwaysOutputData": true,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     240,
     0
@@ -98,6 +101,8 @@
   }
  },
  "settings": {
-  "executionOrder": "v1"
+  "executionOrder": "v1",
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all"
  }
 }

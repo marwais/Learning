@@ -1,0 +1,56 @@
+{
+ "name": "Simulacro de falla (M11)",
+ "nodes": [
+  {
+   "id": "163f7ac8-ac65-439c-af7b-33b3443ce945",
+   "name": "Webhook simulacro",
+   "webhookId": "8e656dd4-74a7-4072-bc3f-12dffc75f612",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    0,
+    300
+   ],
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "simulacro-falla-m11",
+    "responseMode": "onReceived",
+    "options": {
+     "responseCode": 202
+    }
+   }
+  },
+  {
+   "id": "2e294bc2-a9e0-4d18-9642-4c2b84db3ebe",
+   "name": "API externa caída (simulada)",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    240,
+    300
+   ],
+   "parameters": {
+    "jsCode": "// Simula la caída de una API externa para probar la rama de error.\nthrow new Error('Simulacro: la API externa no responde (HTTP 503)');"
+   }
+  }
+ ],
+ "connections": {
+  "Webhook simulacro": {
+   "main": [
+    [
+     {
+      "node": "API externa caída (simulada)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all",
+  "errorWorkflow": "UBZ3dbNmFMFuYrAR",
+  "executionOrder": "v1"
+ }
+}

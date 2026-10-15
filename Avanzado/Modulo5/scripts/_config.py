@@ -4,7 +4,7 @@
 Lee la configuracion de scripts/.env (o variables de entorno). Copiá
 .env.example a .env y completá N8N_API_KEY (la creás en n8n -> Settings -> n8n API).
 """
-import os, json, urllib.request
+import os, json, urllib.request, urllib.error
 
 def _load_env():
     here = os.path.dirname(os.path.abspath(__file__))
@@ -48,7 +48,13 @@ def n8n(method, path, body=None):
         N8N_BASE + "/api/v1" + path, data=data, method=method,
         headers={"X-N8N-API-KEY": N8N_KEY, "Content-Type": "application/json",
                  "Accept": "application/json"})
-    return json.loads(urllib.request.urlopen(req, timeout=120).read())
+    for intento in range(3):  # las lecturas grandes a veces se cortan (WinError 10054): reintentar los GET
+        try:
+            return json.loads(urllib.request.urlopen(req, timeout=120).read())
+        except (ConnectionResetError, urllib.error.URLError) as e:
+            if method != "GET" or isinstance(e, urllib.error.HTTPError) or intento == 2:
+                raise
+            import time; time.sleep(2)
 
 def qdrant(method, path, body=None):
     data = json.dumps(body).encode() if body is not None else None

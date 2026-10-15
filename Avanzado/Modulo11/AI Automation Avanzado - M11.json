@@ -21,7 +21,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    144,
+    1044,
     320
    ],
    "parameters": {
@@ -38,8 +38,11 @@
    "name": "Anthropic Chat Model",
    "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
    "typeVersion": 1.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    144,
+    1044,
     512
    ],
    "parameters": {
@@ -64,7 +67,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    464,
+    1364,
     320
    ],
    "parameters": {
@@ -77,7 +80,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    720,
+    1620,
     304
    ],
    "parameters": {
@@ -181,8 +184,11 @@
    "type": "n8n-nodes-base.googleSheets",
    "typeVersion": 4.5,
    "alwaysOutputData": true,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    1040,
+    1940,
     -192
    ],
    "parameters": {
@@ -222,11 +228,11 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    1200,
+    2100,
     -192
    ],
    "parameters": {
-    "jsCode": "const req=$('Contrato de datos').first().json;\nconst now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());\nfunction parseF(f){f=String(f||'').trim();let m=f.match(/^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=f.match(/^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(f);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());}\nfunction sameF(a,b){const x=parseF(a),y=parseF(b);return !!(x&&y&&x.getTime()===y.getTime());}\nconst n=s=>String(s??'').trim().toLowerCase();\nconst rows=$input.all().map(i=>i.json).filter(r=>r&&r.Nombre);\nconst mine=rows.filter(r=>n(r.Nombre)===n(req.nombre) && (function(){const d=parseF(r.Fecha);return d&&d>=today;})());\nlet target=null;\nif(req.motivo) target=mine.find(r=>n(r.Motivo)===n(req.motivo));\nif(!target&&req.fecha_ref&&req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref)&&n(r.Hora)===n(req.hora_ref));\nif(!target&&req.fecha_ref&&!req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref));\nlet out; const falta=[];\nif(!req.nombre) falta.push('nombre');\nif(target){\n  const nf=req.fecha||target.Fecha, nh=req.hora||target.Hora;\n  if(!req.fecha && !req.hora) falta.push('la nueva fecha u hora');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'Para modificar el turno faltan datos: '+falta.join(', ')+'.'}; }\n  else { const choque=mine.find(r=>r.ID!==target.ID&&sameF(r.Fecha,nf)&&n(r.Hora)===n(nh));\n    if(choque) out={accion:'rechazo',mensaje:'Ya tenés un turno el '+nf+' a las '+nh+'.'};\n    else out={accion:'modificar',id:target.ID,nombre:req.nombre,motivo:target.Motivo,fecha:nf,hora:nh}; }\n}else{\n  if(!req.fecha) falta.push('fecha');\n  if(!req.hora) falta.push('hora');\n  if(!req.motivo) falta.push('motivo');\n  if(!req.email) falta.push('email');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'No se puede agendar la cita: faltan datos obligatorios ('+falta.join(', ')+').'}; }\n  else if(req.motivo&&mine.find(r=>n(r.Motivo)===n(req.motivo))) out={accion:'rechazo',mensaje:'Ya tenés un turno para el motivo \"'+req.motivo+'\".'};\n  else if(mine.find(r=>sameF(r.Fecha,req.fecha)&&n(r.Hora)===n(req.hora))) out={accion:'rechazo',mensaje:'Ya tenés un turno el '+req.fecha+' a las '+req.hora+'.'};\n  else out={accion:'crear',nombre:req.nombre,motivo:req.motivo,fecha:req.fecha,hora:req.hora};\n}\nif(out && (out.accion==='crear'||out.accion==='modificar')) out.email = req.email || '';\nreturn [{ json: out }];"
+    "jsCode": "const req=$('Contrato de datos').first().json;\nconst now=new Date();const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());\nfunction parseF(f){f=String(f||'').trim();let m=f.match(/^([0-9]{1,2})\\/([0-9]{1,2})\\/([0-9]{4})$/);if(m)return new Date(+m[3],+m[2]-1,+m[1]);m=f.match(/^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$/);if(m)return new Date(+m[1],+m[2]-1,+m[3]);const d=new Date(f);return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());}\nfunction sameF(a,b){const x=parseF(a),y=parseF(b);return !!(x&&y&&x.getTime()===y.getTime());}\nconst n=s=>String(s??'').trim().toLowerCase();\nconst rows=$input.all().map(i=>i.json).filter(r=>r&&r.Nombre);\nconst mine=rows.filter(r=>n(r.Nombre)===n(req.nombre) && (function(){const d=parseF(r.Fecha);return d&&d>=today;})());\nlet target=null;\nif(req.motivo) target=mine.find(r=>n(r.Motivo)===n(req.motivo));\nif(!target&&req.fecha_ref&&req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref)&&n(r.Hora)===n(req.hora_ref));\nif(!target&&req.fecha_ref&&!req.hora_ref) target=mine.find(r=>sameF(r.Fecha,req.fecha_ref));\nlet out; const falta=[];\nif(!req.nombre) falta.push('nombre');\nif(target){\n  const nf=req.fecha||target.Fecha, nh=req.hora||target.Hora;\n  if(!req.fecha && !req.hora) falta.push('la nueva fecha u hora');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'Para modificar el turno faltan datos: '+falta.join(', ')+'.'}; }\n  else if(sameF(target.Fecha,nf)&&n(target.Hora)===n(nh)){ out={accion:'rechazo',mensaje:'Ya tenés un turno de '+target.Motivo+' el '+target.Fecha+' a las '+target.Hora+': no hice cambios.'}; }\n  else { const choque=mine.find(r=>r.ID!==target.ID&&sameF(r.Fecha,nf)&&n(r.Hora)===n(nh));\n    if(choque) out={accion:'rechazo',mensaje:'Ya tenés un turno el '+nf+' a las '+nh+'.'};\n    else out={accion:'modificar',id:target.ID,nombre:req.nombre,motivo:target.Motivo,fecha:nf,hora:nh}; }\n}else{\n  if(!req.fecha) falta.push('fecha');\n  if(!req.hora) falta.push('hora');\n  if(!req.motivo) falta.push('motivo');\n  if(!req.email) falta.push('email');\n  if(falta.length){ out={accion:'faltan_datos',mensaje:'No se puede agendar la cita: faltan datos obligatorios ('+falta.join(', ')+').'}; }\n  else if(req.motivo&&mine.find(r=>n(r.Motivo)===n(req.motivo))) out={accion:'rechazo',mensaje:'Ya tenés un turno para el motivo \"'+req.motivo+'\".'};\n  else if(mine.find(r=>sameF(r.Fecha,req.fecha)&&n(r.Hora)===n(req.hora))) out={accion:'rechazo',mensaje:'Ya tenés un turno el '+req.fecha+' a las '+req.hora+'.'};\n  else out={accion:'crear',nombre:req.nombre,motivo:req.motivo,fecha:req.fecha,hora:req.hora};\n}\nif(out && (out.accion==='crear'||out.accion==='modificar')) out.email = req.email || '';\nreturn [{ json: out }];"
    }
   },
   {
@@ -235,7 +241,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    1344,
+    2244,
     -208
    ],
    "parameters": {
@@ -304,7 +310,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1584,
+    2484,
     -352
    ],
    "parameters": {
@@ -334,7 +340,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1584,
+    2484,
     -144
    ],
    "parameters": {
@@ -364,7 +370,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1584,
+    2484,
     64
    ],
    "parameters": {
@@ -393,7 +399,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1776,
+    2676,
     -240
    ],
    "parameters": {
@@ -423,7 +429,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1040,
+    1940,
     224
    ],
    "parameters": {
@@ -453,8 +459,11 @@
    "webhookId": "a75ffeb3-5a92-494c-84a7-92404cde12f7",
    "type": "n8n-nodes-base.gmail",
    "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    3296,
+    4196,
     368
    ],
    "parameters": {
@@ -477,8 +486,11 @@
    "type": "n8n-nodes-base.airtable",
    "typeVersion": 2.2,
    "alwaysOutputData": true,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    -768,
+    132,
     496
    ],
    "parameters": {
@@ -511,7 +523,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    -528,
+    372,
     336
    ],
    "parameters": {
@@ -544,12 +556,15 @@
    "name": "Crear registro inicial",
    "type": "n8n-nodes-base.airtable",
    "typeVersion": 2.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    -304,
+    596,
     432
    ],
    "parameters": {
-    "operation": "create",
+    "operation": "upsert",
     "base": {
      "__rl": true,
      "value": "appO1XQ6layHvQx6e",
@@ -573,7 +588,9 @@
       "Mensajes": 0,
       "Ultimo_traceId": "={{ $('Generar traceId').first().json.traceId }}"
      },
-     "matchingColumns": [],
+     "matchingColumns": [
+      "Session_ID"
+     ],
      "schema": [
       {
        "id": "Session_ID",
@@ -664,7 +681,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    -80,
+    820,
     320
    ],
    "parameters": {
@@ -677,7 +694,7 @@
    "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
    "typeVersion": 1.3,
    "position": [
-    240,
+    1140,
     672
    ],
    "parameters": {
@@ -692,7 +709,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3920,
+    4820,
     368
    ],
    "parameters": {
@@ -724,8 +741,11 @@
    "name": "Modelo mini (resumen)",
    "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
    "typeVersion": 1.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    4336,
+    5236,
     336
    ],
    "parameters": {
@@ -750,7 +770,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    4336,
+    5236,
     128
    ],
    "parameters": {
@@ -768,7 +788,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    4608,
+    5508,
     128
    ],
    "parameters": {
@@ -780,8 +800,11 @@
    "name": "Actualizar contador",
    "type": "n8n-nodes-base.airtable",
    "typeVersion": 2.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    4768,
+    5668,
     512
    ],
    "parameters": {
@@ -900,8 +923,11 @@
    "name": "Guardar memoria (upsert)",
    "type": "n8n-nodes-base.airtable",
    "typeVersion": 2.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    4768,
+    5668,
     128
    ],
    "parameters": {
@@ -1022,7 +1048,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    3728,
+    4628,
     368
    ],
    "parameters": {
@@ -1200,8 +1226,11 @@
    "type": "n8n-nodes-base.hubspot",
    "typeVersion": 2.1,
    "alwaysOutputData": true,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    2384,
+    3284,
     -336
    ],
    "parameters": {
@@ -1236,7 +1265,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2560,
+    3460,
     -336
    ],
    "parameters": {
@@ -1269,8 +1298,11 @@
    "name": "Actualizar contacto (HubSpot)",
    "type": "n8n-nodes-base.hubspot",
    "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    2752,
+    3652,
     -432
    ],
    "parameters": {
@@ -1289,8 +1321,11 @@
    "name": "Crear contacto (HubSpot)",
    "type": "n8n-nodes-base.hubspot",
    "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    2752,
+    3652,
     -240
    ],
    "parameters": {
@@ -1310,8 +1345,11 @@
    "webhookId": "584b3a5c-96f4-490e-8e56-e539b310d66e",
    "type": "n8n-nodes-base.gmail",
    "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    2944,
+    3844,
     -336
    ],
    "parameters": {
@@ -1335,8 +1373,11 @@
    "webhookId": "479da39a-f067-4546-98d3-2f56a948ab0e",
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    3504,
+    4404,
     368
    ],
    "parameters": {
@@ -1368,7 +1409,7 @@
     640
    ],
    "parameters": {
-    "jsCode": "const j=$input.first().json||{};\n// Telegram (voz o texto): llega ya preparado por \"Entrada Telegram\"\nif (String(j.canal||'').startsWith('telegram')) {\n  return [{ json: { sessionId: j.sessionId, mensaje: j.mensaje, email_entrada: '', nombre_remitente: j.nombre_remitente||'', canal: j.canal, tg_chat_id: j.tg_chat_id } }];\n}\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst rawFrom=String(j.From||\"\");\nconst m=rawFrom.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/);\nconst email=m?m[0]:\"\";\nlet disp = rawFrom.includes(\"<\") ? rawFrom.split(\"<\")[0] : \"\";\ndisp = disp.replace(/[\"']/g,\"\").trim();\nif(disp.includes(\"@\")) disp=\"\";\nconst sessionId=isEmail ? (email||rawFrom.replace(/[\"']/g,\"\")) : String(j.sessionId||\"\");\nconst mensaje=j.chatInput||j.BodyText||j.Subject||\"\";\nconst email_entrada=isEmail?email:\"\";\nconst nombre_remitente=isEmail?disp:\"\";\nconst canal=isEmail?\"email\":\"chat\";\nreturn [{ json: { sessionId, mensaje, email_entrada, nombre_remitente, canal } }];"
+    "jsCode": "const j=$input.first().json||{};\n// Webhook (petición asincrónica): llega ya validado por \"Entrada webhook\"\nif (j.canal === 'webhook') {\n  return [{ json: { sessionId: j.sessionId, mensaje: j.mensaje, email_entrada: j.email || '', nombre_remitente: j.nombre || '', canal: 'webhook', tg_chat_id: j.tg_chat_id || '', request_id: j.request_id, traceId: j.traceId, trace_inicio: j.trace_inicio } }];\n}\n// Telegram (voz o texto): llega ya preparado por \"Entrada Telegram\"\nif (String(j.canal||'').startsWith('telegram')) {\n  return [{ json: { sessionId: j.sessionId, mensaje: j.mensaje, email_entrada: '', nombre_remitente: j.nombre_remitente||'', canal: j.canal, tg_chat_id: j.tg_chat_id } }];\n}\nconst isEmail=(j.From!==undefined)||(j.BodyText!==undefined);\nconst rawFrom=String(j.From||\"\");\nconst m=rawFrom.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/);\nconst email=m?m[0]:\"\";\nlet disp = rawFrom.includes(\"<\") ? rawFrom.split(\"<\")[0] : \"\";\ndisp = disp.replace(/[\"']/g,\"\").trim();\nif(disp.includes(\"@\")) disp=\"\";\nconst sessionId=isEmail ? (email||rawFrom.replace(/[\"']/g,\"\")) : String(j.sessionId||\"\");\nconst mensaje=j.chatInput||j.BodyText||j.Subject||\"\";\nconst email_entrada=isEmail?email:\"\";\nconst nombre_remitente=isEmail?disp:\"\";\nconst canal=isEmail?\"email\":\"chat\";\nreturn [{ json: { sessionId, mensaje, email_entrada, nombre_remitente, canal } }];"
    }
   },
   {
@@ -1377,7 +1418,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    1984,
+    2884,
     -240
    ],
    "parameters": {
@@ -1411,7 +1452,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2192,
+    3092,
     -336
    ],
    "parameters": {
@@ -1440,7 +1481,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    1792,
+    2692,
     160
    ],
    "parameters": {
@@ -1483,8 +1524,11 @@
    "webhookId": "906dc795-3a63-4652-90db-e98c2f39e24c",
    "type": "n8n-nodes-base.gmail",
    "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    2080,
+    2980,
     16
    ],
    "parameters": {
@@ -1507,7 +1551,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    4992,
+    5892,
     320
    ],
    "parameters": {
@@ -1520,7 +1564,7 @@
    "type": "n8n-nodes-base.manualTrigger",
    "typeVersion": 1,
    "position": [
-    320,
+    1220,
     1216
    ],
    "parameters": {}
@@ -1533,7 +1577,7 @@
    "alwaysOutputData": true,
    "onError": "continueRegularOutput",
    "position": [
-    544,
+    1444,
     1216
    ],
    "parameters": {
@@ -1548,7 +1592,7 @@
    "type": "n8n-nodes-base.httpRequest",
    "typeVersion": 4.2,
    "position": [
-    768,
+    1668,
     1216
    ],
    "parameters": {
@@ -1566,7 +1610,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    992,
+    1892,
     1216
    ],
    "parameters": {
@@ -1579,7 +1623,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    1200,
+    2100,
     1216
    ],
    "parameters": {
@@ -1592,7 +1636,7 @@
    "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
    "typeVersion": 1.3,
    "position": [
-    1424,
+    2324,
     1216
    ],
    "parameters": {
@@ -1617,7 +1661,7 @@
    "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
    "typeVersion": 1.1,
    "position": [
-    1520,
+    2420,
     1424
    ],
    "parameters": {
@@ -1650,7 +1694,7 @@
    "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
    "typeVersion": 1,
    "position": [
-    1632,
+    2532,
     1632
    ],
    "parameters": {
@@ -1664,7 +1708,7 @@
    "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
    "typeVersion": 1,
    "position": [
-    1360,
+    2260,
     1424
    ],
    "parameters": {
@@ -1683,7 +1727,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    1024,
+    1924,
     768
    ],
    "parameters": {
@@ -1702,10 +1746,10 @@
    "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
    "typeVersion": 1.3,
    "retryOnFail": true,
-   "maxTries": 2,
+   "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    1008,
+    1908,
     960
    ],
    "parameters": {
@@ -1732,7 +1776,7 @@
    "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
    "typeVersion": 2.2,
    "position": [
-    1184,
+    2084,
     960
    ],
    "parameters": {
@@ -1786,7 +1830,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    1984,
+    2884,
     768
    ],
    "parameters": {
@@ -1829,8 +1873,11 @@
    "webhookId": "daf3fa3c-e805-4022-8fe8-46817538dc37",
    "type": "n8n-nodes-base.gmail",
    "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    2192,
+    3092,
     688
    ],
    "parameters": {
@@ -1853,7 +1900,7 @@
    "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
    "typeVersion": 1.3,
    "position": [
-    1120,
+    2020,
     960
    ],
    "parameters": {
@@ -1868,7 +1915,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    1280,
+    2180,
     768
    ],
    "parameters": {
@@ -1881,7 +1928,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    3280,
+    4180,
     1850
    ],
    "parameters": {
@@ -1963,6 +2010,9 @@
    "webhookId": "4795f5f8-f530-42c9-a330-90391e2a8d80",
    "type": "n8n-nodes-base.telegram",
    "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     -1800,
     1400
@@ -1984,6 +2034,9 @@
    "name": "Transcribir (Whisper)",
    "type": "@n8n/n8n-nodes-langchain.openAi",
    "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     -1600,
     1400
@@ -2056,6 +2109,9 @@
    "webhookId": "fb4d11ea-7c10-49fe-9c8f-9da3bf23af93",
    "type": "n8n-nodes-base.telegram",
    "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     -980,
     1200
@@ -2113,8 +2169,11 @@
    "webhookId": "4abddbf6-6f29-4e15-b08a-ce002a2e56d5",
    "type": "n8n-nodes-base.telegram",
    "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    -760,
+    140,
     1300
    ],
    "parameters": {
@@ -2137,7 +2196,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    -760,
+    140,
     1560
    ],
    "parameters": {
@@ -2150,7 +2209,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2700,
+    3600,
     1250
    ],
    "parameters": {
@@ -2183,8 +2242,8 @@
    "type": "n8n-nodes-base.noOp",
    "typeVersion": 1,
    "position": [
-    2920,
-    1410
+    4260,
+    1580
    ],
    "parameters": {}
   },
@@ -2194,7 +2253,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    2920,
+    3820,
     1150
    ],
    "parameters": {
@@ -2207,7 +2266,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3140,
+    4040,
     1150
    ],
    "parameters": {
@@ -2239,8 +2298,11 @@
    "name": "Sintetizar voz (ElevenLabs)",
    "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
    "typeVersion": 1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    3360,
+    4260,
     1050
    ],
    "parameters": {
@@ -2276,8 +2338,11 @@
    "webhookId": "6c6105d9-de62-43b2-a6cf-540975b3e362",
    "type": "n8n-nodes-base.telegram",
    "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    3580,
+    4480,
     1050
    ],
    "parameters": {
@@ -2303,7 +2368,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    3800,
+    4700,
     1050
    ],
    "parameters": {
@@ -2316,8 +2381,11 @@
    "webhookId": "ab7eef74-cec5-494e-b9bc-c37929d741cf",
    "type": "n8n-nodes-base.telegram",
    "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
-    3360,
+    4260,
     1270
    ],
    "parameters": {
@@ -2356,7 +2424,7 @@
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    2620,
+    3520,
     790
    ],
    "parameters": {
@@ -2372,7 +2440,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1330,
+    2230,
     2050
    ],
    "parameters": {
@@ -2402,7 +2470,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    1560,
+    2460,
     2050
    ],
    "parameters": {
@@ -2502,7 +2570,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1860,
+    2760,
     1850
    ],
    "parameters": {
@@ -2537,7 +2605,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    1860,
+    2760,
     2050
    ],
    "parameters": {
@@ -2570,7 +2638,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2100,
+    3000,
     2210
    ],
    "parameters": {
@@ -2599,7 +2667,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2100,
+    3000,
     2430
    ],
    "parameters": {
@@ -2625,7 +2693,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    2330,
+    3230,
     2430
    ],
    "parameters": {
@@ -2663,7 +2731,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2560,
+    3460,
     2430
    ],
    "parameters": {
@@ -2697,7 +2765,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2800,
+    3700,
     2330
    ],
    "parameters": {
@@ -2727,7 +2795,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    2800,
+    3700,
     2530
    ],
    "parameters": {
@@ -2758,7 +2826,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3040,
+    3940,
     2530
    ],
    "parameters": {
@@ -2787,9 +2855,12 @@
    "webhookId": "b97d2567-19f5-41e7-8b3f-41c272d155f9",
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "onError": "continueRegularOutput",
    "position": [
-    3280,
+    4180,
     1630
    ],
    "parameters": {
@@ -2821,7 +2892,7 @@
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    1040,
+    1940,
     1720
    ],
    "parameters": {
@@ -2837,11 +2908,11 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    -910,
+    -880,
     470
    ],
    "parameters": {
-    "jsCode": "// traceId único por mensaje entrante: viaja a TODOS los sub-workflows y queda en cada log.\n// Formato: trc-<fecha>-<executionId del Manager>-<sufijo aleatorio>\nconst j = $json;\nconst ahora = new Date();\nconst fecha = ahora.toISOString().slice(0, 19).replace(/[-:T]/g, '');\nconst traceId = 'trc-' + fecha + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6);\nreturn [{ json: { ...j, traceId, trace_inicio: ahora.toISOString() } }];"
+    "jsCode": "// traceId único por mensaje entrante: viaja a TODOS los sub-workflows y queda en cada log.\n// Si el pedido vino por el Receptor (webhook), se reutiliza el traceId que ya se le devolvió al que llamó.\n// Formato: trc-<fecha>-<executionId>-<sufijo aleatorio>\nconst j = $json;\nconst ahora = new Date();\nconst fecha = ahora.toISOString().slice(0, 19).replace(/[-:T]/g, '');\nconst traceId = j.traceId || ('trc-' + fecha + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6));\nreturn [{ json: { ...j, traceId, trace_inicio: j.trace_inicio || ahora.toISOString() } }];"
    }
   },
   {
@@ -2850,7 +2921,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1564,
+    2464,
     -502
    ],
    "parameters": {
@@ -2867,6 +2938,12 @@
        "name": "parentExecutionId",
        "value": "={{ $execution.id }}",
        "type": "string"
+      },
+      {
+       "id": "cb815ad6-2fe7-407e-a80d-31ecc8b13edb",
+       "name": "idemKey",
+       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "type": "string"
       }
      ]
     },
@@ -2880,7 +2957,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1564,
+    2464,
     -294
    ],
    "parameters": {
@@ -2897,6 +2974,12 @@
        "name": "parentExecutionId",
        "value": "={{ $execution.id }}",
        "type": "string"
+      },
+      {
+       "id": "bb4d5506-f003-4fe9-80cc-6c14aa599941",
+       "name": "idemKey",
+       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "type": "string"
       }
      ]
     },
@@ -2910,7 +2993,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1756,
+    2656,
     -390
    ],
    "parameters": {
@@ -2927,6 +3010,12 @@
        "name": "parentExecutionId",
        "value": "={{ $execution.id }}",
        "type": "string"
+      },
+      {
+       "id": "e89c5170-e78b-41b2-bdd1-cb3466c8f458",
+       "name": "idemKey",
+       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "type": "string"
       }
      ]
     },
@@ -2940,7 +3029,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1020,
+    1920,
     74
    ],
    "parameters": {
@@ -2956,6 +3045,12 @@
        "id": "c8e297fb-656d-4507-94bd-335459347acd",
        "name": "parentExecutionId",
        "value": "={{ $execution.id }}",
+       "type": "string"
+      },
+      {
+       "id": "b1775973-aa76-407c-9586-3a86914a1aa5",
+       "name": "idemKey",
+       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
        "type": "string"
       }
      ]
@@ -2978,6 +3073,199 @@
     "height": 300,
     "color": 6,
     "content": "## Trazabilidad (M11)\n**Generar traceId** crea un id único por mensaje (`trc-<fecha>-<executionId>-<sufijo>`). Viaja de forma explícita a cada sub-workflow (Sets **traceId → Worker N**, input de la herramienta RAG y caso del Juez) y queda en QA_Veredictos (11), Agenda_Turnos (11), Memoria_M11 y el email de log.\n\n## FinOps\nPrompt Caching 5 min en el Agente RAG (bloque fijo primero, memoria al final; el Juez sin caché) · tope de 5 iteraciones · resumen de memoria con Haiku 4.5."
+   }
+  },
+  {
+   "id": "0df1db21-9f4f-4630-885e-9113c9a47e00",
+   "name": "Control de idempotencia",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    -660,
+    470
+   ],
+   "parameters": {
+    "jsCode": "// Idempotencia: cada pedido tiene una clave única según su canal (tg-<update_id>, gm-<id del mail>,\n// chat-<ejecución>). Si la clave ya se procesó en los últimos 7 días, el pedido se marca como repetido y\n// no se registra ni se responde dos veces. Los pedidos del webhook ya los controló el Receptor (M11).\nconst j = $json;\nconst canal = String(j.canal || '');\nif (canal === 'webhook') return [{ json: { ...j, idemKey: 'wh-' + j.request_id, duplicado: false } }];\nlet idemKey;\nif (canal.startsWith('telegram')) idemKey = 'tg-' + $('Mensaje de Telegram').first().json.update_id;\nelse if (canal === 'email') idemKey = 'gm-' + $('Email entrante (Gmail Trigger)').first().json.id;\nelse idemKey = 'chat-' + $execution.id;\nconst s = $getWorkflowStaticData('global');\ns.procesados = s.procesados || {};\nconst ahora = Date.now(), TTL = 7 * 24 * 3600 * 1000;\nfor (const [k, v] of Object.entries(s.procesados)) if (ahora - (v.t || v) > TTL) delete s.procesados[k];\nconst previo = s.procesados[idemKey];\nif (previo) return [{ json: { ...j, idemKey, duplicado: true, traceId_original: previo.traceId || '' } }];\ns.procesados[idemKey] = { t: ahora, traceId: j.traceId };\nreturn [{ json: { ...j, idemKey, duplicado: false } }];"
+   }
+  },
+  {
+   "id": "47a8204c-c770-44d5-972e-827c644d6f29",
+   "name": "¿Pedido nuevo?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    -440,
+    470
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "6c02bf78-aab8-46e0-a323-0020ce5cc7c4",
+       "leftValue": "={{ $json.duplicado }}",
+       "operator": {
+        "type": "boolean",
+        "operation": "false",
+        "singleValue": true
+       },
+       "rightValue": ""
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "d36076de-c267-4366-937c-f2afb1637025",
+   "name": "Pedido repetido (descartado)",
+   "type": "n8n-nodes-base.noOp",
+   "typeVersion": 1,
+   "position": [
+    -440,
+    680
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "c2d41b5d-863d-48c7-991f-60c8aef12cad",
+   "name": "¿Respuesta por webhook?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    3820,
+    1410
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "d8652c3b-776c-4ccd-8b09-9474a927e360",
+       "leftValue": "={{ $('Normalizar entrada').first().json.canal }}",
+       "operator": {
+        "type": "string",
+        "operation": "equals"
+       },
+       "rightValue": "webhook"
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "81142622-4ad7-4337-8af1-5b4bb60fbf1a",
+   "name": "¿Pidió Telegram?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    4040,
+    1330
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "ce146f16-c360-4485-b444-b09e5a9a3454",
+       "leftValue": "={{ $('Normalizar entrada').first().json.tg_chat_id }}",
+       "operator": {
+        "type": "string",
+        "operation": "notEmpty",
+        "singleValue": true
+       },
+       "rightValue": ""
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "a9d7bc8f-8bbf-40ea-a174-0c2d15d98ba5",
+   "name": "Enviar resultado (Telegram)",
+   "webhookId": "7e417fda-b2f8-4aea-b344-761674b36ff1",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    4260,
+    1240
+   ],
+   "parameters": {
+    "chatId": "={{ $('Normalizar entrada').first().json.tg_chat_id }}",
+    "text": "={{ $('Responder al chat').first().json.output }}",
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "x7iGZ1Z1LuKEKu80",
+     "name": "Telegram account"
+    }
+   }
+  },
+  {
+   "id": "708d61a0-7a74-4ba1-9382-7400d90eb363",
+   "name": "Borrador del resultado (Gmail)",
+   "webhookId": "6d3bcd3b-e528-44a0-a942-dd3143ea7c6d",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    4260,
+    1390
+   ],
+   "parameters": {
+    "resource": "draft",
+    "subject": "=AgendaBot — respuesta a tu pedido ({{ $('Generar traceId').first().json.traceId }})",
+    "message": "=Hola {{ $('Normalizar entrada').first().json.nombre_remitente || '' }},\n\n{{ $('Responder al chat').first().json.output }}\n\n— Central de Turnos, Clínica LoDeTincho\n(Borrador generado por AgendaBot para revisión humana antes de enviar.)",
+    "options": {
+     "sendTo": "={{ $('Normalizar entrada').first().json.email_entrada }}"
+    }
+   },
+   "credentials": {
+    "gmailOAuth2": {
+     "id": "LCpAQRDOeUUC99pU",
+     "name": "Gmail account"
+    }
+   }
+  },
+  {
+   "id": "e2c4e4f2-8293-405d-a656-f549cf5b223a",
+   "name": "Llamada del Receptor",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1.1,
+   "position": [
+    -1760,
+    -150
+   ],
+   "parameters": {
+    "inputSource": "passthrough"
    }
   }
  ],
@@ -3802,7 +4090,7 @@
     ],
     [
      {
-      "node": "Respuesta (chat / email)",
+      "node": "¿Respuesta por webhook?",
       "type": "main",
       "index": 0
      }
@@ -4034,7 +4322,7 @@
    "main": [
     [
      {
-      "node": "Buscar memoria (Airtable)",
+      "node": "Control de idempotencia",
       "type": "main",
       "index": 0
      }
@@ -4084,13 +4372,90 @@
      }
     ]
    ]
+  },
+  "Control de idempotencia": {
+   "main": [
+    [
+     {
+      "node": "¿Pedido nuevo?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Pedido nuevo?": {
+   "main": [
+    [
+     {
+      "node": "Buscar memoria (Airtable)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Pedido repetido (descartado)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Respuesta por webhook?": {
+   "main": [
+    [
+     {
+      "node": "¿Pidió Telegram?",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respuesta (chat / email)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Pidió Telegram?": {
+   "main": [
+    [
+     {
+      "node": "Enviar resultado (Telegram)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Borrador del resultado (Gmail)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Llamada del Receptor": {
+   "main": [
+    [
+     {
+      "node": "Normalizar entrada",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
   }
  },
  "settings": {
   "saveExecutionProgress": false,
-  "saveManualExecutions": false,
-  "saveDataErrorExecution": "none",
-  "saveDataSuccessExecution": "none",
-  "executionOrder": "v1"
+  "saveManualExecutions": true,
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all",
+  "executionOrder": "v1",
+  "errorWorkflow": "UBZ3dbNmFMFuYrAR"
  }
 }

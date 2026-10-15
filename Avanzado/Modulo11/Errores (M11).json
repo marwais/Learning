@@ -1,0 +1,236 @@
+{
+ "name": "Errores (M11)",
+ "nodes": [
+  {
+   "id": "c7c81a98-221d-473d-a88d-b4fe4dcc75ea",
+   "name": "Error Trigger",
+   "type": "n8n-nodes-base.errorTrigger",
+   "typeVersion": 1,
+   "position": [
+    0,
+    300
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "3ba515fb-5fb9-40cc-a215-ce1cbf23b8b4",
+   "name": "Leer ejecución fallida",
+   "type": "n8n-nodes-base.httpRequest",
+   "typeVersion": 4.2,
+   "retryOnFail": true,
+   "maxTries": 2,
+   "waitBetweenTries": 1000,
+   "onError": "continueRegularOutput",
+   "position": [
+    220,
+    300
+   ],
+   "parameters": {
+    "url": "=http://localhost:5678/api/v1/executions/{{ $json.execution.id }}",
+    "authentication": "genericCredentialType",
+    "genericAuthType": "httpHeaderAuth",
+    "sendQuery": true,
+    "queryParameters": {
+     "parameters": [
+      {
+       "name": "includeData",
+       "value": "true"
+      }
+     ]
+    },
+    "options": {
+     "timeout": 15000
+    }
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "m8UwVgownpxlwsRa",
+     "name": "n8n API local (M11 errores)"
+    }
+   }
+  },
+  {
+   "id": "9d2f5ad2-e758-488c-82f4-052b5a258106",
+   "name": "Armar alerta",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    440,
+    300
+   ],
+   "parameters": {
+    "jsCode": "// Arma la alerta para el equipo humano y, si se puede, el aviso al paciente.\nconst e = $('Error Trigger').first().json;\nconst ex = e.execution || {}, wf = e.workflow || {};\nconst rd = (($json.data || {}).resultData || {}).runData || {};\nconst salida = n => { try { return rd[n][0].data.main[0][0].json; } catch (_) { return {}; } };\nconst norm = salida('Normalizar entrada');\nconst traceId = salida('Generar traceId').traceId || '(sin traceId: falló antes de generarlo)';\nconst err = ex.error || {};\nconst texto = [\n  ':rotating_light: *AgendaBot — falla en producción*',\n  `*Workflow:* ${wf.name || '?'} · *Nodo:* ${ex.lastNodeExecuted || (err.node || {}).name || '?'}`,\n  `*Error:* ${String(err.message || 'sin mensaje').slice(0, 300)}`,\n  `*traceId:* ${traceId} · *Ejecución:* ${ex.id || '?'}`,\n  `*Paciente:* canal ${norm.canal || '?'} · sesión ${norm.sessionId || '?'}${norm.email_entrada ? ' · ' + norm.email_entrada : ''}`,\n  '*Acción:* tomar el caso y contactar al paciente; revisar la ejecución en n8n.'\n].join('\\n');\nreturn [{ json: {\n  texto, traceId, canal: norm.canal || '', tg_chat_id: norm.tg_chat_id || '',\n  aviso_paciente: 'Estamos con demoras: una persona del equipo te va a responder en unos minutos. Disculpá la espera.'\n} }];"
+   }
+  },
+  {
+   "id": "5d2ba5e9-e667-492a-a283-b4207e581e55",
+   "name": "Alertar al equipo (Slack)",
+   "webhookId": "3e93c3dd-c08d-4b6a-b9d5-b9f826231ea5",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    680,
+    200
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "post",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "text": "={{ $json.texto }}",
+    "otherOptions": {
+     "includeLinkToWorkflow": false
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "8bc43a22-d9a0-4a94-9a96-4525a6f0d90e",
+   "name": "¿Paciente en Telegram?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    680,
+    420
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "e4507960-c1fc-439b-874c-e2266c1e98bb",
+       "leftValue": "={{ $json.tg_chat_id }}",
+       "rightValue": "",
+       "operator": {
+        "type": "string",
+        "operation": "notEmpty",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "aacce922-4440-45d8-b655-6c7cb21a7cb0",
+   "name": "Avisar demora (Telegram)",
+   "webhookId": "f28d2268-af47-4ddb-b32f-7bcb929a2039",
+   "type": "n8n-nodes-base.telegram",
+   "typeVersion": 1.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    900,
+    400
+   ],
+   "parameters": {
+    "chatId": "={{ $json.tg_chat_id }}",
+    "text": "={{ $json.aviso_paciente }}",
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "telegramApi": {
+     "id": "x7iGZ1Z1LuKEKu80",
+     "name": "Telegram account"
+    }
+   }
+  },
+  {
+   "id": "eeeae1e3-7b3d-46ab-a815-bc5317be6ae1",
+   "name": "Nota",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    -40,
+    0
+   ],
+   "parameters": {
+    "width": 1000,
+    "height": 220,
+    "content": "## Errores (M11): rama de error de grado industrial\nSe dispara cuando falla una ejecución del Manager M11 (o del simulacro). Lee la ejecución fallida por la API de n8n para recuperar el **traceId** y el canal del paciente, **alerta al equipo humano en Slack** (#soporte) y, si el paciente escribió por Telegram, le avisa que hay demoras. Credencial: encabezado `X-N8N-API-KEY` guardado en las credenciales de n8n (el valor no está en el workflow)."
+   }
+  }
+ ],
+ "connections": {
+  "Error Trigger": {
+   "main": [
+    [
+     {
+      "node": "Leer ejecución fallida",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Leer ejecución fallida": {
+   "main": [
+    [
+     {
+      "node": "Armar alerta",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Armar alerta": {
+   "main": [
+    [
+     {
+      "node": "Alertar al equipo (Slack)",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "¿Paciente en Telegram?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Paciente en Telegram?": {
+   "main": [
+    [
+     {
+      "node": "Avisar demora (Telegram)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    []
+   ]
+  }
+ },
+ "settings": {
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all",
+  "executionOrder": "v1"
+ }
+}

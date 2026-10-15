@@ -71,6 +71,9 @@
    "name": "Embedding de la consulta (Cohere)",
    "type": "n8n-nodes-base.httpRequest",
    "typeVersion": 4.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     440,
     0
@@ -97,6 +100,9 @@
    "name": "Buscar en Qdrant (Top-K + Min Score)",
    "type": "n8n-nodes-base.httpRequest",
    "typeVersion": 4.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     660,
     0
@@ -171,6 +177,8 @@
   }
  },
  "settings": {
-  "executionOrder": "v1"
+  "executionOrder": "v1",
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all"
  }
 }

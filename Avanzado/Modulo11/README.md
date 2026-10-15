@@ -11,7 +11,42 @@
 - [x] M11 duplicado del M9 con [`scripts/duplicar_m9_a_m11.py`](scripts/duplicar_m9_a_m11.py): 7 workflows, sub-workflows publicados y **Manager M11 inactivo**. El M9 sigue en producción hasta que el M11 esté listo.
 - [x] Recursos propios: `Agenda_Turnos (11)` y `QA_Veredictos (11)` (copias de las 09 con sus datos), `Memoria_M11` en Airtable y carpeta Drive `Entregas/Trabajo Final`.
 - [x] Esqueleto del DMSA: [`DMSA/build_pdf.py`](DMSA/build_pdf.py), que lee `DMSA/Seccion1..4_*.md` y `DMSA/capturas/`.
-- [ ] Construir lo que falta (plan abajo), probar, recolectar evidencias y redactar el DMSA.
+- [x] **Plan aprobado por el usuario (14/10/2026).** El M11 pasó a producción: Manager M9 desactivado, Manager M11 activo.
+- [x] Ramas de error y reintentos ([`scripts/robustez_m11.py`](scripts/robustez_m11.py)):
+  - workflow **Errores (M11)** (`UBZ3dbNmFMFuYrAR`, Error Workflow del Manager y del Receptor): lee la ejecución fallida y alerta a Slack (#soporte) con el nodo, el error, el traceId y el paciente; si el paciente escribió por Telegram, le avisa que hay demoras. Para que n8n 2.x lo ejecute tiene que estar publicado;
+  - *Retry on Fail* (3 intentos cada 2 s) en las APIs externas;
+  - se guardan las ejecuciones con error y con éxito;
+  - **Simulacro de falla (M11)** (`POST /webhook/simulacro-falla-m11`) sirve para probar la alerta.
+- [x] Idempotencia:
+  - nodo **Control de idempotencia** en el Manager, con clave `tg-`/`gm-`/`chat-` por pedido;
+  - Worker 1 con *append or update* por `ID = T-<clave>`;
+  - alta de memoria en Airtable con *upsert* por Session_ID.
+- [x] **Petición asincrónica**: workflow **Receptor (M11)** (`B2DUAOSmq20splvS`, [`scripts/receptor_m11.py`](scripts/receptor_m11.py)) en `POST /webhook/agendabot-m11`:
+  - valida la petición: 400 si falta un dato;
+  - responde **202 con el traceId en ~0,2 s**; si el `request_id` ya se recibió, responde 200 "duplicado" con el traceId original;
+  - le pasa el pedido al Manager sin esperarlo;
+  - el resultado sale por Telegram (si el pedido trae `tg_chat_id`) o como **borrador de Gmail**.
+
+  La idempotencia del webhook vive en el Receptor porque n8n guarda la memoria del workflow recién al terminar la ejecución: en el Manager (~20 s) un reintento inmediato no veía la clave.
+- [x] Ajuste de lógica ([`scripts/ajustes_logica_m11.py`](scripts/ajustes_logica_m11.py)): si se pide un turno que ya existe, la respuesta es "Ya tenés ese turno… no hice cambios" (antes figuraba como reprogramado y se reescribía la agenda).
+- [ ] Juez antes de consolidar (acciones), canal Telegram en un workflow propio, emails con HITL, Prioridad 2 y 3.
+
+**Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
+
+| Prueba | Resultado |
+|---|---|
+| Consulta informativa | 202 en 0,26 s; en segundo plano: Router → RAG → Juez ACEPTADO → borrador de Gmail |
+| Mismo request_id 1 s después | 200 "duplicado" con el mismo traceId, sin procesar |
+| Petición sin request_id ni canal | 400 con la lista de faltantes |
+| Alta de turno | fila `T-wh-prueba-m11-004` con el traceId del Receptor y el borrador de confirmación |
+| Mismo turno con otro request_id | "Ya tenés un turno… no hice cambios" |
+| Falla real (403 de Sheets) y simulacro | alerta en Slack con el traceId y el paciente |
+
+> Las planillas (11) se compartieron como editor con `mwquiero@gmail.com`, la cuenta de las credenciales de Google en n8n, igual que las 09. Sin eso, Sheets devolvía 403.
+>
+> El túnel gratuito de Cloudflare se cae seguido. Mientras el disparador de Telegram siga en el Manager, cada caída impide publicarlo (n8n no puede registrar el webhook): hay que correr `Modulo6/scripts/levantar_tunel.ps1`. Se resuelve al pasar Telegram a un workflow propio.
+>
+> Las pruebas dejaron un contacto `prueba.m11@example.com` en HubSpot y borradores en Gmail.
 
 ## Recursos del M11
 | Recurso | ID |

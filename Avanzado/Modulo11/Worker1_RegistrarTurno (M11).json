@@ -21,12 +21,15 @@
    "name": "Registrar en Agenda_Turnos",
    "type": "n8n-nodes-base.googleSheets",
    "typeVersion": 4.5,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
    "position": [
     240,
     0
    ],
    "parameters": {
-    "operation": "append",
+    "operation": "appendOrUpdate",
     "documentId": {
      "__rl": true,
      "value": "19rWr4cy1pVmiDi5iv3Nkr3gZn4ExF12Ep5OkMrxxaWk",
@@ -43,7 +46,7 @@
     "columns": {
      "mappingMode": "defineBelow",
      "value": {
-      "ID": "={{ 'T' + $now.toMillis() }}",
+      "ID": "={{ 'T-' + ($json.idemKey || $now.toMillis()) }}",
       "Fecha": "={{ $json.fecha }}",
       "Hora": "={{ $json.hora }}",
       "Nombre": "={{ $json.nombre }}",
@@ -52,7 +55,9 @@
       "Email": "={{ $json.email }}",
       "traceId": "={{ $json.traceId }}"
      },
-     "matchingColumns": [],
+     "matchingColumns": [
+      "ID"
+     ],
      "schema": [
       {
        "id": "ID",
@@ -208,6 +213,8 @@
   }
  },
  "settings": {
-  "executionOrder": "v1"
+  "executionOrder": "v1",
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all"
  }
 }

@@ -1,0 +1,317 @@
+{
+ "name": "Receptor (M11)",
+ "nodes": [
+  {
+   "id": "87496ef0-4571-48ae-b645-c1fa3db5e741",
+   "name": "Webhook (petición asincrónica)",
+   "webhookId": "e3a63c12-0721-43cc-9198-4b2de5f452a8",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    0,
+    300
+   ],
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "agendabot-m11",
+    "responseMode": "responseNode",
+    "options": {}
+   }
+  },
+  {
+   "id": "e9a5df54-361b-44ec-b960-ff5f6ffd9f71",
+   "name": "Entrada webhook",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    220,
+    300
+   ],
+   "parameters": {
+    "jsCode": "// Petición asincrónica: un sistema externo (web de turnos, app, CRM) manda el pedido del paciente por POST.\n// Campos: request_id (clave de idempotencia del que llama; también vale el header Idempotency-Key),\n// mensaje (obligatorio), nombre, email y/o tg_chat_id (por dónde se le manda el resultado).\nconst b = $json.body || {};\nconst h = $json.headers || {};\nconst mensaje = String(b.mensaje || '').trim();\nconst email = String(b.email || '').trim();\nconst tg_chat_id = String(b.tg_chat_id || '').trim();\nconst request_id = String(b.request_id || h['idempotency-key'] || '').trim();\nconst faltan = [];\nif (!request_id) faltan.push('request_id');\nif (!mensaje) faltan.push('mensaje');\nif (!email && !tg_chat_id) faltan.push('email o tg_chat_id (canal de respuesta)');\nreturn [{ json: {\n  valido: faltan.length === 0, faltan,\n  canal: 'webhook', request_id, mensaje, email, tg_chat_id, nombre: String(b.nombre || '').trim(),\n  sessionId: email || (tg_chat_id ? 'tg-' + tg_chat_id : 'wh-' + request_id)\n} }];"
+   }
+  },
+  {
+   "id": "1aacd5b1-809e-407b-8d1c-44fd39de1ba3",
+   "name": "¿Petición válida?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    440,
+    300
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "9ce45a93-59cf-4b9e-8d3f-5d34aca78a84",
+       "leftValue": "={{ $json.valido }}",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       },
+       "rightValue": ""
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "89dfd35f-165b-4f81-8b3f-56f88f2097fd",
+   "name": "Rechazar petición (400)",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.1,
+   "position": [
+    660,
+    480
+   ],
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify({ estado: 'rechazado', faltan: $json.faltan }) }}",
+    "options": {
+     "responseCode": 400
+    }
+   }
+  },
+  {
+   "id": "82c5b28f-36f6-44f1-b5f8-d0d799bc8373",
+   "name": "Generar traceId",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    660,
+    280
+   ],
+   "parameters": {
+    "jsCode": "// traceId único por pedido: el Receptor lo genera y lo devuelve en la respuesta 202; el Manager lo reutiliza.\n// Formato: trc-<fecha>-<executionId del Receptor>-<sufijo aleatorio>\nconst ahora = new Date();\nconst fecha = ahora.toISOString().slice(0, 19).replace(/[-:T]/g, '');\nconst traceId = 'trc-' + fecha + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6);\nreturn [{ json: { ...$json, traceId, trace_inicio: ahora.toISOString() } }];"
+   }
+  },
+  {
+   "id": "1b2f6c93-bbbd-4db0-8970-f21bdeaff6cb",
+   "name": "Control de idempotencia",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    880,
+    280
+   ],
+   "parameters": {
+    "jsCode": "// Idempotencia del webhook: la clave es el request_id que manda el sistema externo (o el header\n// Idempotency-Key). Si ya se recibió en los últimos 7 días, se responde \"duplicado\" con el traceId\n// original y el pedido NO se vuelve a procesar. Las claves se guardan en la memoria del Receptor, que\n// termina en menos de un segundo (así un reintento inmediato ya encuentra la clave).\nconst j = $json;\nconst idemKey = 'wh-' + j.request_id;\nconst s = $getWorkflowStaticData('global');\ns.procesados = s.procesados || {};\nconst ahora = Date.now(), TTL = 7 * 24 * 3600 * 1000;\nfor (const [k, v] of Object.entries(s.procesados)) if (ahora - (v.t || v) > TTL) delete s.procesados[k];\nconst previo = s.procesados[idemKey];\nif (previo) return [{ json: { ...j, idemKey, duplicado: true, traceId_original: previo.traceId || '' } }];\ns.procesados[idemKey] = { t: ahora, traceId: j.traceId };\nreturn [{ json: { ...j, idemKey, duplicado: false } }];"
+   }
+  },
+  {
+   "id": "edce1c97-cf95-4b52-9264-745d26ca5ec5",
+   "name": "Responder (202 recibido / 200 duplicado)",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.1,
+   "position": [
+    1100,
+    280
+   ],
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify({ estado: $json.duplicado ? 'duplicado' : 'recibido', traceId: $json.duplicado ? $json.traceId_original : $json.traceId, request_id: $json.request_id, detalle: $json.duplicado ? 'Este pedido ya se había recibido: no se procesa de nuevo.' : 'Pedido recibido. La respuesta llega por ' + ($json.tg_chat_id ? 'Telegram' : 'email') + '.' }) }}",
+    "options": {
+     "responseCode": "={{ $json.duplicado ? 200 : 202 }}"
+    }
+   }
+  },
+  {
+   "id": "f429400d-ece0-4e75-b14e-87567d42602c",
+   "name": "¿Pedido nuevo?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    1320,
+    280
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "b598baff-066d-41de-bde5-581d38da8b92",
+       "leftValue": "={{ $json.duplicado }}",
+       "operator": {
+        "type": "boolean",
+        "operation": "false",
+        "singleValue": true
+       },
+       "rightValue": ""
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "2933faba-85a7-4aae-84e5-3d5e3e214b00",
+   "name": "Procesar en segundo plano (Manager)",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    1540,
+    200
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "value": "zLiXJWDV3i8OGJCK",
+     "mode": "list",
+     "cachedResultName": "AI Automation Avanzado - M11"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": false
+    }
+   }
+  },
+  {
+   "id": "9cb7fc44-52e5-4092-8591-3f696bdf4b6a",
+   "name": "Pedido repetido (descartado)",
+   "type": "n8n-nodes-base.noOp",
+   "typeVersion": 1,
+   "position": [
+    1540,
+    380
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "1ee60689-bab5-4cdd-bb8f-88967f3318e6",
+   "name": "Nota",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    -40,
+    -20
+   ],
+   "parameters": {
+    "width": 1760,
+    "height": 240,
+    "content": "## Receptor (M11): petición asincrónica e idempotente\nUn sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot-m11` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor **responde al instante** (202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya se recibió) y le pasa el pedido al **Manager** sin esperarlo: el análisis, el Juez y el registro ocurren en segundo plano y el resultado sale por Telegram o como borrador de Gmail. La idempotencia vive acá porque esta ejecución dura menos de un segundo y su memoria queda guardada antes de cualquier reintento."
+   }
+  }
+ ],
+ "connections": {
+  "Webhook (petición asincrónica)": {
+   "main": [
+    [
+     {
+      "node": "Entrada webhook",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Entrada webhook": {
+   "main": [
+    [
+     {
+      "node": "¿Petición válida?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Petición válida?": {
+   "main": [
+    [
+     {
+      "node": "Generar traceId",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Rechazar petición (400)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Generar traceId": {
+   "main": [
+    [
+     {
+      "node": "Control de idempotencia",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Control de idempotencia": {
+   "main": [
+    [
+     {
+      "node": "Responder (202 recibido / 200 duplicado)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Responder (202 recibido / 200 duplicado)": {
+   "main": [
+    [
+     {
+      "node": "¿Pedido nuevo?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Pedido nuevo?": {
+   "main": [
+    [
+     {
+      "node": "Procesar en segundo plano (Manager)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Pedido repetido (descartado)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all",
+  "executionOrder": "v1",
+  "errorWorkflow": "UBZ3dbNmFMFuYrAR"
+ }
+}
