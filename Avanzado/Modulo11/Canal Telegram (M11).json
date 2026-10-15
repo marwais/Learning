@@ -266,7 +266,7 @@
     880
    ],
    "parameters": {
-    "jsCode": "// Une las dos ramas de Telegram (voz transcrita o texto) en el formato del Manager.\nconst t = $('Mensaje de Telegram').first().json.message || {};\nconst esVoz = !!(t.voice || t.audio);\nconst texto = esVoz ? String($json.text || '').trim() : String(t.text || '').trim();\nreturn [{ json: {\n  canal: esVoz ? 'telegram_voz' : 'telegram_texto',\n  update_id: $('Mensaje de Telegram').first().json.update_id,  // clave de idempotencia\n  sessionId: 'tg-' + t.chat.id,\n  tg_chat_id: t.chat.id,\n  mensaje: texto,\n  nombre_remitente: [t.from?.first_name, t.from?.last_name].filter(Boolean).join(' ')\n} }];"
+    "jsCode": "// Une las dos ramas de Telegram (voz transcrita o texto) en el formato del Manager.\nconst t = $('Mensaje de Telegram').first().json.message || {};\nconst esVoz = !!(t.voice || t.audio);\nconst texto = esVoz ? String($json.text || '').trim() : String(t.text || '').trim();\nreturn [{ json: {\n  canal: esVoz ? 'telegram_voz' : 'telegram_texto',\n  update_id: $('Mensaje de Telegram').first().json.update_id,  // clave de idempotencia\n  sessionId: 'tg-' + t.chat.id,\n  tg_chat_id: t.chat.id,\n  tg_username: t.from?.username || '',  // para que el equipo pueda abrir el chat\n  mensaje: texto,\n  nombre_remitente: [t.from?.first_name, t.from?.last_name].filter(Boolean).join(' ')\n} }];"
    }
   },
   {

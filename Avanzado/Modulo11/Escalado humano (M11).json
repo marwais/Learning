@@ -118,7 +118,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    440,
+    660,
     300
    ],
    "parameters": {
@@ -132,7 +132,7 @@
      "mode": "list",
      "cachedResultName": "soporte"
     },
-    "message": "=:rotating_light: *AgendaBot — caso para una persona: {{ $('Recibir caso').first().json.categoria }}*\n*Mensaje del paciente:* {{ $('Recibir caso').first().json.mensaje }}\n*Canal:* {{ $('Recibir caso').first().json.canal }} · *Sesión:* {{ $('Recibir caso').first().json.sessionId }}{{ $('Recibir caso').first().json.email_entrada ? ' · ' + $('Recibir caso').first().json.email_entrada : '' }}\n*Ya se le respondió:* {{ $('Recibir caso').first().json.respuesta_fija }}\n*traceId:* {{ $('Recibir caso').first().json.traceId }} · protocolo {{ $('Recibir caso').first().json.protocolo }}\nTocá *Tomo el caso* y contactá al paciente, o *Falso positivo* si no hacía falta. Si nadie responde en 15 minutos, se repite el aviso.",
+    "message": "=:rotating_light: *AgendaBot — caso para una persona: {{ $('Recibir caso').first().json.categoria }}*\n*Paciente:* {{ $('Recibir caso').first().json.nombre_remitente || ($('Buscar memoria del paciente').first().json.fields || {})['Datos Clave'] && (($('Buscar memoria del paciente').first().json.fields || {})['Datos Clave'].match(/Paciente:\\s*([^|]+)/) || [])[1] || 'sin nombre' }}{{ $('Recibir caso').first().json.tg_username ? ' (@' + $('Recibir caso').first().json.tg_username + ')' : '' }}\n*Cómo contactarlo:* {{ String($('Recibir caso').first().json.canal).startsWith('telegram') || $('Recibir caso').first().json.tg_chat_id ? ($('Recibir caso').first().json.tg_username ? 'Telegram <https://t.me/' + $('Recibir caso').first().json.tg_username + '|abrir chat con @' + $('Recibir caso').first().json.tg_username + '>' : 'Telegram (sin usuario público, chat ' + $('Recibir caso').first().json.tg_chat_id + '): pedile un teléfono o email por el bot') : ($('Recibir caso').first().json.email_entrada ? 'Email ' + $('Recibir caso').first().json.email_entrada : 'chat de la web') }}\n*Mensaje del paciente:* {{ $('Recibir caso').first().json.mensaje }}\n*Lo que sabemos (memoria):* {{ ($('Buscar memoria del paciente').first().json.fields || {})['Datos Clave'] || 'sin datos previos' }}{{ ($('Buscar memoria del paciente').first().json.fields || {})['Resumen Consolidado'] ? ' · ' + ($('Buscar memoria del paciente').first().json.fields || {})['Resumen Consolidado'] : '' }}\n*Ya se le respondió:* {{ $('Recibir caso').first().json.respuesta_fija }}\n*traceId:* {{ $('Recibir caso').first().json.traceId }} · protocolo {{ $('Recibir caso').first().json.protocolo }}\nTocá *Tomo el caso* y contactá al paciente, o *Falso positivo* si no hacía falta. Si nadie responde en 15 minutos, se repite el aviso.",
     "responseType": "approval",
     "approvalOptions": {
      "values": {
@@ -164,7 +164,7 @@
    "type": "n8n-nodes-base.dataTable",
    "typeVersion": 1.1,
    "position": [
-    660,
+    880,
     300
    ],
    "parameters": {
@@ -221,7 +221,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2.2,
    "position": [
-    880,
+    1100,
     300
    ],
    "parameters": {
@@ -260,7 +260,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    1100,
+    1320,
     220
    ],
    "parameters": {
@@ -300,6 +300,44 @@
     "height": 260,
     "content": "## Escalado humano (M11): casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados_m11` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código."
    }
+  },
+  {
+   "id": "a524b80b-06d8-4abe-a09f-bde60020e506",
+   "name": "Buscar memoria del paciente",
+   "type": "n8n-nodes-base.airtable",
+   "typeVersion": 2.2,
+   "alwaysOutputData": true,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "onError": "continueRegularOutput",
+   "position": [
+    440,
+    300
+   ],
+   "parameters": {
+    "operation": "search",
+    "base": {
+     "__rl": true,
+     "value": "appO1XQ6layHvQx6e",
+     "mode": "list",
+     "cachedResultName": "Memoria_Agente"
+    },
+    "table": {
+     "__rl": true,
+     "value": "tblaIZxUOLY1T8g40",
+     "mode": "list",
+     "cachedResultName": "Memoria_M11"
+    },
+    "filterByFormula": "={{ '{Session_ID} = \"' + String($('Recibir caso').first().json.sessionId).replace(/\"/g,'') + '\"' }}",
+    "options": {}
+   },
+   "credentials": {
+    "airtableTokenApi": {
+     "id": "tlRnBKsgQgEbyhnG",
+     "name": "Airtable Memoria M3"
+    }
+   }
   }
  ],
  "connections": {
@@ -318,7 +356,7 @@
    "main": [
     [
      {
-      "node": "Avisar al equipo (Slack)",
+      "node": "Buscar memoria del paciente",
       "type": "main",
       "index": 0
      }
@@ -352,6 +390,17 @@
     [
      {
       "node": "Recordatorio (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Buscar memoria del paciente": {
+   "main": [
+    [
+     {
+      "node": "Avisar al equipo (Slack)",
       "type": "main",
       "index": 0
      }
