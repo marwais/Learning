@@ -2,8 +2,9 @@
 """Proyecto Final (M11) — mensaje de datos faltantes y pedido del email por escrito (pedido del usuario, 15/10/2026).
 
 1. "Resolver accion": el aviso pasa a "Faltan datos que son necesarios para poder agendar turnos: fecha, hora y email."
-   (o "…para poder modificar el turno: …"), con la lista unida por "y". Si falta el email, agrega "El email
-   escribímelo por texto, por favor." y marca falta_email = true.
+   (o "…para poder modificar el turno: …"), con la lista unida por "y". El email NO se reclama como faltante: si
+   falta solo el email, "Anoté tu pedido. Para terminar, necesito tu email: escribímelo por texto, por favor."; si
+   faltan otros datos, se los enumera y se agrega "Además, necesito tu email…". Marca falta_email = true.
 2. Manager, después de "Aviso (no se puede)": si falta el email y el paciente está en Telegram, se guarda el pedido
    en la Data Table pendientes_m11 (el mismo mecanismo del Canal Telegram): cuando escriba el email, el canal lo une
    con el pedido original. Si el paciente habló (nota de voz), la respuesta sale por voz y debajo va la aclaración
@@ -34,9 +35,12 @@ MOD_NUEVO = ("  if(falta.length){ out={accion:'faltan_datos',faltan:falta,falta_
              "mensaje:'Faltan datos que son necesarios para poder modificar el turno: '+lista(falta)+'.'}; }")
 ALTA_VIEJO = ("  if(falta.length){ out={accion:'faltan_datos',mensaje:'No se puede agendar la cita: faltan datos obligatorios ('"
               "+falta.join(', ')+').'}; }")
-ALTA_NUEVO = ("  if(falta.length){ out={accion:'faltan_datos',faltan:falta,falta_email:falta.includes('email'),"
-              "mensaje:'Faltan datos que son necesarios para poder agendar turnos: '+lista(falta)+'.'"
-              "+(falta.includes('email')?' El email escribímelo por texto, por favor.':'')}; }")
+ALTA_NUEVO = ("  if(falta.length){ const otros=falta.filter(x=>x!=='email'); const pideEmail=falta.includes('email');\n"
+              "    // El email no se reclama como dato faltante: se pide directamente por escrito (por voz se confunden letras).\n"
+              "    out={accion:'faltan_datos',faltan:falta,falta_email:pideEmail,mensaje:(otros.length"
+              "?'Faltan datos que son necesarios para poder agendar turnos: '+lista(otros)+'.'+(pideEmail?' Además, necesito tu email: "
+              "escribímelo por texto, por favor.':'')"
+              ":'Anoté tu pedido. Para terminar, necesito tu email: escribímelo por texto, por favor.')}; }")
 ACLARACION = "Para evitar errores, el email te lo pido por escrito, por favor."
 FALTA_EMAIL = "$('Resolver accion').isExecuted && $('Resolver accion').first().json.falta_email === true"
 
@@ -46,7 +50,7 @@ def manager():
     N = {n["name"]: n for n in w["nodes"]}
     con = w["connections"]
     rc = N["Resolver accion"]["parameters"]
-    if "lista(falta)" not in rc["jsCode"]:
+    if "const ETIQ=" not in rc["jsCode"]:  # ya aplicado (y luego ajustado: el email se pide aparte, ver ALTA_NUEVO)
         assert MOD_VIEJO in rc["jsCode"] and ALTA_VIEJO in rc["jsCode"], "cambió el código de Resolver accion"
         rc["jsCode"] = rc["jsCode"].replace("let out; const falta=[];", LISTA + "let out; const falta=[];", 1)
         rc["jsCode"] = rc["jsCode"].replace(MOD_VIEJO, MOD_NUEVO).replace(ALTA_VIEJO, ALTA_NUEVO)
