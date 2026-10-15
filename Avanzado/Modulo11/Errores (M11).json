@@ -59,7 +59,7 @@
     300
    ],
    "parameters": {
-    "jsCode": "// Arma la alerta para el equipo humano y, si se puede, el aviso al paciente.\nconst e = $('Error Trigger').first().json;\nconst ex = e.execution || {}, wf = e.workflow || {};\nconst rd = (($json.data || {}).resultData || {}).runData || {};\nconst salida = n => { try { return rd[n][0].data.main[0][0].json; } catch (_) { return {}; } };\n// Manager: 'Normalizar entrada'; Canal Telegram: 'Entrada Telegram'\nconst norm = Object.keys(salida('Normalizar entrada')).length ? salida('Normalizar entrada') : salida('Entrada Telegram');\nconst traceId = salida('Generar traceId').traceId || '(sin traceId: falló antes de generarlo)';\nconst err = ex.error || {};\nconst texto = [\n  ':rotating_light: *AgendaBot — falla en producción*',\n  `*Workflow:* ${wf.name || '?'} · *Nodo:* ${ex.lastNodeExecuted || (err.node || {}).name || '?'}`,\n  `*Error:* ${String(err.message || 'sin mensaje').slice(0, 300)}`,\n  `*traceId:* ${traceId} · *Ejecución:* ${ex.id || '?'}`,\n  `*Paciente:* canal ${norm.canal || '?'} · sesión ${norm.sessionId || '?'}${norm.email_entrada ? ' · ' + norm.email_entrada : ''}`,\n  '*Acción:* tomar el caso y contactar al paciente; revisar la ejecución en n8n.'\n].join('\\n');\nreturn [{ json: {\n  texto, traceId, canal: norm.canal || '', tg_chat_id: norm.tg_chat_id || '',\n  aviso_paciente: 'Estamos con demoras: una persona del equipo te va a responder en unos minutos. Disculpá la espera.'\n} }];"
+    "jsCode": "// Arma la alerta para el equipo humano y, si se puede, el aviso al paciente.\nconst e = $('Error Trigger').first().json;\nconst ex = e.execution || {}, wf = e.workflow || {};\nconst rd = (($json.data || {}).resultData || {}).runData || {};\nconst salida = n => { try { return rd[n][0].data.main[0][0].json; } catch (_) { return {}; } };\n// Manager: 'Normalizar entrada'; Canal Telegram: 'Entrada Telegram'\nconst norm = Object.keys(salida('Normalizar entrada')).length ? salida('Normalizar entrada') : salida('Entrada Telegram');\nconst traceId = salida('Generar traceId').traceId || '(sin traceId: falló antes de generarlo)';\nconst err = ex.error || {};\nconst texto = [\n  ':rotating_light: *AgendaBot — falla en producción*',\n  `*Workflow:* ${wf.name || '?'} · *Nodo:* ${ex.lastNodeExecuted || (err.node || {}).name || '?'}`,\n  `*Error:* ${String(err.message || 'sin mensaje').slice(0, 300)}`,\n  `*traceId:* ${traceId} · *Ejecución:* ${ex.id || '?'}`,\n  `*Paciente:* canal ${norm.canal || '?'} · sesión ${norm.sessionId || '?'}${norm.email_entrada ? ' · ' + norm.email_entrada : ''}`,\n  '*Acción:* tomar el caso y contactar al paciente; revisar la ejecución en n8n.'\n].join('\\n');\nreturn [{ json: {\n  texto, traceId, canal: norm.canal || '', tg_chat_id: norm.tg_chat_id || '',\n  email_entrada: norm.email_entrada || '',\n  aviso_paciente: 'Estamos con demoras: una persona del equipo te va a responder en unos minutos. Disculpá la espera.'\n} }];"
    }
   },
   {
@@ -172,7 +172,72 @@
    "parameters": {
     "width": 1000,
     "height": 220,
-    "content": "## Errores (M11): rama de error de grado industrial\nSe dispara cuando falla una ejecución del Manager M11 (o del simulacro). Lee la ejecución fallida por la API de n8n para recuperar el **traceId** y el canal del paciente, **alerta al equipo humano en Slack** (#soporte) y, si el paciente escribió por Telegram, le avisa que hay demoras. Credencial: encabezado `X-N8N-API-KEY` guardado en las credenciales de n8n (el valor no está en el workflow)."
+    "content": "## Errores (M11): rama de error de grado industrial\nSe dispara cuando falla una ejecución del Manager M11 (o del simulacro). Lee la ejecución fallida por la API de n8n para recuperar el **traceId** y el canal del paciente, **alerta al equipo humano en Slack** (#soporte) y le avisa al paciente que hay demoras: por Telegram si escribió por ahí, o por email (texto fijo) si escribió por email o por el webhook. Credencial: encabezado `X-N8N-API-KEY` guardado en las credenciales de n8n (el valor no está en el workflow)."
+   }
+  },
+  {
+   "id": "0584d880-7496-46d9-97b5-e9045a95c72b",
+   "name": "¿Paciente por email?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    680,
+    640
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "773f9d0c-6f9f-48a1-b50c-1a5860ee9c7d",
+       "leftValue": "={{ !!$json.email_entrada && !$json.tg_chat_id }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "47e633c6-12f1-454d-befd-5f35aaa65014",
+   "name": "Avisar demora (email)",
+   "webhookId": "c1f700f9-c6f9-4457-9240-c84bf7aea8dd",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "onError": "continueRegularOutput",
+   "position": [
+    900,
+    620
+   ],
+   "parameters": {
+    "sendTo": "={{ $json.email_entrada }}",
+    "subject": "Clínica LoDeTincho — estamos con demoras",
+    "emailType": "text",
+    "message": "=Hola,\n\n{{ $json.aviso_paciente }}\n\nCódigo de seguimiento: {{ $json.traceId }}\n\n(Mensaje automático del asistente de agenda de la Clínica LoDeTincho.)",
+    "options": {
+     "appendAttribution": false
+    }
+   },
+   "credentials": {
+    "gmailOAuth2": {
+     "id": "LCpAQRDOeUUC99pU",
+     "name": "Gmail account"
+    }
    }
   }
  ],
@@ -211,6 +276,11 @@
       "node": "¿Paciente en Telegram?",
       "type": "main",
       "index": 0
+     },
+     {
+      "node": "¿Paciente por email?",
+      "type": "main",
+      "index": 0
      }
     ]
    ]
@@ -220,6 +290,18 @@
     [
      {
       "node": "Avisar demora (Telegram)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    []
+   ]
+  },
+  "¿Paciente por email?": {
+   "main": [
+    [
+     {
+      "node": "Avisar demora (email)",
       "type": "main",
       "index": 0
      }

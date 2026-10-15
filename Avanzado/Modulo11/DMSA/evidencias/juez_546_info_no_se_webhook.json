@@ -1,0 +1,14 @@
+{
+  "ejecucion_manager": 546,
+  "traceId": "trc-20261015002842-545-1ak5",
+  "tipo_caso": "RESPUESTA",
+  "entrada_paciente": "¿La clínica tiene estacionamiento propio para pacientes?",
+  "propuesta_evaluada": "No sé: ese dato no figura en la documentación de la clínica.\n\nTe recomiendo consultarlo directamente con la **Central de Turnos**, donde podrán orientarte al respecto.",
+  "veredicto": {
+    "exactitud_factual": 5,
+    "estado_veredicto": "ACEPTADO",
+    "critica": "",
+    "ruta": "aceptar"
+  },
+  "log_auditoria": null
+}

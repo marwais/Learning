@@ -462,6 +462,7 @@
    "retryOnFail": true,
    "maxTries": 3,
    "waitBetweenTries": 2000,
+   "onError": "continueErrorOutput",
    "position": [
     7016,
     368
@@ -2660,7 +2661,7 @@
    ],
    "parameters": {
     "chatId": "={{ $('Normalizar entrada').first().json.tg_chat_id }}",
-    "text": "={{ $('Responder al chat').first().json.output }}",
+    "text": "={{ $('Respuesta final').first().json.output }}",
     "additionalFields": {
      "appendAttribution": false
     }
@@ -2688,7 +2689,7 @@
    "parameters": {
     "resource": "draft",
     "subject": "=AgendaBot — respuesta a tu pedido ({{ $('Generar traceId').first().json.traceId }})",
-    "message": "=Hola {{ $('Normalizar entrada').first().json.nombre_remitente || '' }},\n\n{{ $('Responder al chat').first().json.output }}\n\n— Central de Turnos, Clínica LoDeTincho\n(Borrador generado por AgendaBot para revisión humana antes de enviar.)",
+    "message": "=Hola {{ $('Normalizar entrada').first().json.nombre_remitente || '' }},\n\n{{ $('Respuesta final').first().json.output }}\n\n— Central de Turnos, Clínica LoDeTincho\n(Borrador generado por AgendaBot para revisión humana antes de enviar.)",
     "options": {
      "sendTo": "={{ $('Normalizar entrada').first().json.email_entrada }}"
     }
@@ -3527,6 +3528,327 @@
     "height": 300,
     "content": "## Triaje de señales rojas (protocolo triaje-v1 (15/10/2026))\nAntes del Router y sin código: el **Switch** busca en el mensaje (en minúsculas y sin acentos) las señales del semáforo rojo del M7: **urgencia médica**, **dinero** (reintegros, cobros), **reclamo legal** e **historia clínica**. Un caso rojo no lo resuelve la IA: el paciente recibe una respuesta fija (en una urgencia, el 107 y la guardia 24 h) y el caso pasa a una persona por **Escalado humano (M11)**. Si no hay señales, se consulta el **freno de mano** (Data Table `control_m11`): activo = todo a atención humana. Las listas de palabras son el protocolo versionado que aprueba la dirección médica y administrativa."
    }
+  },
+  {
+   "id": "db1ae245-8368-447c-834e-c8481f271303",
+   "name": "¿No se pudo ayudar?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    8932,
+    320
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "961ed6f0-fb45-47c0-8e92-92cd5a0f42bd",
+       "leftValue": "={{ ($('Contrato de datos').isExecuted && $('Contrato de datos').first().json.intent === 'FUERA_DE_ALCANCE') || String($json.output || '').startsWith('No pude procesar') }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "b93dc2d4-c887-4c7f-aa9c-ce88a4ddbed1",
+   "name": "Buscar falla anterior",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "alwaysOutputData": true,
+   "position": [
+    9152,
+    520
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "get",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "LVkGPPhR4gpTVZOc"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "sesion",
+       "condition": "eq",
+       "keyValue": "={{ $('Normalizar entrada').first().json.sessionId }}"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "dfccef6f-4096-49cf-aac7-dbceddb8ba0c",
+   "name": "¿Segunda falla seguida?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    9372,
+    520
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "595bb079-0b04-4258-a758-ec8db5eee8db",
+       "leftValue": "={{ !!$json.ultima_falla && DateTime.fromISO($json.ultima_falla) > $now.minus({ minutes: 30 }) }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "1dc55dd1-b43d-40d9-bd7e-4bedad4a3426",
+   "name": "Limpiar fallas",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    9592,
+    420
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "upsert",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "LVkGPPhR4gpTVZOc"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "sesion",
+       "condition": "eq",
+       "keyValue": "={{ $('Normalizar entrada').first().json.sessionId }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "sesion": "={{ $('Normalizar entrada').first().json.sessionId }}",
+      "ultima_falla": ""
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "sesion",
+       "displayName": "sesion",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "ultima_falla",
+       "displayName": "ultima_falla",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "559ea87f-6144-4d93-a990-81eb95a798a3",
+   "name": "Derivar por incomprensión",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    9812,
+    420
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Pedido validado').first().json, categoria: 'no se entiende el pedido (2 veces)', protocolo: 'triaje-v1 (15/10/2026)', respuesta_fija: \"No logro ayudarte con tu pedido por este medio: ya le pasé tu consulta a una persona del equipo de la Central de Turnos, que te va a contactar a la brevedad.\", output: \"No logro ayudarte con tu pedido por este medio: ya le pasé tu consulta a una persona del equipo de la Central de Turnos, que te va a contactar a la brevedad.\" }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "321efc86-1104-4243-a75d-027f45535a0d",
+   "name": "Registrar falla",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    9592,
+    620
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "upsert",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "LVkGPPhR4gpTVZOc"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "sesion",
+       "condition": "eq",
+       "keyValue": "={{ $('Normalizar entrada').first().json.sessionId }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "sesion": "={{ $('Normalizar entrada').first().json.sessionId }}",
+      "ultima_falla": "={{ $now.toUTC().toISO() }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "sesion",
+       "displayName": "sesion",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "ultima_falla",
+       "displayName": "ultima_falla",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "2a3bd87e-6156-4a41-8803-e88944042b87",
+   "name": "Respuesta sin cambios",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    9812,
+    620
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Responder al chat').first().json) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "660e5806-3bc9-4ab3-b954-d6241e49ab6b",
+   "name": "Respuesta final",
+   "type": "n8n-nodes-base.noOp",
+   "typeVersion": 1,
+   "position": [
+    10032,
+    320
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "b6a9fcd1-57a4-4043-a765-0e4cba0045e1",
+   "name": "Alerta: log no enviado (Slack)",
+   "webhookId": "54b898f1-ea1c-4825-9e2f-181706186bcb",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "onError": "continueRegularOutput",
+   "position": [
+    7056,
+    588
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "post",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "text": "=:warning: *No se pudo enviar el log de trazabilidad por email* (traceId {{ $('Generar traceId').first().json.traceId }}): {{ $json.error?.message || $json.error || 'error desconocido' }}. El pedido del paciente sigue su curso; revisar la credencial de Gmail.",
+    "otherOptions": {
+     "includeLinkToWorkflow": false
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "b31c9150-4592-4a94-9325-cf931c236aaa",
+   "name": "Escalar por incomprensión (sub-workflow)",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    10032,
+    300
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "value": "jdJ7DV9keYZgP5MU",
+     "mode": "list",
+     "cachedResultName": "Escalado humano (M11)"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": false
+    }
+   }
   }
  ],
  "connections": {
@@ -3775,6 +4097,13 @@
     [
      {
       "node": "Notificar a soporte (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Alerta: log no enviado (Slack)",
       "type": "main",
       "index": 0
      }
@@ -4124,7 +4453,7 @@
    "main": [
     [
      {
-      "node": "¿Vino por Telegram?",
+      "node": "¿No se pudo ayudar?",
       "type": "main",
       "index": 0
      }
@@ -4762,11 +5091,6 @@
       "node": "Escalar a una persona (sub-workflow)",
       "type": "main",
       "index": 0
-     },
-     {
-      "node": "¿Email? (caso rojo)",
-      "type": "main",
-      "index": 0
      }
     ]
    ]
@@ -4794,6 +5118,141 @@
     [
      {
       "node": "Responder al chat",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Respuesta final": {
+   "main": [
+    [
+     {
+      "node": "¿Vino por Telegram?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿No se pudo ayudar?": {
+   "main": [
+    [
+     {
+      "node": "Buscar falla anterior",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Respuesta final",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Buscar falla anterior": {
+   "main": [
+    [
+     {
+      "node": "¿Segunda falla seguida?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Segunda falla seguida?": {
+   "main": [
+    [
+     {
+      "node": "Limpiar fallas",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Registrar falla",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Limpiar fallas": {
+   "main": [
+    [
+     {
+      "node": "Derivar por incomprensión",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Derivar por incomprensión": {
+   "main": [
+    [
+     {
+      "node": "Escalar por incomprensión (sub-workflow)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar falla": {
+   "main": [
+    [
+     {
+      "node": "Respuesta sin cambios",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Respuesta sin cambios": {
+   "main": [
+    [
+     {
+      "node": "Respuesta final",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Alerta: log no enviado (Slack)": {
+   "main": [
+    [
+     {
+      "node": "Notificar a soporte (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Escalar a una persona (sub-workflow)": {
+   "main": [
+    [
+     {
+      "node": "¿Email? (caso rojo)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Escalar por incomprensión (sub-workflow)": {
+   "main": [
+    [
+     {
+      "node": "Respuesta final",
       "type": "main",
       "index": 0
      }

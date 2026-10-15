@@ -53,7 +53,8 @@
       "Motivo": "={{ $json.motivo }}",
       "Estado": "Asignado",
       "Email": "={{ $json.email }}",
-      "traceId": "={{ $json.traceId }}"
+      "traceId": "={{ $json.traceId }}",
+      "Asistencia": "pendiente"
      },
      "matchingColumns": [
       "ID"
@@ -132,6 +133,16 @@
       {
        "id": "traceId",
        "displayName": "traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Asistencia",
+       "displayName": "Asistencia",
        "required": false,
        "defaultMatch": false,
        "display": true,

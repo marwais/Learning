@@ -2,19 +2,19 @@
 
 Le informamos a continuación los datos y el encuadre impositivo de nuestra empresa:
 
-**Razón Social:** OMINT Sociedad Anónima de Servicios
+**Razón Social:** LoDeTincho Sociedad Anónima de Servicios
 
-**Domicilio fiscal:** Carlos Pellegrini 1363 Piso 6 - Ciudad Autónoma de Buenos Aires
+**Domicilio fiscal:** Av. del Ejemplo 1234 Piso 6 - Ciudad Autónoma de Buenos Aires
 
-**CUIT:** 30-55024530-9 (Ver Constancia)
+**CUIT:** 30-71234567-0 (Ver Constancia)
 
 **Categoría frente al IVA:** Responsable Inscripto
 
-**Nro. IIBB:** CM 901-917074-5 SICOM (Ver Constancia de Padrón Web / Ver CM05)
+**Nro. IIBB:** CM 901-000000-0 SICOM (Ver Constancia de Padrón Web / Ver CM05)
 
 **Actividad principal:** Servicios de seguro de salud
 
-### Encuadre impositivo de OMINT SA de Servicios
+### Encuadre impositivo de LoDeTincho S.A. de Servicios
 
 #### Impuestos Nacionales
 
@@ -337,7 +337,7 @@ Le informamos a continuación los datos y el encuadre impositivo de nuestra empr
   </tr>
 </table>
 
-Descargar Encuadre impositivo de OMINT SA de Servicios (documento disponible en la fuente).
+Descargar Encuadre impositivo de LoDeTincho S.A. de Servicios (documento disponible en la fuente).
 
 ## Resumen de regímenes de retención y percepción
 

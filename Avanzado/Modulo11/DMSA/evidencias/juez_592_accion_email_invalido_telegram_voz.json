@@ -1,0 +1,14 @@
+{
+  "ejecucion_manager": 592,
+  "traceId": "trc-20261015025615-592-o5wf",
+  "tipo_caso": "ACCION",
+  "entrada_paciente": "Hola, ¿qué tal? Quiero un turno para un fulemonólogo para el 11 de noviembre a las 8 am, por favor. Mi nombre es Adrián y mi email es mwhore.gmail.com",
+  "propuesta_evaluada": "Alta de turno: neumonología el 11/11/2026 a las 08:00 para Adrián (mwhore.gmail.com)",
+  "veredicto": {
+    "exactitud_factual": 2,
+    "estado_veredicto": "CORREGIR",
+    "critica": "El email proporcionado por el paciente ('mwhore.gmail.com') no tiene formato válido (le falta el símbolo '@'). La acción no debe ejecutarse hasta confirmar el email correcto con el paciente.",
+    "ruta": "escalar (acción congelada)"
+  },
+  "log_auditoria": null
+}

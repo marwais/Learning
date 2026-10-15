@@ -34,7 +34,7 @@ Somos Clínica LoDeTincho. Conocé el trabajo que realizamos y los servicios que
 
 ### **Nuestros pacientes nos recomiendan**
 
-Más del 95% de los pacientes que se internaron en las Clínicas del Grupo Omint durante 2025 están muy satisfechos con la experiencia. (Mediciones Grupo Omint 2025)
+Más del 95% de los pacientes que se internaron en las Clínicas del Grupo LoDeTincho durante 2025 están muy satisfechos con la experiencia. (Mediciones Grupo LoDeTincho 2025)
 
 El trato recibido por parte de los médicos y del personal de enfermería, además de la limpieza de las instalaciones, fueron los atributos más apreciados por los pacientes.
 

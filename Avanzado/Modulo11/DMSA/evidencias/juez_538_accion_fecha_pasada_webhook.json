@@ -1,0 +1,14 @@
+{
+  "ejecucion_manager": 538,
+  "traceId": "trc-20261015002149-537-a3kf",
+  "tipo_caso": "ACCION",
+  "entrada_paciente": "Hola, soy Prueba Juez Fecha. Quiero un turno de traumatología el 02/10/2026 a las 11:00. Mi mail es prueba.m11@example.com",
+  "propuesta_evaluada": "Alta de turno: traumatología el 02/10/2026 a las 11:00 para Prueba Juez Fecha (prueba.m11@example.com)",
+  "veredicto": {
+    "exactitud_factual": 2,
+    "estado_veredicto": "CORREGIR",
+    "critica": "La fecha solicitada (02/10/2026) es anterior a la fecha actual (14/10/2026), por lo que el turno ya pasó y no puede crearse. Una persona debe confirmar la fecha correcta antes de proceder.",
+    "ruta": "escalar (acción congelada)"
+  },
+  "log_auditoria": null
+}

@@ -48,7 +48,15 @@
   - **Freno de mano**: Data Table `control_m11` y workflow **Freno de mano (M11)** (`7QEDGdClm8kswbM9`, `POST /webhook/freno-m11` con el header `X-Freno-Token`; el token está en `Modulo5/scripts/.env`). Activo, todo pasa a atención humana;
   - **Idempotencia en Data Table** `pedidos_procesados_m11` (se graba al instante y queda como registro auditable). El **Receptor quedó sin nodos Code**, y el Manager tiene *Clave de idempotencia → Buscar pedido → ¿Pedido nuevo? → Registrar pedido (upsert)*.
 - [ ] **Reconectar la credencial "Gmail account" en n8n** (venció el 15/10): sin eso fallan los borradores y las respuestas por email (Errores (M11) lo alerta).
-- [ ] Resto de la Prioridad 2: metadatos en HubSpot, columna Asistencia, aviso de demoras por email o webhook, 2 fallas de comprensión, privacidad (nombre en el log, razón social en la base).
+- [x] **Resto de la Prioridad 2** (15/10/2026):
+  - **Privacidad de la base**: los nombres, el CUIT, el IIBB y el domicilio fiscal reales pasan a datos ficticios ([`kb/anonimizacion.json`](kb/anonimizacion.json)) en `Modulo5/kb_md`, en la Ingesta KB (M11) y en Qdrant (17 fragmentos re-indexados con Cohere por [`scripts/mantenimiento_m11.py`](scripts/mantenimiento_m11.py), un workflow temporal que usa las credenciales de n8n y se borra al terminar);
+  - **Privacidad del log**: el Juez enmascara el nombre del paciente (`[NOMBRE]`), además del email, el DNI y el teléfono;
+  - **Columna Asistencia** en `Agenda_Turnos (11)`: el Worker 1 la carga como "pendiente" y la recepción la marca (KPI de facturación del M10);
+  - **Aviso de demoras por email** en Errores (M11), para quien escribió por email o webhook;
+  - **Dos fallas de comprensión seguidas → una persona** ([`scripts/comprension_m11.py`](scripts/comprension_m11.py), Data Table `sesiones_m11`, nodos visuales): FUERA_DE_ALCANCE o "No pude procesar" dos veces en 30 minutos → "No logro ayudarte…" + Escalado humano;
+  - **Rama de error visible** en *Log de trazabilidad*: si falla el email de log, avisa a Slack y el pedido sigue.
+- [ ] **Metadatos en HubSpot**: el *App Token* no tiene permiso para crear propiedades (`crm.schemas.contacts.write`). Las crea el usuario o habilita el scope; después se mapean en los nodos de contacto.
+- [ ] `levantar_tunel.ps1` ahora pasa `N8N_EDITOR_BASE_URL=http://localhost:5678/`: el retorno de OAuth de Google usa localhost y no el túnel (con el túnel, Google daba `redirect_uri_mismatch`). Falta reconectar Gmail con la UI abierta en localhost.
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 
@@ -67,6 +75,11 @@
 | Urgencia ("dolor muy fuerte en el pecho… me falta el aire") | triaje → respuesta fija con el 107 y la guardia, sin pasar por la IA; caso en `escalados_m11` y aviso con botones en Slack |
 | Freno de mano | token falso → 403; activado → la consulta va directo a atención humana; desactivado → vuelve a la normalidad |
 | Duplicado con Data Table | 200 "duplicado" con el traceId original |
+| Nota de voz real por Telegram ("turno para un fulemonólogo…, mi email es mwhore.gmail.com") | el Router entendió neumonología; **el Juez congeló el alta** (CORREGIR 2/5: "el email no tiene formato válido, le falta el @") → aprobación en Slack |
+| Dos pedidos fuera de alcance seguidos | 1.º: respuesta normal y falla registrada; 2.º: "No logro ayudarte…" y caso en `escalados_m11` |
+| Alta con nombre en el texto | log de auditoría: "Hola, soy [NOMBRE]… Mi mail es [EMAIL]" |
+
+Los veredictos reales del Juez en JSON, para la Sección 3 del DMSA, están en [`DMSA/evidencias/`](DMSA/evidencias/).
 
 > Las planillas (11) se compartieron como editor con `mwquiero@gmail.com`, la cuenta de las credenciales de Google en n8n, igual que las 09. Sin eso, Sheets devolvía 403.
 >

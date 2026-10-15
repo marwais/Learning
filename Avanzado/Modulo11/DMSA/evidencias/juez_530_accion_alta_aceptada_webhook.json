@@ -1,0 +1,14 @@
+{
+  "ejecucion_manager": 530,
+  "traceId": "trc-20261015002041-529-715d",
+  "tipo_caso": "ACCION",
+  "entrada_paciente": "Hola, soy Prueba Juez Acciones. Necesito un turno de dermatología el 27/11/2026 a las 15:00. Mi mail es prueba.m11@example.com",
+  "propuesta_evaluada": "Alta de turno: dermatología el 27/11/2026 a las 15:00 para Prueba Juez Acciones (prueba.m11@example.com)",
+  "veredicto": {
+    "exactitud_factual": 4,
+    "estado_veredicto": "ACEPTADO",
+    "critica": "",
+    "ruta": "aceptar"
+  },
+  "log_auditoria": null
+}

@@ -1,6 +1,8 @@
 # Levanta (o reinicia) el quick tunnel de Cloudflare y recrea el contenedor n8n
 # con WEBHOOK_URL apuntando a la URL nueva. Telegram necesita una URL publica HTTPS
 # para su webhook; la del quick tunnel cambia en cada reinicio.
+# N8N_EDITOR_BASE_URL=localhost: el retorno de OAuth (Gmail, Google) usa localhost, que es la URI registrada en
+# Google Cloud; si no, n8n usaría la URL del túnel y Google responde redirect_uri_mismatch.
 # --protocol http2: algunas redes bloquean QUIC (UDP 7844) y el túnel no conecta ("failed to dial to edge with quic").
 #
 # Uso:  powershell -File Avanzado\Modulo6\scripts\levantar_tunel.ps1
@@ -25,6 +27,7 @@ cmd /c "docker rm -f n8n >nul 2>&1"
 docker run -d --name n8n --restart unless-stopped -p 5678:5678 `
   -v "$env:USERPROFILE\.n8n:/home/node/.n8n" `
   -e WEBHOOK_URL="$url/" `
+  -e N8N_EDITOR_BASE_URL="http://localhost:5678/" `
   n8nio/n8n:2.39.5 | Out-Null
 
 Write-Host "Tunel: $url"
