@@ -33,7 +33,12 @@
   - el Supervisor suma una **rúbrica de acciones** (`juez-rubrica-v3`, sha256 `f31f947dc69f`, mismo esquema JSON);
   - antes de los Workers 1 y 4: *Preparar auditoría de acción → Supervisor (Juez) — acción*. Con ACEPTADO (exactitud ≥ 4) se escribe; si no, la acción **se congela** en *Aprobar acción (Slack)*, con botones Aprobar/Rechazar y una espera máxima de 15 minutos. Sin aprobación, el paciente recibe "quedó en revisión" y no se toca la agenda;
   - la agenda, HubSpot, el borrador de confirmación y la memoria quedan después del veredicto.
-- [ ] Canal Telegram en un workflow propio, emails con HITL, Prioridad 2 y 3.
+- [x] **Modularidad** ([`scripts/modular_m11.py`](scripts/modular_m11.py)):
+  - **Canal Telegram (M11)** (`XXtibnyFxPu2piNu`) tiene el disparador, el filtro de repetidos, la voz con Whisper, el audio ilegible y el email dictado, y termina en *Pasar al Manager* (sin esperar). El Manager ya no depende del túnel para publicarse;
+  - **Ingesta KB (M11)** (`1MTk7AYPCxH8R2rh`, manual) es la carga de la base de conocimiento;
+  - el Manager bajó de 115 a 94 nodos. Su disparador interno es *Llamada de un canal (Receptor / Telegram)*.
+- [x] **Emails con HITL** (devolución de la P4), revisado: las confirmaciones de turno y los resultados del webhook salen como **borrador**; *Responder INFO (email)* envía solo después del veredicto ACEPTADO o de la aprobación humana en Slack; *Responder al paciente (email)* solo manda avisos fijos del sistema (faltan datos, turno existente, en revisión).
+- [ ] Probar el Canal Telegram con un mensaje real (lo hace el usuario). Prioridad 2 y 3.
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 

@@ -10,7 +10,7 @@ Receptor (M11): Webhook POST /webhook/agendabot-m11 -> Entrada webhook (valida) 
   -> 400 | Generar traceId -> Control de idempotencia -> Responder (202 recibido / 200 duplicado)
   -> ¿Pedido nuevo? -> "Procesar en segundo plano (Manager)" (Execute Workflow sin esperar).
 Manager M11: se quitan los nodos del webhook que instaló webhook_m11.py y se agrega el disparador
-  "Llamada del Receptor" -> Normalizar entrada. "Generar traceId" reutiliza el traceId del Receptor y
+  "Llamada de un canal (Receptor / Telegram)" -> Normalizar entrada. "Generar traceId" reutiliza el traceId del Receptor y
   "Control de idempotencia" no vuelve a controlar los pedidos del webhook. El despacho final queda igual.
 
 Uso:  python receptor_m11.py      # idempotente
@@ -66,7 +66,7 @@ const j = $json;
 const canal = String(j.canal || '');
 if (canal === 'webhook') return [{ json: { ...j, idemKey: 'wh-' + j.request_id, duplicado: false } }];
 let idemKey;
-if (canal.startsWith('telegram')) idemKey = 'tg-' + $('Mensaje de Telegram').first().json.update_id;
+if (canal.startsWith('telegram')) idemKey = 'tg-' + j.update_id;  // lo manda el Canal Telegram (M11)
 else if (canal === 'email') idemKey = 'gm-' + $('Email entrante (Gmail Trigger)').first().json.id;
 else idemKey = 'chat-' + $execution.id;
 const s = $getWorkflowStaticData('global');
@@ -145,14 +145,14 @@ def main():
     N = {n["name"]: n for n in w["nodes"]}
     con = w["connections"]
     if_base = N["¿Vino por Telegram?"]
-    # 1. Manager: sacar los nodos del webhook y poner el disparador "Llamada del Receptor"
+    # 1. Manager: sacar los nodos del webhook y poner el disparador "Llamada de un canal (Receptor / Telegram)"
     w["nodes"] = [n for n in w["nodes"] if n["name"] not in WEBHOOK_NODOS]
     for k in WEBHOOK_NODOS:
         con.pop(k, None)
-    if "Llamada del Receptor" not in N:
-        w["nodes"].append(W.nodo("Llamada del Receptor", "n8n-nodes-base.executeWorkflowTrigger", 1.1, [-1760, -150],
+    if "Llamada de un canal (Receptor / Telegram)" not in N:
+        w["nodes"].append(W.nodo("Llamada de un canal (Receptor / Telegram)", "n8n-nodes-base.executeWorkflowTrigger", 1.1, [-1760, -150],
                                  {"inputSource": "passthrough"}))
-    con["Llamada del Receptor"] = {"main": [[{"node": "Normalizar entrada", "type": "main", "index": 0}]]}
+    con["Llamada de un canal (Receptor / Telegram)"] = {"main": [[{"node": "Normalizar entrada", "type": "main", "index": 0}]]}
     con["Control de idempotencia"] = {"main": [[{"node": "¿Pedido nuevo?", "type": "main", "index": 0}]]}
     N = {n["name"]: n for n in w["nodes"]}
     N["Generar traceId"]["parameters"]["jsCode"] = GENERAR_TRACEID_MANAGER

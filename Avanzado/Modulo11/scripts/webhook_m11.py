@@ -107,7 +107,7 @@ def main():
     w = C.n8n("GET", f"/workflows/{IDS['manager']}")
     N = {n["name"]: n for n in w["nodes"]}
     con = w["connections"]
-    if "Llamada del Receptor" in N:
+    if "Llamada de un canal (Receptor / Telegram)" in N:
         raise SystemExit("Superado por receptor_m11.py: el webhook vive en 'Receptor (M11)'. No se toca el Manager.")
     if "Webhook (petición asincrónica)" in N:
         N["Control de idempotencia"]["parameters"]["jsCode"] = CONTROL_IDEMPOTENCIA
