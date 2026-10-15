@@ -21,7 +21,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    1044,
+    2544,
     320
    ],
    "parameters": {
@@ -42,7 +42,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    1044,
+    2544,
     512
    ],
    "parameters": {
@@ -67,7 +67,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    1364,
+    2864,
     320
    ],
    "parameters": {
@@ -80,7 +80,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    1620,
+    3120,
     304
    ],
    "parameters": {
@@ -188,7 +188,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    1940,
+    3440,
     -192
    ],
    "parameters": {
@@ -228,7 +228,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    2100,
+    3600,
     -192
    ],
    "parameters": {
@@ -241,7 +241,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    2244,
+    3744,
     -208
    ],
    "parameters": {
@@ -310,7 +310,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    3804,
+    5304,
     -352
    ],
    "parameters": {
@@ -340,7 +340,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    3804,
+    5304,
     -144
    ],
    "parameters": {
@@ -370,7 +370,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3804,
+    5304,
     64
    ],
    "parameters": {
@@ -399,7 +399,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    3996,
+    5496,
     -240
    ],
    "parameters": {
@@ -429,7 +429,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1940,
+    3440,
     224
    ],
    "parameters": {
@@ -463,7 +463,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5516,
+    7016,
     368
    ],
    "parameters": {
@@ -490,7 +490,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    132,
+    1632,
     496
    ],
    "parameters": {
@@ -523,7 +523,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    372,
+    1872,
     336
    ],
    "parameters": {
@@ -560,7 +560,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    596,
+    2096,
     432
    ],
    "parameters": {
@@ -681,7 +681,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    820,
+    2320,
     320
    ],
    "parameters": {
@@ -694,7 +694,7 @@
    "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
    "typeVersion": 1.3,
    "position": [
-    1140,
+    2640,
     672
    ],
    "parameters": {
@@ -709,7 +709,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    6140,
+    7640,
     368
    ],
    "parameters": {
@@ -745,7 +745,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    6556,
+    8056,
     336
    ],
    "parameters": {
@@ -770,7 +770,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    6556,
+    8056,
     128
    ],
    "parameters": {
@@ -788,7 +788,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    6828,
+    8328,
     128
    ],
    "parameters": {
@@ -804,7 +804,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    6988,
+    8488,
     512
    ],
    "parameters": {
@@ -927,7 +927,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    6988,
+    8488,
     128
    ],
    "parameters": {
@@ -1048,7 +1048,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    5948,
+    7448,
     368
    ],
    "parameters": {
@@ -1230,7 +1230,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4604,
+    6104,
     -336
    ],
    "parameters": {
@@ -1265,7 +1265,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4780,
+    6280,
     -336
    ],
    "parameters": {
@@ -1302,7 +1302,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4972,
+    6472,
     -432
    ],
    "parameters": {
@@ -1325,7 +1325,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4972,
+    6472,
     -240
    ],
    "parameters": {
@@ -1349,7 +1349,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5164,
+    6664,
     -336
    ],
    "parameters": {
@@ -1377,7 +1377,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5724,
+    7224,
     368
    ],
    "parameters": {
@@ -1418,7 +1418,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4204,
+    5704,
     -240
    ],
    "parameters": {
@@ -1452,7 +1452,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    4412,
+    5912,
     -336
    ],
    "parameters": {
@@ -1481,7 +1481,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4012,
+    5512,
     160
    ],
    "parameters": {
@@ -1528,7 +1528,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4300,
+    5800,
     16
    ],
    "parameters": {
@@ -1551,11 +1551,11 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    7212,
+    8712,
     320
    ],
    "parameters": {
-    "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Aplicar validación','output')\n     || grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje');\n// Sin respuesta de ninguna rama: FUERA_DE_ALCANCE (sale por el Fallback del Switch) o un caso no previsto.\n// Antes caía en un \"Listo.\" genérico.\nif (!m) {\n  const intent = grab('Contrato de datos','intent');\n  m = intent === 'FUERA_DE_ALCANCE'\n    ? 'Solo puedo ayudarte con turnos e información de la Clínica LoDeTincho. Esa consulta no la puedo responder.'\n    : 'No pude procesar tu pedido. ¿Me lo repetís con otras palabras?';\n}\nreturn [{ json: { output: m } }];"
+    "jsCode": "function grab(node,path){ try{ let o=$(node).first().json; for(const k of path.split('.')){ o=o[k]; } return o||''; }catch(e){ return ''; } }\nlet m = grab('Caso rojo','respuesta_fija')\n     || grab('Aplicar validación','output')\n     || grab('Confirmacion (Worker 2)','data.mensaje')\n     || grab('Aviso (no se puede)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','data.mensaje')\n     || grab('Consultar turno (Worker 3)','mensaje');\n// Sin respuesta de ninguna rama: FUERA_DE_ALCANCE (sale por el Fallback del Switch) o un caso no previsto.\n// Antes caía en un \"Listo.\" genérico.\nif (!m) {\n  const intent = grab('Contrato de datos','intent');\n  m = intent === 'FUERA_DE_ALCANCE'\n    ? 'Solo puedo ayudarte con turnos e información de la Clínica LoDeTincho. Esa consulta no la puedo responder.'\n    : 'No pude procesar tu pedido. ¿Me lo repetís con otras palabras?';\n}\nreturn [{ json: { output: m } }];"
    }
   },
   {
@@ -1564,7 +1564,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    1924,
+    3424,
     768
    ],
    "parameters": {
@@ -1586,7 +1586,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    1908,
+    3408,
     960
    ],
    "parameters": {
@@ -1613,7 +1613,7 @@
    "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
    "typeVersion": 2.2,
    "position": [
-    2084,
+    3584,
     960
    ],
    "parameters": {
@@ -1667,7 +1667,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4204,
+    5704,
     768
    ],
    "parameters": {
@@ -1714,7 +1714,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4412,
+    5912,
     688
    ],
    "parameters": {
@@ -1737,7 +1737,7 @@
    "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
    "typeVersion": 1.3,
    "position": [
-    2020,
+    3520,
     960
    ],
    "parameters": {
@@ -1752,7 +1752,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    2180,
+    3680,
     768
    ],
    "parameters": {
@@ -1765,7 +1765,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    5500,
+    7000,
     1850
    ],
    "parameters": {
@@ -1778,7 +1778,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4920,
+    6420,
     1250
    ],
    "parameters": {
@@ -1811,7 +1811,7 @@
    "type": "n8n-nodes-base.noOp",
    "typeVersion": 1,
    "position": [
-    5580,
+    7080,
     1580
    ],
    "parameters": {}
@@ -1822,7 +1822,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    5140,
+    6640,
     1150
    ],
    "parameters": {
@@ -1835,7 +1835,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    5360,
+    6860,
     1150
    ],
    "parameters": {
@@ -1872,7 +1872,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5580,
+    7080,
     1270
    ],
    "parameters": {
@@ -1895,7 +1895,7 @@
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    4840,
+    6340,
     790
    ],
    "parameters": {
@@ -1911,7 +1911,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    2230,
+    3730,
     2050
    ],
    "parameters": {
@@ -1941,7 +1941,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    3780,
+    5280,
     2050
    ],
    "parameters": {
@@ -2041,7 +2041,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    4080,
+    5580,
     1850
    ],
    "parameters": {
@@ -2076,7 +2076,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4080,
+    5580,
     2050
    ],
    "parameters": {
@@ -2109,7 +2109,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    4320,
+    5820,
     2210
    ],
    "parameters": {
@@ -2138,7 +2138,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    4320,
+    5820,
     2430
    ],
    "parameters": {
@@ -2164,7 +2164,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    4550,
+    6050,
     2430
    ],
    "parameters": {
@@ -2202,7 +2202,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4780,
+    6280,
     2430
    ],
    "parameters": {
@@ -2236,7 +2236,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    5020,
+    6520,
     2330
    ],
    "parameters": {
@@ -2266,7 +2266,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    5020,
+    6520,
     2530
    ],
    "parameters": {
@@ -2297,7 +2297,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    5260,
+    6760,
     2530
    ],
    "parameters": {
@@ -2331,7 +2331,7 @@
    "waitBetweenTries": 2000,
    "onError": "continueRegularOutput",
    "position": [
-    5500,
+    7000,
     1630
    ],
    "parameters": {
@@ -2363,7 +2363,7 @@
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    1940,
+    3440,
     1720
    ],
    "parameters": {
@@ -2374,25 +2374,12 @@
    }
   },
   {
-   "id": "b8fde0c7-02e4-436f-9401-fc127be4eda9",
-   "name": "Generar traceId",
-   "type": "n8n-nodes-base.code",
-   "typeVersion": 2,
-   "position": [
-    -880,
-    470
-   ],
-   "parameters": {
-    "jsCode": "// traceId único por mensaje entrante: viaja a TODOS los sub-workflows y queda en cada log.\n// Si el pedido vino por el Receptor (webhook), se reutiliza el traceId que ya se le devolvió al que llamó.\n// Formato: trc-<fecha>-<executionId>-<sufijo aleatorio>\nconst j = $json;\nconst ahora = new Date();\nconst fecha = ahora.toISOString().slice(0, 19).replace(/[-:T]/g, '');\nconst traceId = j.traceId || ('trc-' + fecha + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6));\nreturn [{ json: { ...j, traceId, trace_inicio: j.trace_inicio || ahora.toISOString() } }];"
-   }
-  },
-  {
    "id": "4f0b2041-35b4-4377-a6a7-ad9f0768d477",
    "name": "traceId → Worker 1",
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    4004,
+    5504,
     -120
    ],
    "parameters": {
@@ -2413,7 +2400,7 @@
       {
        "id": "cb815ad6-2fe7-407e-a80d-31ecc8b13edb",
        "name": "idemKey",
-       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "value": "={{ $('Clave de idempotencia').first().json.idemKey }}",
        "type": "string"
       }
      ]
@@ -2428,7 +2415,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    4004,
+    5504,
     -300
    ],
    "parameters": {
@@ -2449,7 +2436,7 @@
       {
        "id": "bb4d5506-f003-4fe9-80cc-6c14aa599941",
        "name": "idemKey",
-       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "value": "={{ $('Clave de idempotencia').first().json.idemKey }}",
        "type": "string"
       }
      ]
@@ -2464,7 +2451,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3976,
+    5476,
     -390
    ],
    "parameters": {
@@ -2485,7 +2472,7 @@
       {
        "id": "e89c5170-e78b-41b2-bdd1-cb3466c8f458",
        "name": "idemKey",
-       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "value": "={{ $('Clave de idempotencia').first().json.idemKey }}",
        "type": "string"
       }
      ]
@@ -2500,7 +2487,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    1920,
+    3420,
     74
    ],
    "parameters": {
@@ -2521,7 +2508,7 @@
       {
        "id": "b1775973-aa76-407c-9586-3a86914a1aa5",
        "name": "idemKey",
-       "value": "={{ $('Control de idempotencia').first().json.idemKey }}",
+       "value": "={{ $('Clave de idempotencia').first().json.idemKey }}",
        "type": "string"
       }
      ]
@@ -2547,25 +2534,12 @@
    }
   },
   {
-   "id": "0df1db21-9f4f-4630-885e-9113c9a47e00",
-   "name": "Control de idempotencia",
-   "type": "n8n-nodes-base.code",
-   "typeVersion": 2,
-   "position": [
-    -660,
-    470
-   ],
-   "parameters": {
-    "jsCode": "// Idempotencia: cada pedido tiene una clave única según su canal (tg-<update_id>, gm-<id del mail>,\n// chat-<ejecución>). Si la clave ya se procesó en los últimos 7 días, el pedido se marca como repetido y\n// no se registra ni se responde dos veces. Los pedidos del webhook ya los controló el Receptor (M11).\nconst j = $json;\nconst canal = String(j.canal || '');\nif (canal === 'webhook') return [{ json: { ...j, idemKey: 'wh-' + j.request_id, duplicado: false } }];\nlet idemKey;\nif (canal.startsWith('telegram')) idemKey = 'tg-' + j.update_id;\nelse if (canal === 'email') idemKey = 'gm-' + $('Email entrante (Gmail Trigger)').first().json.id;\nelse idemKey = 'chat-' + $execution.id;\nconst s = $getWorkflowStaticData('global');\ns.procesados = s.procesados || {};\nconst ahora = Date.now(), TTL = 7 * 24 * 3600 * 1000;\nfor (const [k, v] of Object.entries(s.procesados)) if (ahora - (v.t || v) > TTL) delete s.procesados[k];\nconst previo = s.procesados[idemKey];\nif (previo) return [{ json: { ...j, idemKey, duplicado: true, traceId_original: previo.traceId || '' } }];\ns.procesados[idemKey] = { t: ahora, traceId: j.traceId };\nreturn [{ json: { ...j, idemKey, duplicado: false } }];"
-   }
-  },
-  {
    "id": "47a8204c-c770-44d5-972e-827c644d6f29",
    "name": "¿Pedido nuevo?",
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    -440,
+    -220,
     470
    ],
    "parameters": {
@@ -2578,14 +2552,14 @@
      },
      "conditions": [
       {
-       "id": "6c02bf78-aab8-46e0-a323-0020ce5cc7c4",
-       "leftValue": "={{ $json.duplicado }}",
+       "id": "77ac0260-81ef-44af-b3c4-c99a0206fcbc",
+       "leftValue": "={{ $('Clave de idempotencia').first().json.canal === 'webhook' || !$json.clave }}",
+       "rightValue": "",
        "operator": {
         "type": "boolean",
-        "operation": "false",
+        "operation": "true",
         "singleValue": true
-       },
-       "rightValue": ""
+       }
       }
      ],
      "combinator": "and"
@@ -2599,7 +2573,7 @@
    "type": "n8n-nodes-base.noOp",
    "typeVersion": 1,
    "position": [
-    -440,
+    -220,
     680
    ],
    "parameters": {}
@@ -2610,7 +2584,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    5140,
+    6640,
     1410
    ],
    "parameters": {
@@ -2643,7 +2617,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    5360,
+    6860,
     1330
    ],
    "parameters": {
@@ -2681,7 +2655,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5580,
+    7080,
     1240
    ],
    "parameters": {
@@ -2708,7 +2682,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5580,
+    7080,
     1390
    ],
    "parameters": {
@@ -2745,7 +2719,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    2464,
+    3964,
     -208
    ],
    "parameters": {
@@ -2758,7 +2732,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    2684,
+    4184,
     -208
    ],
    "parameters": {
@@ -2788,7 +2762,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2904,
+    4404,
     -208
    ],
    "parameters": {
@@ -2822,7 +2796,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    3124,
+    4624,
     -20
    ],
    "parameters": {
@@ -2868,7 +2842,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3344,
+    4844,
     -20
    ],
    "parameters": {
@@ -2902,7 +2876,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3564,
+    5064,
     100
    ],
    "parameters": {
@@ -2931,7 +2905,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    3564,
+    5064,
     -208
    ],
    "parameters": {
@@ -2944,7 +2918,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3784,
+    5284,
     -208
    ],
    "parameters": {
@@ -2977,7 +2951,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    5580,
+    7080,
     1050
    ],
    "parameters": {
@@ -2998,6 +2972,560 @@
     "options": {
      "waitForSubWorkflow": true
     }
+   }
+  },
+  {
+   "id": "1c83ceee-0833-41dd-a42b-ab6ce2a6fd57",
+   "name": "Generar traceId",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    -880,
+    470
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "af3d7a54-d6fc-4a4b-96a9-310593f47663",
+       "name": "traceId",
+       "value": "={{ $json.traceId || ('trc-' + $now.toUTC().toFormat('yyyyMMddHHmmss') + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6)) }}",
+       "type": "string"
+      },
+      {
+       "id": "48bd45a5-2a8f-47e2-9cd7-04fd547bcff0",
+       "name": "trace_inicio",
+       "value": "={{ $json.trace_inicio || $now.toUTC().toISO() }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "034b3876-f7e2-4256-bc68-8cbd712fce1e",
+   "name": "Clave de idempotencia",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    -660,
+    470
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "6c6df1f8-2477-4462-9b90-c2f4bd826cde",
+       "name": "idemKey",
+       "value": "={{ $json.canal.startsWith('telegram') ? 'tg-' + $json.update_id : $json.canal === 'email' ? 'gm-' + $('Email entrante (Gmail Trigger)').first().json.id : $json.canal === 'webhook' ? 'wh-' + $json.request_id : 'chat-' + $execution.id }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "df669e36-9bff-4f81-b860-7a791ca29bdd",
+   "name": "Buscar pedido procesado",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "alwaysOutputData": true,
+   "position": [
+    -440,
+    470
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "get",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "NzQezydIdCHX34Ee"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "clave",
+       "condition": "eq",
+       "keyValue": "={{ $json.idemKey }}"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "a613c324-eeec-4b16-92ab-ef2113b0cfe4",
+   "name": "Registrar pedido",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    0,
+    470
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "upsert",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "NzQezydIdCHX34Ee"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "clave",
+       "condition": "eq",
+       "keyValue": "={{ $('Clave de idempotencia').first().json.idemKey }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "clave": "={{ $('Clave de idempotencia').first().json.idemKey }}",
+      "traceId": "={{ $('Clave de idempotencia').first().json.traceId }}",
+      "canal": "={{ $('Clave de idempotencia').first().json.canal }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "clave",
+       "displayName": "clave",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "traceId",
+       "displayName": "traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "canal",
+       "displayName": "canal",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "2d5fc318-eb2c-4abe-b101-e9f2eb67da5e",
+   "name": "Pedido validado",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    220,
+    470
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Clave de idempotencia').first().json) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "90d5dda3-fd42-493e-b43b-134431b1eb0e",
+   "name": "Triaje de señales rojas",
+   "type": "n8n-nodes-base.switch",
+   "typeVersion": 3.2,
+   "position": [
+    440,
+    470
+   ],
+   "parameters": {
+    "rules": {
+     "values": [
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "512e01c5-2f4a-45ce-a404-cadf079cf03e",
+          "leftValue": "={{ String($json.mensaje || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '') }}",
+          "rightValue": "(dolor (muy )?(fuerte )?(en el|de|del) pecho|me duele (mucho )?el pecho|no puedo respirar|me falta el aire|falta de aire|me ahogo|desmay|convulsi|sangr(ado|o) (mucho|abundante)|hemorragia|infarto|\\bacv\\b|perdi el conocimiento|perdida de conocimiento|intoxica|sobredosis|quiero morir|suicid|me quiero matar|paralisis|no siento (el brazo|la pierna|la cara)|cara torcida)",
+          "operator": {
+           "type": "string",
+           "operation": "regex"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "urgencia médica"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "08f77e34-cb3e-4ae2-9aed-aace7f5e5eb5",
+          "leftValue": "={{ String($json.mensaje || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '') }}",
+          "rightValue": "(reintegro|reembols|devolucion (del|de mi) dinero|me devuelvan (la plata|el dinero)|me cobraron|cobro indebido|cobraron de mas|doble cobro|me deben plata)",
+          "operator": {
+           "type": "string",
+           "operation": "regex"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "dinero"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "08cc48e5-16ed-4cfd-abe9-c57ddfb253f9",
+          "leftValue": "={{ String($json.mensaje || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '') }}",
+          "rightValue": "(abogad|denuncia|demandar|una demanda|carta documento|defensa del consumidor|mala praxis|negligencia|juicio)",
+          "operator": {
+           "type": "string",
+           "operation": "regex"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "reclamo legal"
+      },
+      {
+       "conditions": {
+        "options": {
+         "caseSensitive": true,
+         "leftValue": "",
+         "typeValidation": "loose",
+         "version": 2
+        },
+        "conditions": [
+         {
+          "id": "ae3262b4-3045-4f21-bd65-454a322550a3",
+          "leftValue": "={{ String($json.mensaje || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '') }}",
+          "rightValue": "(historia clinica|epicrisis|resumen de (mi )?historia|datos de otr[oa] paciente)",
+          "operator": {
+           "type": "string",
+           "operation": "regex"
+          }
+         }
+        ],
+        "combinator": "and"
+       },
+       "renameOutput": true,
+       "outputKey": "historia clínica"
+      }
+     ]
+    },
+    "options": {
+     "fallbackOutput": "extra",
+     "renameFallbackOutput": "sin señales rojas"
+    }
+   }
+  },
+  {
+   "id": "259e36ca-a2d6-43c9-b6ed-de7e360f97e8",
+   "name": "Rojo: urgencia médica",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    700,
+    620
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Pedido validado').first().json, categoria: 'urgencia médica', protocolo: 'triaje-v1 (15/10/2026)', respuesta_fija: \"Si es una urgencia, no esperes una respuesta por este medio: llamá ya al 107 (SAME) o acercate a la guardia 24 h de la clínica. Ya avisé al equipo para que te contacte.\" }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "06b503d4-9db3-417a-8f80-30334598a1cb",
+   "name": "Rojo: dinero",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    700,
+    770
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Pedido validado').first().json, categoria: 'dinero', protocolo: 'triaje-v1 (15/10/2026)', respuesta_fija: \"Tu consulta la tiene que ver una persona del equipo de la Central de Turnos: ya le avisé y te va a contactar a la brevedad.\" }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "bf29a1a8-f84e-48e2-89bd-e6beb1996bac",
+   "name": "Rojo: reclamo legal",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    700,
+    920
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Pedido validado').first().json, categoria: 'reclamo legal', protocolo: 'triaje-v1 (15/10/2026)', respuesta_fija: \"Tu consulta la tiene que ver una persona del equipo de la Central de Turnos: ya le avisé y te va a contactar a la brevedad.\" }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "3a20086f-70c4-4ec0-abbe-0f73dc88f2a4",
+   "name": "Rojo: historia clínica",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    700,
+    1070
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Pedido validado').first().json, categoria: 'historia clínica', protocolo: 'triaje-v1 (15/10/2026)', respuesta_fija: \"Tu consulta la tiene que ver una persona del equipo de la Central de Turnos: ya le avisé y te va a contactar a la brevedad.\" }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "64508517-9fcf-4005-a3dd-e5a3128de937",
+   "name": "Leer freno de mano",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "alwaysOutputData": true,
+   "position": [
+    700,
+    300
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "get",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "dGpUJSxV7E8KV4cE"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "clave",
+       "condition": "eq",
+       "keyValue": "freno_de_mano"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "cdfbc1f2-4548-40e6-b320-f74b98fd6891",
+   "name": "¿Freno de mano activo?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    920,
+    300
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "b27d673a-2020-44b4-8785-7af57270d486",
+       "leftValue": "={{ $json.valor === 'si' }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "17156a98-79fe-4faa-8443-397bb35e033e",
+   "name": "Freno activo",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1140,
+    480
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Pedido validado').first().json, categoria: 'freno de mano (atención humana)', protocolo: 'triaje-v1 (15/10/2026)', respuesta_fija: \"En este momento te atiende una persona del equipo de la Central de Turnos: ya le pasé tu mensaje y te responde a la brevedad.\" }) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "6e74e3d9-d074-42ca-b9ad-bd9f2e81ca00",
+   "name": "Pedido en curso",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1140,
+    300
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Pedido validado').first().json) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "40f20abf-e2df-41a4-8a74-6d4a2719eaff",
+   "name": "Caso rojo",
+   "type": "n8n-nodes-base.noOp",
+   "typeVersion": 1,
+   "position": [
+    1360,
+    760
+   ],
+   "parameters": {}
+  },
+  {
+   "id": "676efdcc-9050-4cf2-8bfe-8ba10d6af863",
+   "name": "Escalar a una persona (sub-workflow)",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    1580,
+    680
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "value": "jdJ7DV9keYZgP5MU",
+     "mode": "list",
+     "cachedResultName": "Escalado humano (M11)"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": false
+    }
+   }
+  },
+  {
+   "id": "934f3fcc-bd8e-4617-8f6b-fb851b1494c1",
+   "name": "¿Email? (caso rojo)",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    1580,
+    860
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "a655ff81-f962-4504-85c1-f346185abca8",
+       "leftValue": "={{ $('Caso rojo').first().json.canal === 'email' }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "056900fd-10c7-4049-a76e-57612846a1a8",
+   "name": "Responder caso rojo (email)",
+   "webhookId": "0f0edf04-b4ae-4aca-8e5b-ee89c5545f45",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    1800,
+    860
+   ],
+   "parameters": {
+    "operation": "reply",
+    "messageId": "={{ $('Email entrante (Gmail Trigger)').first().json.id }}",
+    "emailType": "text",
+    "message": "=Hola,\n\n{{ $('Caso rojo').first().json.respuesta_fija }}\n\n(Mensaje automático del asistente de agenda de la Clínica LoDeTincho.)",
+    "options": {}
+   },
+   "credentials": {
+    "gmailOAuth2": {
+     "id": "LCpAQRDOeUUC99pU",
+     "name": "Gmail account"
+    }
+   }
+  },
+  {
+   "id": "c83cc0d1-0164-45d8-9795-79b15b6621b2",
+   "name": "Nota ca1c",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    360,
+    1240
+   ],
+   "parameters": {
+    "width": 1700,
+    "height": 300,
+    "content": "## Triaje de señales rojas (protocolo triaje-v1 (15/10/2026))\nAntes del Router y sin código: el **Switch** busca en el mensaje (en minúsculas y sin acentos) las señales del semáforo rojo del M7: **urgencia médica**, **dinero** (reintegros, cobros), **reclamo legal** e **historia clínica**. Un caso rojo no lo resuelve la IA: el paciente recibe una respuesta fija (en una urgencia, el 107 y la guardia 24 h) y el caso pasa a una persona por **Escalado humano (M11)**. Si no hay señales, se consulta el **freno de mano** (Data Table `control_m11`): activo = todo a atención humana. Las listas de palabras son el protocolo versionado que aprueba la dirección médica y administrativa."
    }
   }
  ],
@@ -3824,7 +4352,7 @@
    "main": [
     [
      {
-      "node": "Control de idempotencia",
+      "node": "Clave de idempotencia",
       "type": "main",
       "index": 0
      }
@@ -3875,22 +4403,11 @@
     ]
    ]
   },
-  "Control de idempotencia": {
-   "main": [
-    [
-     {
-      "node": "¿Pedido nuevo?",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
   "¿Pedido nuevo?": {
    "main": [
     [
      {
-      "node": "Buscar memoria (Airtable)",
+      "node": "Registrar pedido",
       "type": "main",
       "index": 0
      }
@@ -4054,6 +4571,229 @@
     [
      {
       "node": "Normalizar entrada",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Clave de idempotencia": {
+   "main": [
+    [
+     {
+      "node": "Buscar pedido procesado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Buscar pedido procesado": {
+   "main": [
+    [
+     {
+      "node": "¿Pedido nuevo?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar pedido": {
+   "main": [
+    [
+     {
+      "node": "Pedido validado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pedido validado": {
+   "main": [
+    [
+     {
+      "node": "Triaje de señales rojas",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Triaje de señales rojas": {
+   "main": [
+    [
+     {
+      "node": "Rojo: urgencia médica",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Rojo: dinero",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Rojo: reclamo legal",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Rojo: historia clínica",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Leer freno de mano",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Rojo: urgencia médica": {
+   "main": [
+    [
+     {
+      "node": "Caso rojo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Rojo: dinero": {
+   "main": [
+    [
+     {
+      "node": "Caso rojo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Rojo: reclamo legal": {
+   "main": [
+    [
+     {
+      "node": "Caso rojo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Rojo: historia clínica": {
+   "main": [
+    [
+     {
+      "node": "Caso rojo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Leer freno de mano": {
+   "main": [
+    [
+     {
+      "node": "¿Freno de mano activo?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Freno de mano activo?": {
+   "main": [
+    [
+     {
+      "node": "Freno activo",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Pedido en curso",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Freno activo": {
+   "main": [
+    [
+     {
+      "node": "Caso rojo",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pedido en curso": {
+   "main": [
+    [
+     {
+      "node": "Buscar memoria (Airtable)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Caso rojo": {
+   "main": [
+    [
+     {
+      "node": "Escalar a una persona (sub-workflow)",
+      "type": "main",
+      "index": 0
+     },
+     {
+      "node": "¿Email? (caso rojo)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Email? (caso rojo)": {
+   "main": [
+    [
+     {
+      "node": "Responder caso rojo (email)",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Responder al chat",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Responder caso rojo (email)": {
+   "main": [
+    [
+     {
+      "node": "Responder al chat",
       "type": "main",
       "index": 0
      }

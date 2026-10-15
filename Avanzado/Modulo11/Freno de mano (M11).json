@@ -1,0 +1,236 @@
+{
+ "name": "Freno de mano (M11)",
+ "nodes": [
+  {
+   "id": "c4f54a39-a1c9-4a49-92ac-23e99ab02dcf",
+   "name": "Webhook freno de mano",
+   "webhookId": "e1112891-8afa-492b-9759-bce6967d1418",
+   "type": "n8n-nodes-base.webhook",
+   "typeVersion": 2,
+   "position": [
+    0,
+    300
+   ],
+   "parameters": {
+    "httpMethod": "POST",
+    "path": "freno-m11",
+    "authentication": "headerAuth",
+    "responseMode": "responseNode",
+    "options": {}
+   },
+   "credentials": {
+    "httpHeaderAuth": {
+     "id": "rb7HecAHkSeV22rA",
+     "name": "Freno de mano (M11)"
+    }
+   }
+  },
+  {
+   "id": "ce1b91f9-209a-45af-aa13-0d6b8743106e",
+   "name": "Nuevo estado",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    220,
+    300
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "3c44933d-a2c9-454e-b6fa-3e75b6e0b160",
+       "name": "valor",
+       "value": "={{ [true, 'true', 'si', 'sí'].includes($json.body.activo) ? 'si' : 'no' }}",
+       "type": "string"
+      },
+      {
+       "id": "c24edc55-53a0-4892-aafc-ce6a7db32b82",
+       "name": "quien",
+       "value": "={{ $json.body.quien || 'sin nombre' }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": false,
+    "options": {}
+   }
+  },
+  {
+   "id": "a240b845-8443-4d94-9c0b-e7d10927666a",
+   "name": "Actualizar freno",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    440,
+    300
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "update",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "dGpUJSxV7E8KV4cE"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "clave",
+       "condition": "eq",
+       "keyValue": "freno_de_mano"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "valor": "={{ $json.valor }}",
+      "actualizado_por": "={{ $json.quien + ' · ' + $now.setZone('America/Argentina/Buenos_Aires').toFormat('dd/MM/yyyy HH:mm') }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "valor",
+       "displayName": "valor",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "actualizado_por",
+       "displayName": "actualizado_por",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "7c6f1588-aa24-48d0-814b-b1652ae0d8ae",
+   "name": "Avisar cambio (Slack)",
+   "webhookId": "6950fed6-33fe-495f-bb0e-88e664745b80",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    660,
+    300
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "post",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "text": "={{ $json.valor === 'si' ? ':octagonal_sign: *Freno de mano ACTIVADO*: todos los pedidos pasan a atención humana.' : ':white_check_mark: *Freno de mano desactivado*: AgendaBot vuelve a atender.' }} ({{ $json.actualizado_por }})",
+    "otherOptions": {
+     "includeLinkToWorkflow": false
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "492f1750-3e51-4433-a13f-4725da64f962",
+   "name": "Responder estado",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.1,
+   "position": [
+    880,
+    300
+   ],
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify({ freno_de_mano: $('Actualizar freno').first().json.valor, actualizado_por: $('Actualizar freno').first().json.actualizado_por }) }}",
+    "options": {
+     "responseCode": 200
+    }
+   }
+  },
+  {
+   "id": "a0d192b0-51b9-4434-b893-8982c66d384f",
+   "name": "Nota 84d0",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    -40,
+    -20
+   ],
+   "parameters": {
+    "width": 1060,
+    "height": 260,
+    "content": "## Freno de mano (M11)\nPausa a AgendaBot: con `freno_de_mano = si` en la Data Table `control_m11`, el Manager deriva todos los pedidos a una persona (respuesta fija + escalado en Slack). Se activa con `POST /webhook/freno-m11` y el header `X-Freno-Token` (credencial de n8n; el valor no está en el workflow), body `{\"activo\": true, \"quien\": \"Coordinadora\"}`, o editando la tabla en n8n."
+   }
+  }
+ ],
+ "connections": {
+  "Webhook freno de mano": {
+   "main": [
+    [
+     {
+      "node": "Nuevo estado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Nuevo estado": {
+   "main": [
+    [
+     {
+      "node": "Actualizar freno",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Actualizar freno": {
+   "main": [
+    [
+     {
+      "node": "Avisar cambio (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Avisar cambio (Slack)": {
+   "main": [
+    [
+     {
+      "node": "Responder estado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all",
+  "errorWorkflow": "UBZ3dbNmFMFuYrAR",
+  "executionOrder": "v1"
+ }
+}

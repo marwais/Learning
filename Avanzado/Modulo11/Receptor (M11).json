@@ -19,23 +19,70 @@
    }
   },
   {
-   "id": "e9a5df54-361b-44ec-b960-ff5f6ffd9f71",
+   "id": "451f849c-f163-4afd-a945-024c4155e700",
    "name": "Entrada webhook",
-   "type": "n8n-nodes-base.code",
-   "typeVersion": 2,
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
    "position": [
     220,
     300
    ],
    "parameters": {
-    "jsCode": "// Petición asincrónica: un sistema externo (web de turnos, app, CRM) manda el pedido del paciente por POST.\n// Campos: request_id (clave de idempotencia del que llama; también vale el header Idempotency-Key),\n// mensaje (obligatorio), nombre, email y/o tg_chat_id (por dónde se le manda el resultado).\nconst b = $json.body || {};\nconst h = $json.headers || {};\nconst mensaje = String(b.mensaje || '').trim();\nconst email = String(b.email || '').trim();\nconst tg_chat_id = String(b.tg_chat_id || '').trim();\nconst request_id = String(b.request_id || h['idempotency-key'] || '').trim();\nconst faltan = [];\nif (!request_id) faltan.push('request_id');\nif (!mensaje) faltan.push('mensaje');\nif (!email && !tg_chat_id) faltan.push('email o tg_chat_id (canal de respuesta)');\nreturn [{ json: {\n  valido: faltan.length === 0, faltan,\n  canal: 'webhook', request_id, mensaje, email, tg_chat_id, nombre: String(b.nombre || '').trim(),\n  sessionId: email || (tg_chat_id ? 'tg-' + tg_chat_id : 'wh-' + request_id)\n} }];"
+    "assignments": {
+     "assignments": [
+      {
+       "id": "b2524b5c-cfcf-4435-8f51-e9ed7d501669",
+       "name": "canal",
+       "value": "webhook",
+       "type": "string"
+      },
+      {
+       "id": "ce8161e0-ec72-4eb6-a57c-1db9fef2d392",
+       "name": "request_id",
+       "value": "={{ String($json.body.request_id || $json.headers['idempotency-key'] || '').trim() }}",
+       "type": "string"
+      },
+      {
+       "id": "bd29c022-4710-4f2d-b530-b2bf82726e16",
+       "name": "mensaje",
+       "value": "={{ String($json.body.mensaje || '').trim() }}",
+       "type": "string"
+      },
+      {
+       "id": "767b41d8-2683-4fc3-abda-df0c59c1366a",
+       "name": "email",
+       "value": "={{ String($json.body.email || '').trim() }}",
+       "type": "string"
+      },
+      {
+       "id": "5b26d828-549b-421b-bc30-b5eaf2d5e1ca",
+       "name": "tg_chat_id",
+       "value": "={{ String($json.body.tg_chat_id || '').trim() }}",
+       "type": "string"
+      },
+      {
+       "id": "0002f04d-2454-4512-b405-e20e078340d1",
+       "name": "nombre",
+       "value": "={{ String($json.body.nombre || '').trim() }}",
+       "type": "string"
+      },
+      {
+       "id": "62c082d7-c7b0-4f30-ae41-1235761efb63",
+       "name": "sessionId",
+       "value": "={{ $json.body.email || ($json.body.tg_chat_id ? 'tg-' + $json.body.tg_chat_id : 'wh-' + $json.body.request_id) }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": false,
+    "options": {}
    }
   },
   {
-   "id": "1aacd5b1-809e-407b-8d1c-44fd39de1ba3",
+   "id": "b3c396e9-70a0-48b5-a348-b07f83ec78d0",
    "name": "¿Petición válida?",
    "type": "n8n-nodes-base.if",
-   "typeVersion": 2,
+   "typeVersion": 2.2,
    "position": [
     440,
     300
@@ -46,27 +93,28 @@
       "caseSensitive": true,
       "leftValue": "",
       "typeValidation": "loose",
-      "version": 1
+      "version": 2
      },
      "conditions": [
       {
-       "id": "9ce45a93-59cf-4b9e-8d3f-5d34aca78a84",
-       "leftValue": "={{ $json.valido }}",
+       "id": "d336454f-e1b9-4b9b-9885-6a8f100400cc",
+       "leftValue": "={{ !!$json.request_id && !!$json.mensaje && (!!$json.email || !!$json.tg_chat_id) }}",
+       "rightValue": "",
        "operator": {
         "type": "boolean",
         "operation": "true",
         "singleValue": true
-       },
-       "rightValue": ""
+       }
       }
      ],
      "combinator": "and"
     },
+    "looseTypeValidation": true,
     "options": {}
    }
   },
   {
-   "id": "89dfd35f-165b-4f81-8b3f-56f88f2097fd",
+   "id": "98c1e659-b671-407c-bf84-4bf867df5c3d",
    "name": "Rechazar petición (400)",
    "type": "n8n-nodes-base.respondToWebhook",
    "typeVersion": 1.1,
@@ -76,62 +124,85 @@
    ],
    "parameters": {
     "respondWith": "json",
-    "responseBody": "={{ JSON.stringify({ estado: 'rechazado', faltan: $json.faltan }) }}",
+    "responseBody": "={{ JSON.stringify({ estado: 'rechazado', faltan: [!$json.request_id && 'request_id', !$json.mensaje && 'mensaje', (!$json.email && !$json.tg_chat_id) && 'email o tg_chat_id (canal de respuesta)'].filter(Boolean) }) }}",
     "options": {
      "responseCode": 400
     }
    }
   },
   {
-   "id": "82c5b28f-36f6-44f1-b5f8-d0d799bc8373",
+   "id": "9f01124b-92a2-4250-ae39-5ecc803742be",
    "name": "Generar traceId",
-   "type": "n8n-nodes-base.code",
-   "typeVersion": 2,
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
    "position": [
     660,
     280
    ],
    "parameters": {
-    "jsCode": "// traceId único por pedido: el Receptor lo genera y lo devuelve en la respuesta 202; el Manager lo reutiliza.\n// Formato: trc-<fecha>-<executionId del Receptor>-<sufijo aleatorio>\nconst ahora = new Date();\nconst fecha = ahora.toISOString().slice(0, 19).replace(/[-:T]/g, '');\nconst traceId = 'trc-' + fecha + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6);\nreturn [{ json: { ...$json, traceId, trace_inicio: ahora.toISOString() } }];"
+    "assignments": {
+     "assignments": [
+      {
+       "id": "6e3dfb15-66c3-44ab-b9e8-3e66c73cd2bd",
+       "name": "traceId",
+       "value": "={{ $json.traceId || ('trc-' + $now.toUTC().toFormat('yyyyMMddHHmmss') + '-' + $execution.id + '-' + Math.random().toString(36).slice(2, 6)) }}",
+       "type": "string"
+      },
+      {
+       "id": "73c4cc29-ccea-4cd5-944a-8ea0a9d03d5a",
+       "name": "trace_inicio",
+       "value": "={{ $now.toUTC().toISO() }}",
+       "type": "string"
+      },
+      {
+       "id": "d6164c27-cf27-441f-b849-5919772a41a7",
+       "name": "idemKey",
+       "value": "={{ 'wh-' + $json.request_id }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": true,
+    "options": {}
    }
   },
   {
-   "id": "1b2f6c93-bbbd-4db0-8970-f21bdeaff6cb",
-   "name": "Control de idempotencia",
-   "type": "n8n-nodes-base.code",
-   "typeVersion": 2,
+   "id": "597cf838-8082-47fc-a752-51c76c354aba",
+   "name": "Buscar pedido",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "alwaysOutputData": true,
    "position": [
     880,
     280
    ],
    "parameters": {
-    "jsCode": "// Idempotencia del webhook: la clave es el request_id que manda el sistema externo (o el header\n// Idempotency-Key). Si ya se recibió en los últimos 7 días, se responde \"duplicado\" con el traceId\n// original y el pedido NO se vuelve a procesar. Las claves se guardan en la memoria del Receptor, que\n// termina en menos de un segundo (así un reintento inmediato ya encuentra la clave).\nconst j = $json;\nconst idemKey = 'wh-' + j.request_id;\nconst s = $getWorkflowStaticData('global');\ns.procesados = s.procesados || {};\nconst ahora = Date.now(), TTL = 7 * 24 * 3600 * 1000;\nfor (const [k, v] of Object.entries(s.procesados)) if (ahora - (v.t || v) > TTL) delete s.procesados[k];\nconst previo = s.procesados[idemKey];\nif (previo) return [{ json: { ...j, idemKey, duplicado: true, traceId_original: previo.traceId || '' } }];\ns.procesados[idemKey] = { t: ahora, traceId: j.traceId };\nreturn [{ json: { ...j, idemKey, duplicado: false } }];"
-   }
-  },
-  {
-   "id": "edce1c97-cf95-4b52-9264-745d26ca5ec5",
-   "name": "Responder (202 recibido / 200 duplicado)",
-   "type": "n8n-nodes-base.respondToWebhook",
-   "typeVersion": 1.1,
-   "position": [
-    1100,
-    280
-   ],
-   "parameters": {
-    "respondWith": "json",
-    "responseBody": "={{ JSON.stringify({ estado: $json.duplicado ? 'duplicado' : 'recibido', traceId: $json.duplicado ? $json.traceId_original : $json.traceId, request_id: $json.request_id, detalle: $json.duplicado ? 'Este pedido ya se había recibido: no se procesa de nuevo.' : 'Pedido recibido. La respuesta llega por ' + ($json.tg_chat_id ? 'Telegram' : 'email') + '.' }) }}",
-    "options": {
-     "responseCode": "={{ $json.duplicado ? 200 : 202 }}"
+    "resource": "row",
+    "operation": "get",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "NzQezydIdCHX34Ee"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "clave",
+       "condition": "eq",
+       "keyValue": "={{ $json.idemKey }}"
+      }
+     ]
     }
    }
   },
   {
-   "id": "f429400d-ece0-4e75-b14e-87567d42602c",
+   "id": "b9c5b45e-8803-491b-970a-b0b10ea3c3b7",
    "name": "¿Pedido nuevo?",
    "type": "n8n-nodes-base.if",
-   "typeVersion": 2,
+   "typeVersion": 2.2,
    "position": [
-    1320,
+    1100,
     280
    ],
    "parameters": {
@@ -140,32 +211,122 @@
       "caseSensitive": true,
       "leftValue": "",
       "typeValidation": "loose",
-      "version": 1
+      "version": 2
      },
      "conditions": [
       {
-       "id": "b598baff-066d-41de-bde5-581d38da8b92",
-       "leftValue": "={{ $json.duplicado }}",
+       "id": "9b3fa6a9-fa08-41ff-9574-6d45fba61e7d",
+       "leftValue": "={{ !$json.clave }}",
+       "rightValue": "",
        "operator": {
         "type": "boolean",
-        "operation": "false",
+        "operation": "true",
         "singleValue": true
-       },
-       "rightValue": ""
+       }
       }
      ],
      "combinator": "and"
     },
+    "looseTypeValidation": true,
     "options": {}
    }
   },
   {
-   "id": "2933faba-85a7-4aae-84e5-3d5e3e214b00",
+   "id": "0481c059-fde3-42bf-aad6-4c9738aa7388",
+   "name": "Registrar pedido",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    1320,
+    200
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "insert",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "NzQezydIdCHX34Ee"
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "clave": "={{ $('Generar traceId').first().json.idemKey }}",
+      "traceId": "={{ $('Generar traceId').first().json.traceId }}",
+      "canal": "webhook"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "clave",
+       "displayName": "clave",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "traceId",
+       "displayName": "traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "canal",
+       "displayName": "canal",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "d927de29-2781-4c4c-88d1-4a401875be2f",
+   "name": "Responder 202 (recibido)",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.1,
+   "position": [
+    1540,
+    200
+   ],
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify({ estado: 'recibido', traceId: $('Generar traceId').first().json.traceId, request_id: $('Generar traceId').first().json.request_id, detalle: 'Pedido recibido. La respuesta llega por ' + ($('Generar traceId').first().json.tg_chat_id ? 'Telegram' : 'email') + '.' }) }}",
+    "options": {
+     "responseCode": 202
+    }
+   }
+  },
+  {
+   "id": "61d111b0-098c-4a8a-b11f-62c40c15157b",
+   "name": "Pedido para el Manager",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1760,
+    200
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Generar traceId').first().json) }}",
+    "options": {}
+   }
+  },
+  {
+   "id": "3bc2c40d-4ad9-437a-82d5-102f6e0c9ef8",
    "name": "Procesar en segundo plano (Manager)",
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    1540,
+    1980,
     200
    ],
    "parameters": {
@@ -189,19 +350,25 @@
    }
   },
   {
-   "id": "9cb7fc44-52e5-4092-8591-3f696bdf4b6a",
-   "name": "Pedido repetido (descartado)",
-   "type": "n8n-nodes-base.noOp",
-   "typeVersion": 1,
+   "id": "cce8dcdc-e90f-4620-b347-e779f824e73a",
+   "name": "Responder 200 (duplicado)",
+   "type": "n8n-nodes-base.respondToWebhook",
+   "typeVersion": 1.1,
    "position": [
-    1540,
-    380
+    1320,
+    400
    ],
-   "parameters": {}
+   "parameters": {
+    "respondWith": "json",
+    "responseBody": "={{ JSON.stringify({ estado: 'duplicado', traceId: $json.traceId, request_id: $('Generar traceId').first().json.request_id, detalle: 'Este pedido ya se había recibido: no se procesa de nuevo.' }) }}",
+    "options": {
+     "responseCode": 200
+    }
+   }
   },
   {
-   "id": "1ee60689-bab5-4cdd-bb8f-88967f3318e6",
-   "name": "Nota",
+   "id": "ab2a3db2-8428-4fa7-ba23-c4d20ddf1424",
+   "name": "Nota 2f06",
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
@@ -209,9 +376,9 @@
     -20
    ],
    "parameters": {
-    "width": 1760,
+    "width": 2200,
     "height": 240,
-    "content": "## Receptor (M11): petición asincrónica e idempotente\nUn sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot-m11` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor **responde al instante** (202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya se recibió) y le pasa el pedido al **Manager** sin esperarlo: el análisis, el Juez y el registro ocurren en segundo plano y el resultado sale por Telegram o como borrador de Gmail. La idempotencia vive acá porque esta ejecución dura menos de un segundo y su memoria queda guardada antes de cualquier reintento."
+    "content": "## Receptor (M11): petición asincrónica e idempotente\nUn sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot-m11` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor **responde al instante** (202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya está en la Data Table `pedidos_procesados_m11`) y le pasa el pedido al **Manager** sin esperarlo: el análisis, el Juez y el registro ocurren en segundo plano. Todo con nodos visuales, sin código."
    }
   }
  ],
@@ -260,25 +427,14 @@
    "main": [
     [
      {
-      "node": "Control de idempotencia",
+      "node": "Buscar pedido",
       "type": "main",
       "index": 0
      }
     ]
    ]
   },
-  "Control de idempotencia": {
-   "main": [
-    [
-     {
-      "node": "Responder (202 recibido / 200 duplicado)",
-      "type": "main",
-      "index": 0
-     }
-    ]
-   ]
-  },
-  "Responder (202 recibido / 200 duplicado)": {
+  "Buscar pedido": {
    "main": [
     [
      {
@@ -293,14 +449,47 @@
    "main": [
     [
      {
-      "node": "Procesar en segundo plano (Manager)",
+      "node": "Registrar pedido",
       "type": "main",
       "index": 0
      }
     ],
     [
      {
-      "node": "Pedido repetido (descartado)",
+      "node": "Responder 200 (duplicado)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar pedido": {
+   "main": [
+    [
+     {
+      "node": "Responder 202 (recibido)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Responder 202 (recibido)": {
+   "main": [
+    [
+     {
+      "node": "Pedido para el Manager",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pedido para el Manager": {
+   "main": [
+    [
+     {
+      "node": "Procesar en segundo plano (Manager)",
       "type": "main",
       "index": 0
      }

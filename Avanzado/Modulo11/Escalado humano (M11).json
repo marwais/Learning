@@ -1,0 +1,368 @@
+{
+ "name": "Escalado humano (M11)",
+ "nodes": [
+  {
+   "id": "106e5695-47e6-4c7e-b7bc-a55413eeaffc",
+   "name": "Recibir caso",
+   "type": "n8n-nodes-base.executeWorkflowTrigger",
+   "typeVersion": 1.1,
+   "position": [
+    0,
+    300
+   ],
+   "parameters": {
+    "inputSource": "passthrough"
+   }
+  },
+  {
+   "id": "573b7ed7-36af-45a0-b840-57a93cac52e2",
+   "name": "Registrar escalado",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    220,
+    300
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "insert",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "zh7O0Cq0R7IToTYI"
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "traceId": "={{ $json.traceId }}",
+      "categoria": "={{ $json.categoria }}",
+      "canal": "={{ $json.canal }}",
+      "sesion": "={{ $json.sessionId }}",
+      "mensaje": "={{ $json.mensaje }}",
+      "estado": "pendiente",
+      "decision": "={{ 'escalado ' + $now.setZone('America/Argentina/Buenos_Aires').toFormat('dd/MM HH:mm') }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "traceId",
+       "displayName": "traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "categoria",
+       "displayName": "categoria",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "canal",
+       "displayName": "canal",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "sesion",
+       "displayName": "sesion",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "mensaje",
+       "displayName": "mensaje",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "estado",
+       "displayName": "estado",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "decision",
+       "displayName": "decision",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "5ddac9de-950d-4044-b290-87da7e7fbfb8",
+   "name": "Avisar al equipo (Slack)",
+   "webhookId": "df22e2d0-56c0-4130-b1e5-96e8b1c5766c",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "position": [
+    440,
+    300
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "sendAndWait",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "message": "=:rotating_light: *AgendaBot — caso para una persona: {{ $('Recibir caso').first().json.categoria }}*\n*Mensaje del paciente:* {{ $('Recibir caso').first().json.mensaje }}\n*Canal:* {{ $('Recibir caso').first().json.canal }} · *Sesión:* {{ $('Recibir caso').first().json.sessionId }}{{ $('Recibir caso').first().json.email_entrada ? ' · ' + $('Recibir caso').first().json.email_entrada : '' }}\n*Ya se le respondió:* {{ $('Recibir caso').first().json.respuesta_fija }}\n*traceId:* {{ $('Recibir caso').first().json.traceId }} · protocolo {{ $('Recibir caso').first().json.protocolo }}\nTocá *Tomo el caso* y contactá al paciente, o *Falso positivo* si no hacía falta. Si nadie responde en 15 minutos, se repite el aviso.",
+    "responseType": "approval",
+    "approvalOptions": {
+     "values": {
+      "approvalType": "double",
+      "approveLabel": "Tomo el caso",
+      "disapproveLabel": "Falso positivo"
+     }
+    },
+    "options": {
+     "limitWaitTime": {
+      "values": {
+       "limitType": "afterTimeInterval",
+       "resumeAmount": 15,
+       "resumeUnit": "minutes"
+      }
+     }
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "eca4dd8e-4f8a-434a-a295-0b11769153df",
+   "name": "Registrar decisión",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    660,
+    300
+   ],
+   "parameters": {
+    "resource": "row",
+    "operation": "update",
+    "dataTableId": {
+     "__rl": true,
+     "mode": "id",
+     "value": "zh7O0Cq0R7IToTYI"
+    },
+    "matchType": "allConditions",
+    "filters": {
+     "conditions": [
+      {
+       "keyName": "traceId",
+       "condition": "eq",
+       "keyValue": "={{ $('Recibir caso').first().json.traceId }}"
+      }
+     ]
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "value": {
+      "estado": "={{ $('Avisar al equipo (Slack)').first().json.data?.approved === true ? 'tomado' : $('Avisar al equipo (Slack)').first().json.data?.approved === false ? 'falso_positivo' : 'sin_respuesta' }}",
+      "decision": "={{ 'decidido ' + $now.setZone('America/Argentina/Buenos_Aires').toFormat('dd/MM HH:mm') }}"
+     },
+     "matchingColumns": [],
+     "schema": [
+      {
+       "id": "estado",
+       "displayName": "estado",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      },
+      {
+       "id": "decision",
+       "displayName": "decision",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "d87610af-020a-4d77-8b17-eda857c6522e",
+   "name": "¿Nadie lo tomó?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    880,
+    300
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 2
+     },
+     "conditions": [
+      {
+       "id": "e452e1e1-780a-4928-80fb-31caeb7c2bf7",
+       "leftValue": "={{ $json.estado === 'sin_respuesta' }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "looseTypeValidation": true,
+    "options": {}
+   }
+  },
+  {
+   "id": "8882b578-26a4-48e4-8a9d-26208a280600",
+   "name": "Recordatorio (Slack)",
+   "webhookId": "d1f103d8-3d5c-4308-9214-df7557d5fbc7",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    1100,
+    220
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "post",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "text": "=:warning: <!here> *Caso sin tomar hace 15 minutos* ({{ $('Recibir caso').first().json.categoria }}) — traceId {{ $('Recibir caso').first().json.traceId }}. Mensaje: {{ $('Recibir caso').first().json.mensaje }}",
+    "otherOptions": {
+     "includeLinkToWorkflow": false
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "5fc98598-739e-45a3-9435-8a7b761e4827",
+   "name": "Nota 49c6",
+   "type": "n8n-nodes-base.stickyNote",
+   "typeVersion": 1,
+   "position": [
+    -40,
+    -20
+   ],
+   "parameters": {
+    "width": 1240,
+    "height": 260,
+    "content": "## Escalado humano (M11): casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados_m11` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código."
+   }
+  }
+ ],
+ "connections": {
+  "Recibir caso": {
+   "main": [
+    [
+     {
+      "node": "Registrar escalado",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar escalado": {
+   "main": [
+    [
+     {
+      "node": "Avisar al equipo (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Avisar al equipo (Slack)": {
+   "main": [
+    [
+     {
+      "node": "Registrar decisión",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Registrar decisión": {
+   "main": [
+    [
+     {
+      "node": "¿Nadie lo tomó?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Nadie lo tomó?": {
+   "main": [
+    [
+     {
+      "node": "Recordatorio (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  }
+ },
+ "settings": {
+  "saveDataErrorExecution": "all",
+  "saveDataSuccessExecution": "all",
+  "errorWorkflow": "UBZ3dbNmFMFuYrAR",
+  "executionOrder": "v1"
+ }
+}

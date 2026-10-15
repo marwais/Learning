@@ -42,7 +42,13 @@
   - «No sé» literal en el Agente RAG y en el Juez (`juez-rubrica-v3.1`, sha256 `5d369ceb1dc7`). Probado: "¿tiene estacionamiento?" → "No sé: ese dato no figura en la documentación de la clínica." (Juez ACEPTADO);
   - purga de audios: **Respuesta de voz (M11)** (`H9xkLlYia4GNS3YJ`) y Canal Telegram no guardan ejecuciones.
 - [ ] Probar el Canal Telegram con un mensaje de texto y una nota de voz reales (lo hace el usuario). Prioridad 2 y 3.
-- [ ] **Decisión del usuario: enfoque No-Code** (devolución de la P7). El sistema usa nodos *Code* (Contrato de datos, Resolver acción, idempotencia, etc.).
+- [x] **Decisión No-Code** (15/10/2026, tras releer la consigna de la P7). El "100 % No-Code" era para el informe de diseño del M7, y la devolución apuntaba a una frase del portafolio ("low-code… el código solo da formato"). No se migran los 32 nodos *Code*. Lo que el M7 diseñó sin código (triaje, escalado con botones) y todo lo nuevo se arma con nodos visuales. En el DMSA no se habla de "código personalizado" ni de "low-code".
+- [x] **Prioridad 2: seguridad** ([`scripts/seguridad_p2_m11.py`](scripts/seguridad_p2_m11.py)), todo con nodos visuales:
+  - **Triaje de señales rojas** antes del Router: Switch con el protocolo `triaje-v1` (urgencia médica, dinero, reclamo legal, historia clínica). El paciente recibe una respuesta fija (en una urgencia, el 107 y la guardia 24 h) y el caso pasa a **Escalado humano (M11)** (`jdJ7DV9keYZgP5MU`): se registra en la Data Table `escalados_m11` y llega a #soporte con los botones *Tomo el caso / Falso positivo*, con 15 minutos de espera y recordatorio;
+  - **Freno de mano**: Data Table `control_m11` y workflow **Freno de mano (M11)** (`7QEDGdClm8kswbM9`, `POST /webhook/freno-m11` con el header `X-Freno-Token`; el token está en `Modulo5/scripts/.env`). Activo, todo pasa a atención humana;
+  - **Idempotencia en Data Table** `pedidos_procesados_m11` (se graba al instante y queda como registro auditable). El **Receptor quedó sin nodos Code**, y el Manager tiene *Clave de idempotencia → Buscar pedido → ¿Pedido nuevo? → Registrar pedido (upsert)*.
+- [ ] **Reconectar la credencial "Gmail account" en n8n** (venció el 15/10): sin eso fallan los borradores y las respuestas por email (Errores (M11) lo alerta).
+- [ ] Resto de la Prioridad 2: metadatos en HubSpot, columna Asistencia, aviso de demoras por email o webhook, 2 fallas de comprensión, privacidad (nombre en el log, razón social en la base).
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 
@@ -57,6 +63,10 @@
 | Alta clara (dermatología 27/11 15:00) | Juez ACEPTADO → fila `T-wh-prueba-m11-007` |
 | Alta con fecha pasada (02/10/2026) | Juez CORREGIR 2/5 ("la fecha es anterior a la fecha actual…") → acción congelada esperando aprobación en Slack; nada escrito |
 | Pedido ambiguo ("el jueves a la tarde") | el Router no inventa la fecha → "faltan datos (fecha)" |
+| «No sé» ("¿tiene estacionamiento?") | "No sé: ese dato no figura en la documentación de la clínica." (Juez ACEPTADO) |
+| Urgencia ("dolor muy fuerte en el pecho… me falta el aire") | triaje → respuesta fija con el 107 y la guardia, sin pasar por la IA; caso en `escalados_m11` y aviso con botones en Slack |
+| Freno de mano | token falso → 403; activado → la consulta va directo a atención humana; desactivado → vuelve a la normalidad |
+| Duplicado con Data Table | 200 "duplicado" con el traceId original |
 
 > Las planillas (11) se compartieron como editor con `mwquiero@gmail.com`, la cuenta de las credenciales de Google en n8n, igual que las 09. Sin eso, Sheets devolvía 403.
 >
