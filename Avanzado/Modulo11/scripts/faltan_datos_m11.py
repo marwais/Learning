@@ -25,7 +25,7 @@ import seguridad_p2_m11 as S  # noqa: E402
 IDS = S.IDS
 LISTA = ("// Etiquetas y orden de los datos faltantes en el aviso al paciente.\n"
          "const ETIQ={fecha:'Fecha',hora:'Hora','la nueva fecha u hora':'la nueva Fecha u Hora',motivo:'Motivo del turno',"
-         "nombre:'su Nombre y Apellido',email:'su Email'};\n"
+         "nombre:'tu Nombre y Apellido',email:'tu email'};\n"
          "const ORDEN=['fecha','hora','la nueva fecha u hora','motivo','nombre','email'];\n"
          "const lista=a=>{const b=[...a].sort((x,y)=>ORDEN.indexOf(x)-ORDEN.indexOf(y)).map(x=>ETIQ[x]||x);"
          "return b.length>1?b.slice(0,-1).join(', ')+' y '+b[b.length-1]:b[0];};\n")
