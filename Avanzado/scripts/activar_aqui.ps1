@@ -8,8 +8,9 @@
 #      Si la otra no responde, avisa: con los contenedores sin arranque automático (paso 3), al
 #      prenderla su n8n no arranca solo.
 #   2. git pull del repo.
-#   3. Levanta Qdrant y el túnel de Telegram (levantar_tunel.ps1 recrea n8n con la URL nueva) y deja
-#      n8n y cloudflared con --restart=no: solo arrancan cuando se corre este script.
+#   3. Levanta Qdrant y el túnel público: ngrok con el dominio fijo (levantar_ngrok.ps1) si NGROK_DOMAIN está en
+#      el .env; si no, el quick tunnel de Cloudflare (Modulo6\scripts\levantar_tunel.ps1). Deja n8n y el túnel con
+#      --restart=no: solo arrancan cuando se corre este script.
 #   4. Activa en el n8n local los workflows del último módulo que exista en ESTE n8n
 #      (Avanzado/ModuloN/_ids_mN.json) y apaga los disparadores externos de los módulos anteriores.
 #      Si el último módulo todavía no está en este n8n (se creó en la otra máquina), usa el anterior.
@@ -85,10 +86,14 @@ if ($SinTunel) {
   cmd /c "docker start n8n >nul 2>&1"
   Write-Host "  n8n iniciado sin recrear el túnel (-SinTunel): Telegram usa la URL anterior, si sigue viva."
 } else {
-  & (Join-Path $Repo "Avanzado\Modulo6\scripts\levantar_tunel.ps1")
+  if ((Get-Content $envFile -Encoding UTF8) -match '^NGROK_DOMAIN=\S+') {
+    & (Join-Path $Repo "Avanzado\scripts\levantar_ngrok.ps1")   # dominio fijo, sale por el 443
+  } else {
+    & (Join-Path $Repo "Avanzado\Modulo6\scripts\levantar_tunel.ps1")
+  }
 }
-cmd /c "docker update --restart=no n8n cloudflared >nul 2>&1"
-Write-Host "  n8n y cloudflared quedan sin arranque automático (solo arrancan con este script)."
+cmd /c "docker update --restart=no n8n cloudflared ngrok >nul 2>&1"
+Write-Host "  n8n y el túnel quedan sin arranque automático (solo arrancan con este script)."
 
 $base = "http://localhost:$puerto"
 $listo = $false

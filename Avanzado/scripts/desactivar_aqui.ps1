@@ -5,6 +5,6 @@
 # Qdrant no se apaga (no recibe nada de afuera). Para volver a usar esta máquina: activar_aqui.ps1.
 $ErrorActionPreference = "Continue"
 Write-Host "Desactivando el proyecto en $($env:COMPUTERNAME)..."
-cmd /c "docker update --restart=no n8n cloudflared >nul 2>&1"
-cmd /c "docker stop n8n cloudflared 2>&1" | ForEach-Object { Write-Host "  detenido: $_" }
+cmd /c "docker update --restart=no n8n cloudflared ngrok >nul 2>&1"
+cmd /c "docker stop n8n cloudflared ngrok 2>&1" | ForEach-Object { Write-Host "  detenido: $_" }
 Write-Host "Listo: n8n y el túnel quedaron apagados y no arrancan solos." -ForegroundColor Green

@@ -65,6 +65,7 @@
 - [x] **Datos faltantes** ([`scripts/faltan_datos_m11.py`](scripts/faltan_datos_m11.py), pedido del usuario):
   - el aviso dice "Faltan datos que son necesarios para poder agendar turnos: fecha, hora y email." (o "…para poder modificar el turno: …");
   - si falta el email y el paciente está en Telegram, el pedido queda en `pendientes_m11` y se le pide el email por escrito: por voz si habló, más la aclaración por texto. Cuando lo escribe, el Canal Telegram lo une con el pedido original.
+- [x] **Túnel con dominio fijo (ngrok)** ([`../scripts/levantar_ngrok.ps1`](../scripts/levantar_ngrok.ps1)), 15/10/2026. La red pública "ACCESOGRAL 3" bloquea el puerto 7844 (Cloudflare) y deja el 443. ngrok sale por el 443, el dominio `snore-iodine-grooving.ngrok-free.dev` no cambia y el agente se reconecta solo, así que Telegram, el webhook y los botones de Slack ya no se caen con cada corte. `NGROK_AUTHTOKEN` y `NGROK_DOMAIN` van en `Modulo5/scripts/.env` (fuera de git). `activar_aqui.ps1` usa ngrok si está configurado; si no, Cloudflare. Probado desde la red pública: webhook 202 en 0,96 s y Canal Telegram registrado. Plan gratuito: un dominio por cuenta, y en el navegador (botones de Slack) aparece un aviso de ngrok con un clic extra.
 - [ ] **Prioridad 3: evidencias y DMSA.**
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
