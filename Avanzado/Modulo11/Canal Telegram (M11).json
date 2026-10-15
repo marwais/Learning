@@ -239,12 +239,12 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    2820,
+    3260,
     620
    ],
    "parameters": {
     "chatId": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
-    "text": "Anoté tu pedido. Para no anotar mal tu email, ¿me lo escribís por texto? Por audio se confunden letras.",
+    "text": "Para evitar errores, el email te lo pido por escrito, por favor.",
     "additionalFields": {
      "appendAttribution": false
     }
@@ -547,6 +547,65 @@
     "height": 200,
     "content": "## Pedido pendiente (email dictado)\nSi la nota de voz dicta un email, se guarda la transcripción en la Data Table `pendientes_m11` y se le pide el email por texto. Cuando llega un texto con @ (dentro de 30 min), se une con el pedido guardado y recién ahí pasa al Manager: el pedido no se pierde y el email es el escrito. La transcripción (solo texto) se borra al usarse."
    }
+  },
+  {
+   "id": "da07ce46-52ff-4c21-bc9e-866e6f71adea",
+   "name": "Texto del pedido de email",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    2820,
+    620
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "5815e0e4-b958-4a24-86f9-882f1a20c738",
+       "name": "texto_voz",
+       "value": "Anoté tu pedido. Para terminar, necesito tu email: escribímelo por texto, por favor.",
+       "type": "string"
+      },
+      {
+       "id": "a34fd8ab-a637-44c0-a4d4-0a3ba6138b69",
+       "name": "tg_chat_id",
+       "value": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
+       "type": "string"
+      }
+     ]
+    },
+    "includeOtherFields": false,
+    "options": {}
+   }
+  },
+  {
+   "id": "75fb0ad8-6262-4867-91cc-d465f3e6f89e",
+   "name": "Pedir email por voz",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    3040,
+    620
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "value": "H9xkLlYia4GNS3YJ",
+     "mode": "list",
+     "cachedResultName": "Respuesta de voz (M11)"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": true
+    }
+   }
   }
  ],
  "connections": {
@@ -674,7 +733,7 @@
    "main": [
     [
      {
-      "node": "Pedir email por escrito",
+      "node": "Texto del pedido de email",
       "type": "main",
       "index": 0
      }
@@ -737,6 +796,28 @@
     [
      {
       "node": "Pasar al Manager",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Texto del pedido de email": {
+   "main": [
+    [
+     {
+      "node": "Pedir email por voz",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Pedir email por voz": {
+   "main": [
+    [
+     {
+      "node": "Pedir email por escrito",
       "type": "main",
       "index": 0
      }
