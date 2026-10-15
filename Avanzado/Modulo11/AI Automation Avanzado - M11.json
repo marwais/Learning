@@ -310,7 +310,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    2484,
+    3804,
     -352
    ],
    "parameters": {
@@ -340,7 +340,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    2484,
+    3804,
     -144
    ],
    "parameters": {
@@ -370,7 +370,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2484,
+    3804,
     64
    ],
    "parameters": {
@@ -399,7 +399,7 @@
    "type": "n8n-nodes-base.executeWorkflow",
    "typeVersion": 1.2,
    "position": [
-    2676,
+    3996,
     -240
    ],
    "parameters": {
@@ -463,7 +463,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4196,
+    5516,
     368
    ],
    "parameters": {
@@ -709,7 +709,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4820,
+    6140,
     368
    ],
    "parameters": {
@@ -745,7 +745,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5236,
+    6556,
     336
    ],
    "parameters": {
@@ -770,7 +770,7 @@
    "type": "@n8n/n8n-nodes-langchain.agent",
    "typeVersion": 3.1,
    "position": [
-    5236,
+    6556,
     128
    ],
    "parameters": {
@@ -788,7 +788,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    5508,
+    6828,
     128
    ],
    "parameters": {
@@ -804,7 +804,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5668,
+    6988,
     512
    ],
    "parameters": {
@@ -927,7 +927,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    5668,
+    6988,
     128
    ],
    "parameters": {
@@ -1048,7 +1048,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    4628,
+    5948,
     368
    ],
    "parameters": {
@@ -1230,7 +1230,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    3284,
+    4604,
     -336
    ],
    "parameters": {
@@ -1265,7 +1265,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3460,
+    4780,
     -336
    ],
    "parameters": {
@@ -1302,7 +1302,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    3652,
+    4972,
     -432
    ],
    "parameters": {
@@ -1325,7 +1325,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    3652,
+    4972,
     -240
    ],
    "parameters": {
@@ -1349,7 +1349,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    3844,
+    5164,
     -336
    ],
    "parameters": {
@@ -1377,7 +1377,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4404,
+    5724,
     368
    ],
    "parameters": {
@@ -1418,7 +1418,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2884,
+    4204,
     -240
    ],
    "parameters": {
@@ -1452,7 +1452,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3092,
+    4412,
     -336
    ],
    "parameters": {
@@ -1481,7 +1481,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2692,
+    4012,
     160
    ],
    "parameters": {
@@ -1528,7 +1528,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    2980,
+    4300,
     16
    ],
    "parameters": {
@@ -1551,7 +1551,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    5892,
+    7212,
     320
    ],
    "parameters": {
@@ -1661,7 +1661,7 @@
    "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
    "typeVersion": 1.1,
    "position": [
-    2420,
+    3740,
     1424
    ],
    "parameters": {
@@ -1694,7 +1694,7 @@
    "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
    "typeVersion": 1,
    "position": [
-    2532,
+    3852,
     1632
    ],
    "parameters": {
@@ -1830,7 +1830,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2884,
+    4204,
     768
    ],
    "parameters": {
@@ -1877,7 +1877,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    3092,
+    4412,
     688
    ],
    "parameters": {
@@ -1928,7 +1928,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    4180,
+    5500,
     1850
    ],
    "parameters": {
@@ -2209,7 +2209,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3600,
+    4920,
     1250
    ],
    "parameters": {
@@ -2242,7 +2242,7 @@
    "type": "n8n-nodes-base.noOp",
    "typeVersion": 1,
    "position": [
-    4260,
+    5580,
     1580
    ],
    "parameters": {}
@@ -2253,7 +2253,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    3820,
+    5140,
     1150
    ],
    "parameters": {
@@ -2266,7 +2266,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4040,
+    5360,
     1150
    ],
    "parameters": {
@@ -2302,7 +2302,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4260,
+    5580,
     1050
    ],
    "parameters": {
@@ -2342,7 +2342,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4480,
+    5800,
     1050
    ],
    "parameters": {
@@ -2368,7 +2368,7 @@
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    4700,
+    6020,
     1050
    ],
    "parameters": {
@@ -2385,7 +2385,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4260,
+    5580,
     1270
    ],
    "parameters": {
@@ -2424,7 +2424,7 @@
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    3520,
+    4840,
     790
    ],
    "parameters": {
@@ -2470,7 +2470,7 @@
    "type": "n8n-nodes-base.switch",
    "typeVersion": 3.2,
    "position": [
-    2460,
+    3780,
     2050
    ],
    "parameters": {
@@ -2570,7 +2570,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2760,
+    4080,
     1850
    ],
    "parameters": {
@@ -2605,7 +2605,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    2760,
+    4080,
     2050
    ],
    "parameters": {
@@ -2638,7 +2638,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3000,
+    4320,
     2210
    ],
    "parameters": {
@@ -2667,7 +2667,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3000,
+    4320,
     2430
    ],
    "parameters": {
@@ -2693,7 +2693,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    3230,
+    4550,
     2430
    ],
    "parameters": {
@@ -2731,7 +2731,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3460,
+    4780,
     2430
    ],
    "parameters": {
@@ -2765,7 +2765,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3700,
+    5020,
     2330
    ],
    "parameters": {
@@ -2795,7 +2795,7 @@
    "type": "n8n-nodes-base.slack",
    "typeVersion": 2.3,
    "position": [
-    3700,
+    5020,
     2530
    ],
    "parameters": {
@@ -2826,7 +2826,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3940,
+    5260,
     2530
    ],
    "parameters": {
@@ -2860,7 +2860,7 @@
    "waitBetweenTries": 2000,
    "onError": "continueRegularOutput",
    "position": [
-    4180,
+    5500,
     1630
    ],
    "parameters": {
@@ -2921,8 +2921,8 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2464,
-    -502
+    4004,
+    -120
    ],
    "parameters": {
     "assignments": {
@@ -2957,8 +2957,8 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2464,
-    -294
+    4004,
+    -300
    ],
    "parameters": {
     "assignments": {
@@ -2993,7 +2993,7 @@
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    2656,
+    3976,
     -390
    ],
    "parameters": {
@@ -3139,7 +3139,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    3820,
+    5140,
     1410
    ],
    "parameters": {
@@ -3172,7 +3172,7 @@
    "type": "n8n-nodes-base.if",
    "typeVersion": 2,
    "position": [
-    4040,
+    5360,
     1330
    ],
    "parameters": {
@@ -3210,7 +3210,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4260,
+    5580,
     1240
    ],
    "parameters": {
@@ -3237,7 +3237,7 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    4260,
+    5580,
     1390
    ],
    "parameters": {
@@ -3266,6 +3266,238 @@
    ],
    "parameters": {
     "inputSource": "passthrough"
+   }
+  },
+  {
+   "id": "4d434431-29c1-49a9-8687-330654fc5fdb",
+   "name": "Preparar auditoría de acción",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    2464,
+    -208
+   ],
+   "parameters": {
+    "jsCode": "// Caso que se envía al Juez ANTES de escribir en la agenda o el CRM: el pedido del paciente, la acción que\n// se va a ejecutar y la agenda actual de la persona (evidencia para detectar datos inventados o duplicados).\nconst a = $json;  // salida de \"Resolver accion\"\nconst agenda = $('Buscar turnos de la persona').all().map(i => i.json).filter(r => r && r.Nombre)\n  .map(r => ({ id: r.ID, fecha: r.Fecha, hora: r.Hora, motivo: r.Motivo, estado: r.Estado }));\nconst hoy = new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });\nconst desc = a.accion === 'crear'\n  ? `Alta de turno: ${a.motivo} el ${a.fecha} a las ${a.hora} para ${a.nombre} (${a.email || 'sin email'})`\n  : `Cambio del turno ${a.id}: pasa al ${a.fecha} a las ${a.hora} (${a.motivo}) para ${a.nombre}`;\nconst mem = $('Preparar contexto').first().json || {};\nreturn [{ json: {\n  tipo_caso: 'ACCION', caso: 'ACCION · ' + a.accion,\n  traceId: $('Generar traceId').first().json.traceId,\n  parentExecutionId: $execution.id, origen: 'manager', arquitectura: 'A (producción)', intento: 1,\n  execution_id: $execution.id,\n  pregunta: $('Normalizar entrada').first().json.mensaje,\n  respuesta: desc,\n  accion_propuesta: { accion: a.accion, id: a.id || '', nombre: a.nombre, motivo: a.motivo, fecha: a.fecha,\n                      hora: a.hora, email: a.email || '' },\n  agenda_actual: agenda, fecha_actual: hoy,\n  fragmentos: 'Agenda actual de la persona: ' + JSON.stringify(agenda),\n  contexto_airtable: { estado: mem.estado || '', resumen: mem.last_summary || '', datos_clave: mem.datos_clave || '' }\n} }];"
+   }
+  },
+  {
+   "id": "b918b7bb-17e0-4cd7-9dc5-8e207311d194",
+   "name": "Supervisor (Juez) — acción",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    2684,
+    -208
+   ],
+   "parameters": {
+    "workflowId": {
+     "__rl": true,
+     "mode": "list",
+     "value": "x0qFeyPW15wSX0hD",
+     "cachedResultName": "SUPERVISOR_Judge (M11)",
+     "cachedResultUrl": "/workflow/x0qFeyPW15wSX0hD"
+    },
+    "workflowInputs": {
+     "mappingMode": "defineBelow",
+     "value": {},
+     "matchingColumns": [],
+     "schema": [],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": true
+    },
+    "options": {
+     "waitForSubWorkflow": true
+    }
+   }
+  },
+  {
+   "id": "97cd94e7-73bf-4310-97bf-02a5d89f69bc",
+   "name": "¿Acción aprobada por el Juez?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    2904,
+    -208
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "005fcd23-b59b-46c2-90c0-c82e802e773d",
+       "leftValue": "={{ $json.ruta }}",
+       "operator": {
+        "type": "string",
+        "operation": "equals"
+       },
+       "rightValue": "aceptar"
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "71d35e77-785a-42e4-aefd-1ad056071268",
+   "name": "Aprobar acción (Slack)",
+   "webhookId": "cf293b39-cdff-4c7d-b91e-3cae05b6344a",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "position": [
+    3124,
+    -20
+   ],
+   "parameters": {
+    "authentication": "oAuth2",
+    "resource": "message",
+    "operation": "sendAndWait",
+    "select": "channel",
+    "channelId": {
+     "__rl": true,
+     "value": "C0C4YCJ2M60",
+     "mode": "list",
+     "cachedResultName": "soporte"
+    },
+    "message": "=:lock: *AgendaBot — acción congelada por el Juez*\n*Pedido:* {{ $json.pregunta }}\n*Acción propuesta:* {{ $json.respuesta }}\n*Veredicto:* {{ $json.estado_veredicto }} · exactitud {{ $json.exactitud_factual }}/5\n*Crítica:* {{ $json.critica }}\n*traceId:* {{ $json.traceId }}\nSi nadie responde en 15 minutos, la acción NO se ejecuta y el caso queda para una persona.",
+    "responseType": "approval",
+    "approvalOptions": {
+     "values": {
+      "approvalType": "double",
+      "approveLabel": "Aprobar",
+      "disapproveLabel": "Rechazar"
+     }
+    },
+    "options": {
+     "limitWaitTime": {
+      "values": {
+       "limitType": "afterTimeInterval",
+       "resumeAmount": 15,
+       "resumeUnit": "minutes"
+      }
+     }
+    }
+   },
+   "credentials": {
+    "slackOAuth2Api": {
+     "id": "M9PprPoqQvpvY6pT",
+     "name": "Slack account"
+    }
+   }
+  },
+  {
+   "id": "dd7330c9-3397-4f99-89ec-0fba9b1e0a67",
+   "name": "¿Aprobó la acción el humano?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    3344,
+    -20
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "0e395ab3-ad51-4dc5-acf0-2b610857ea0c",
+       "leftValue": "={{ $json.data.approved }}",
+       "rightValue": "",
+       "operator": {
+        "type": "boolean",
+        "operation": "true",
+        "singleValue": true
+       }
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "bea2c45b-f220-4b5b-8fc5-e85943115fed",
+   "name": "Acción en revisión (aviso)",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    3564,
+    100
+   ],
+   "parameters": {
+    "assignments": {
+     "assignments": [
+      {
+       "id": "65983d3e-5013-4694-bcbe-c6aa27defb0f",
+       "name": "accion",
+       "value": "en_revision",
+       "type": "string"
+      },
+      {
+       "id": "36de5a7b-2d62-4e04-8731-6548ccc68982",
+       "name": "mensaje",
+       "type": "string",
+       "value": "Tu pedido quedó en revisión de una persona de la Central de Turnos, que te va a contactar a la brevedad. Todavía no se hizo ningún cambio en tu agenda."
+      }
+     ]
+    },
+    "options": {}
+   }
+  },
+  {
+   "id": "6e5b9572-7ca1-42b4-9ead-49123f13db3d",
+   "name": "Recuperar acción aprobada",
+   "type": "n8n-nodes-base.code",
+   "typeVersion": 2,
+   "position": [
+    3564,
+    -208
+   ],
+   "parameters": {
+    "jsCode": "// La acción aprobada (por el Juez o por una persona en Slack) vuelve a su forma original para los Workers.\nconst a = $('Resolver accion').first().json;\nconst v = $('Supervisor (Juez) — acción').first().json;\nconst humano = $('Aprobar acción (Slack)').isExecuted;\nreturn [{ json: { ...a, veredicto_juez: v.estado_veredicto, exactitud_factual: v.exactitud_factual,\n  aprobado_por: humano ? 'persona (Slack)' : 'Juez' } }];"
+   }
+  },
+  {
+   "id": "074fb190-a658-4abb-b236-17a148b61f6a",
+   "name": "¿Es alta?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    3784,
+    -208
+   ],
+   "parameters": {
+    "conditions": {
+     "options": {
+      "caseSensitive": true,
+      "leftValue": "",
+      "typeValidation": "loose",
+      "version": 1
+     },
+     "conditions": [
+      {
+       "id": "4eca82c8-4016-4d54-b0e7-3c7d907f8be4",
+       "leftValue": "={{ $json.accion }}",
+       "operator": {
+        "type": "string",
+        "operation": "equals"
+       },
+       "rightValue": "crear"
+      }
+     ],
+     "combinator": "and"
+    },
+    "options": {}
    }
   }
  ],
@@ -3372,14 +3604,14 @@
    "main": [
     [
      {
-      "node": "traceId → Worker 1",
+      "node": "Preparar auditoría de acción",
       "type": "main",
       "index": 0
      }
     ],
     [
      {
-      "node": "traceId → Worker 4",
+      "node": "Preparar auditoría de acción",
       "type": "main",
       "index": 0
      }
@@ -4443,6 +4675,115 @@
     [
      {
       "node": "Normalizar entrada",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Preparar auditoría de acción": {
+   "main": [
+    [
+     {
+      "node": "Supervisor (Juez) — acción",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Supervisor (Juez) — acción": {
+   "main": [
+    [
+     {
+      "node": "¿Acción aprobada por el Juez?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Acción aprobada por el Juez?": {
+   "main": [
+    [
+     {
+      "node": "Recuperar acción aprobada",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Aprobar acción (Slack)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Aprobar acción (Slack)": {
+   "main": [
+    [
+     {
+      "node": "¿Aprobó la acción el humano?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Aprobó la acción el humano?": {
+   "main": [
+    [
+     {
+      "node": "Recuperar acción aprobada",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "Acción en revisión (aviso)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Acción en revisión (aviso)": {
+   "main": [
+    [
+     {
+      "node": "Aviso (no se puede)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Recuperar acción aprobada": {
+   "main": [
+    [
+     {
+      "node": "¿Es alta?",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "¿Es alta?": {
+   "main": [
+    [
+     {
+      "node": "traceId → Worker 1",
+      "type": "main",
+      "index": 0
+     }
+    ],
+    [
+     {
+      "node": "traceId → Worker 4",
       "type": "main",
       "index": 0
      }

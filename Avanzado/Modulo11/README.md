@@ -29,7 +29,11 @@
 
   La idempotencia del webhook vive en el Receptor porque n8n guarda la memoria del workflow recién al terminar la ejecución: en el Manager (~20 s) un reintento inmediato no veía la clave.
 - [x] Ajuste de lógica ([`scripts/ajustes_logica_m11.py`](scripts/ajustes_logica_m11.py)): si se pide un turno que ya existe, la respuesta es "Ya tenés ese turno… no hice cambios" (antes figuraba como reprogramado y se reescribía la agenda).
-- [ ] Juez antes de consolidar (acciones), canal Telegram en un workflow propio, emails con HITL, Prioridad 2 y 3.
+- [x] **Juez antes de consolidar** ([`scripts/juez_acciones_m11.py`](scripts/juez_acciones_m11.py)):
+  - el Supervisor suma una **rúbrica de acciones** (`juez-rubrica-v3`, sha256 `f31f947dc69f`, mismo esquema JSON);
+  - antes de los Workers 1 y 4: *Preparar auditoría de acción → Supervisor (Juez) — acción*. Con ACEPTADO (exactitud ≥ 4) se escribe; si no, la acción **se congela** en *Aprobar acción (Slack)*, con botones Aprobar/Rechazar y una espera máxima de 15 minutos. Sin aprobación, el paciente recibe "quedó en revisión" y no se toca la agenda;
+  - la agenda, HubSpot, el borrador de confirmación y la memoria quedan después del veredicto.
+- [ ] Canal Telegram en un workflow propio, emails con HITL, Prioridad 2 y 3.
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 
@@ -41,6 +45,9 @@
 | Alta de turno | fila `T-wh-prueba-m11-004` con el traceId del Receptor y el borrador de confirmación |
 | Mismo turno con otro request_id | "Ya tenés un turno… no hice cambios" |
 | Falla real (403 de Sheets) y simulacro | alerta en Slack con el traceId y el paciente |
+| Alta clara (dermatología 27/11 15:00) | Juez ACEPTADO → fila `T-wh-prueba-m11-007` |
+| Alta con fecha pasada (02/10/2026) | Juez CORREGIR 2/5 ("la fecha es anterior a la fecha actual…") → acción congelada esperando aprobación en Slack; nada escrito |
+| Pedido ambiguo ("el jueves a la tarde") | el Router no inventa la fecha → "faltan datos (fecha)" |
 
 > Las planillas (11) se compartieron como editor con `mwquiero@gmail.com`, la cuenta de las credenciales de Google en n8n, igual que las 09. Sin eso, Sheets devolvía 403.
 >

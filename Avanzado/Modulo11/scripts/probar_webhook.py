@@ -65,7 +65,7 @@ def main():
                - time.mktime(time.strptime(e["startedAt"][:19], "%Y-%m-%dT%H:%M:%S")))
         print(f"Manager {e['id']} · {e['status']} · {dur:.0f} s en segundo plano")
         print("  nodos:", " → ".join(f"{k}{' ✘' if v[-1].get('error') else ''}" for k, v in rd["runData"].items()))
-        for k in ("Contrato de datos", "Resolver accion", "Registrar turno (Worker 1)", "Responder al chat"):
+        for k in ("Contrato de datos", "Resolver accion", "Supervisor (Juez) — acción", "Registrar turno (Worker 1)", "Responder al chat"):
             if k in rd["runData"]:
                 try:
                     print(f"  {k}:", json.dumps(rd["runData"][k][-1]["data"]["main"][0][0]["json"], ensure_ascii=False)[:350])
