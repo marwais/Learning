@@ -1308,7 +1308,48 @@
    ],
    "parameters": {
     "authentication": "appToken",
-    "operation": "update"
+    "resource": "contact",
+    "operation": "upsert",
+    "email": "={{ $('Validar contacto (Set)').first().json.email }}",
+    "additionalFields": {
+     "firstName": "={{ $('Validar contacto (Set)').first().json.firstname }}",
+     "customPropertiesUi": {
+      "customPropertiesValues": [
+       {
+        "property": "agendabot_origen",
+        "value": "AgendaBot"
+       },
+       {
+        "property": "agendabot_trace_id",
+        "value": "={{ $('Generar traceId').first().json.traceId }}"
+       },
+       {
+        "property": "agendabot_canal",
+        "value": "={{ $('Normalizar entrada').first().json.canal }}"
+       },
+       {
+        "property": "agendabot_ultima_interaccion",
+        "value": "={{ $now.toMillis() }}"
+       },
+       {
+        "property": "agendabot_turno",
+        "value": "={{ $('Recuperar acción aprobada').isExecuted ? ($('Recuperar acción aprobada').first().json.accion === 'crear' ? 'Alta' : 'Cambio') + ': ' + $('Recuperar acción aprobada').first().json.motivo + ' · ' + $('Recuperar acción aprobada').first().json.fecha + ' ' + $('Recuperar acción aprobada').first().json.hora : '' }}"
+       },
+       {
+        "property": "agendabot_veredicto_juez",
+        "value": "={{ $('Recuperar acción aprobada').isExecuted ? $('Recuperar acción aprobada').first().json.veredicto_juez + ' (exactitud ' + $('Recuperar acción aprobada').first().json.exactitud_factual + '/5)' : '' }}"
+       },
+       {
+        "property": "agendabot_aprobado_por",
+        "value": "={{ $('Recuperar acción aprobada').isExecuted ? $('Recuperar acción aprobada').first().json.aprobado_por : '' }}"
+       },
+       {
+        "property": "agendabot_version",
+        "value": "AgendaBot M11 · juez-rubrica-v3.1"
+       }
+      ]
+     }
+    }
    },
    "credentials": {
     "hubspotAppToken": {
@@ -1331,7 +1372,48 @@
    ],
    "parameters": {
     "authentication": "appToken",
-    "operation": "create"
+    "resource": "contact",
+    "operation": "upsert",
+    "email": "={{ $('Validar contacto (Set)').first().json.email }}",
+    "additionalFields": {
+     "firstName": "={{ $('Validar contacto (Set)').first().json.firstname }}",
+     "customPropertiesUi": {
+      "customPropertiesValues": [
+       {
+        "property": "agendabot_origen",
+        "value": "AgendaBot"
+       },
+       {
+        "property": "agendabot_trace_id",
+        "value": "={{ $('Generar traceId').first().json.traceId }}"
+       },
+       {
+        "property": "agendabot_canal",
+        "value": "={{ $('Normalizar entrada').first().json.canal }}"
+       },
+       {
+        "property": "agendabot_ultima_interaccion",
+        "value": "={{ $now.toMillis() }}"
+       },
+       {
+        "property": "agendabot_turno",
+        "value": "={{ $('Recuperar acción aprobada').isExecuted ? ($('Recuperar acción aprobada').first().json.accion === 'crear' ? 'Alta' : 'Cambio') + ': ' + $('Recuperar acción aprobada').first().json.motivo + ' · ' + $('Recuperar acción aprobada').first().json.fecha + ' ' + $('Recuperar acción aprobada').first().json.hora : '' }}"
+       },
+       {
+        "property": "agendabot_veredicto_juez",
+        "value": "={{ $('Recuperar acción aprobada').isExecuted ? $('Recuperar acción aprobada').first().json.veredicto_juez + ' (exactitud ' + $('Recuperar acción aprobada').first().json.exactitud_factual + '/5)' : '' }}"
+       },
+       {
+        "property": "agendabot_aprobado_por",
+        "value": "={{ $('Recuperar acción aprobada').isExecuted ? $('Recuperar acción aprobada').first().json.aprobado_por : '' }}"
+       },
+       {
+        "property": "agendabot_version",
+        "value": "AgendaBot M11 · juez-rubrica-v3.1"
+       }
+      ]
+     }
+    }
    },
    "credentials": {
     "hubspotAppToken": {

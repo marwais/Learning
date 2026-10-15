@@ -55,8 +55,13 @@
   - **Aviso de demoras por email** en Errores (M11), para quien escribió por email o webhook;
   - **Dos fallas de comprensión seguidas → una persona** ([`scripts/comprension_m11.py`](scripts/comprension_m11.py), Data Table `sesiones_m11`, nodos visuales): FUERA_DE_ALCANCE o "No pude procesar" dos veces en 30 minutos → "No logro ayudarte…" + Escalado humano;
   - **Rama de error visible** en *Log de trazabilidad*: si falla el email de log, avisa a Slack y el pedido sigue.
-- [ ] **Metadatos en HubSpot**: el *App Token* no tiene permiso para crear propiedades (`crm.schemas.contacts.write`). Las crea el usuario o habilita el scope; después se mapean en los nodos de contacto.
-- [ ] `levantar_tunel.ps1` ahora pasa `N8N_EDITOR_BASE_URL=http://localhost:5678/`: el retorno de OAuth de Google usa localhost y no el túnel (con el túnel, Google daba `redirect_uri_mismatch`). Falta reconectar Gmail con la UI abierta en localhost.
+- [x] **CRM como fuente de verdad** ([`scripts/crm_hubspot_m11.py`](scripts/crm_hubspot_m11.py)):
+  - se crearon 8 propiedades de contacto en HubSpot (`agendabot_origen`, `_trace_id`, `_canal`, `_ultima_interaccion`, `_turno`, `_veredicto_juez`, `_aprobado_por`, `_version`), con el scope `crm.schemas.contacts.write` habilitado temporalmente por el usuario;
+  - **bug heredado del M4 corregido**: "Crear contacto" y "Actualizar contacto" tenían las operaciones `create` y `update`, que el nodo HubSpot v2.1 no tiene. n8n no daba error y el contacto **nunca** se escribía. Ahora los dos nodos hacen `upsert` por email (idempotente) con nombre y metadatos;
+  - probado: contacto creado con origen AgendaBot, traceId, canal, "Alta: cardiología · 09/12/2026 10:00", "ACEPTADO (exactitud 5/5)", aprobado por "Juez" y versión.
+- [x] Gmail reconectado (15/10/2026). `levantar_tunel.ps1` ahora pasa `N8N_EDITOR_BASE_URL=http://localhost:5678/`, así el retorno de OAuth de Google usa localhost y no el túnel (con el túnel, Google daba `redirect_uri_mismatch`).
+- [ ] Riesgo de mantenimiento: HubSpot avisa que el nodo de n8n usa versiones de su API que se dan de baja **después de septiembre de 2027** (lo cubre el abono de soporte del M10).
+- [ ] **Prioridad 3: evidencias y DMSA.**
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 
