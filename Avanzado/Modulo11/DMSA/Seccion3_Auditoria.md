@@ -96,7 +96,7 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 
 ## 3.4 Métricas de precisión obtenidas en las pruebas
 
-**Batería de evaluación:** 16 casos con resultado esperado (consultas, consultas informales, «No sé», altas, fecha pasada, datos faltantes, cambio, consulta de turnos, turno existente, fuera de alcance, intento de manipulación, tres casos rojos y un duplicado). Se corrió con tres configuraciones de modelos el 15 y 16/10/2026; el detalle por caso está en el Anexo B.
+**Batería de evaluación:** 16 casos con resultado esperado (consultas, consultas informales, «No sé», altas, fecha pasada, datos faltantes, cambio, consulta de turnos, turno existente, fuera de alcance, intento de manipulación, tres casos rojos y un duplicado). Se corrió con tres configuraciones de modelos el 15 y 16/10/2026, más una corrida de confirmación con la configuración elegida (16/16); el detalle por caso está en el Anexo B.
 
 | Indicador | Resultado medido | Detalle |
 |---|---|---|

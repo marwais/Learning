@@ -1,6 +1,6 @@
 # Anexo B. Pruebas de punta a punta
 
-Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el `traceId`. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: `evaluacion/bateria_A.json`, `_B.json` y `_C.json`.
+Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el `traceId`. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Una corrida de confirmación con la configuración C, ya con los nombres de producción, repitió el 16/16 con el mismo costo (US$ 0,0166 por consulta y US$ 0,0092 por acción). Datos completos: `evaluacion/bateria_A.json`, `_B.json`, `_C.json` y `_E.json` (confirmación).
 
 | # | Caso | Ruta esperada | Ruta obtenida | Juez | AgendaBot · Receptor | Proceso | US$ | `traceId` |
 |---|---|---|---|---|---:|---:|---:|---|

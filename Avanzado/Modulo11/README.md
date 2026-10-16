@@ -83,7 +83,7 @@
   - credenciales nuevas "n8n API (alertas)" y "Freno de mano"; `FRENO_TOKEN` en el `.env`.
 
   Los ids no cambiaron. Los archivos del repo conservan sus nombres.
-- [ ] Pendiente del usuario: reconectar **Google Sheets account** (venció el 16/10), renombrar en n8n la credencial "Airtable Memoria M3" a "Airtable AgendaBot", borrar (opcional) las credenciales viejas "n8n API local (M11 errores)" y "Freno de mano (M11)". Después, correr la batería E para confirmar 16/16 con los nombres nuevos. La corrida D falló en las gestiones de turnos por la credencial de Sheets.
+- [x] Google Sheets reconectada, credencial de Airtable renombrada y captura del Manager rehecha (usuario, 16/10). **Batería E** (confirmación con los nombres de producción): **16/16**, US$ 0,0166 por consulta y US$ 0,0092 por acción, proceso en segundo plano de 8,3 s de promedio. La corrida D había fallado en las gestiones de turnos por la credencial de Sheets vencida.
 - [ ] **Prioridad 3: DMSA**: borrador completo; falta la revisión del usuario, la captura general nueva (cambió el nombre del Manager), la mitad izquierda de la etapa 5 y el video.
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):

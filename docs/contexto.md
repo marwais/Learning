@@ -28,7 +28,7 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
     - El pedido queda guardado en la Data Table `pendientes`.
   - **Modelos (configuración C)**: Router y Agente RAG en `claude-haiku-4-5-20251001`, Juez en `claude-sonnet-4-6`.
   - **Batería de 16 casos**: A, B y C dieron 16/16. C cuesta US$ 0,0166 por consulta y US$ 0,0092 por acción.
-  - **Lo que no funciona hoy**: la credencial **"Google Sheets account" está vencida** (por eso la batería D falló en lo de Sheets).
+  - **Batería E** (confirmación con los nombres de producción, después de reconectar Sheets): 16/16, con el mismo costo.
 - **Componente B (DMSA)**: tiene un borrador completo, con 4 secciones y los anexos A a C. Sale en 28 páginas como `Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf`.
   - Ya no hace referencias a módulos, pre-entregas ni devoluciones (verificado sobre el texto del PDF).
   - El C.2 explica cómo se levanta el sistema y qué hacer si ya está publicado en otra máquina.
@@ -63,22 +63,15 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
 - **Restos de prueba**: quedó el contacto `prueba.m11@example.com` en HubSpot y quedaron borradores de prueba en Gmail.
 
 ## Pendientes (por prioridad)
-1. **Usuario: reconectar "Google Sheets account"** en n8n, abriendo n8n desde `http://localhost:5678`.
-2. **Usuario: rehacer la captura general del Manager** ("AgendaBot · Manager"), recargando antes la pestaña de n8n. Además:
-   - la mitad izquierda de la etapa 5, de "Buscar turnos de la persona" a "¿Es alta?";
-   - las capturas de resultados: HubSpot, Agenda_Turnos, borrador de Gmail, Data Tables y sub-workflows.
-
-   Todas van en `Avanzado/Modulo11/DMSA/capturas/`.
-3. **Usuario: renombrar la credencial** "Airtable Memoria M3" a "Airtable AgendaBot". Opcional: borrar las credenciales viejas.
-4. **Claude, cuando Sheets esté reconectado**: correr la batería E con `python Avanzado/Modulo11/scripts/bateria.py`. Se espera 16/16 con los nombres nuevos. Si cambia algo, actualizar la tabla del Anexo B.
-5. **Usuario: revisar el DMSA y grabar el video**. Después, Claude:
+1. **Usuario**: sacar la mitad izquierda de la etapa 5, de "Buscar turnos de la persona" a "¿Es alta?". También las capturas de resultados: HubSpot, Agenda_Turnos, borrador de Gmail, Data Tables y sub-workflows. Todas van en `Avanzado/Modulo11/DMSA/capturas/`. Opcional: borrar las credenciales viejas.
+2. **Usuario**: revisar el DMSA y grabar el video. Después, Claude:
    - incorpora las capturas y el link en la sección C.3;
    - regenera el PDF con `python Avanzado/Modulo11/DMSA/build_pdf.py`;
    - lo verifica con `pdftotext`;
    - re-exporta los 15 workflows.
 
    Las exportaciones todavía tienen nombres de archivo viejos, como "AI Automation Avanzado - M11.json".
-6. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
+3. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
 
 ## Recursos clave
 - **Ids**:

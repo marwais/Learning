@@ -658,7 +658,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li><strong>Qué pasó:</strong> el sistema no inventó un dato que no tiene, y el Juez lo premia con la nota máxima. La rúbrica considera "No sé" como una respuesta correcta cuando la biblioteca no tiene el dato.</li>
 </ul>
 <h2>3.4 Métricas de precisión obtenidas en las pruebas</h2>
-<p><strong>Batería de evaluación:</strong> 16 casos con resultado esperado (consultas, consultas informales, «No sé», altas, fecha pasada, datos faltantes, cambio, consulta de turnos, turno existente, fuera de alcance, intento de manipulación, tres casos rojos y un duplicado). Se corrió con tres configuraciones de modelos el 15 y 16/10/2026; el detalle por caso está en el Anexo B.</p>
+<p><strong>Batería de evaluación:</strong> 16 casos con resultado esperado (consultas, consultas informales, «No sé», altas, fecha pasada, datos faltantes, cambio, consulta de turnos, turno existente, fuera de alcance, intento de manipulación, tres casos rojos y un duplicado). Se corrió con tres configuraciones de modelos el 15 y 16/10/2026, más una corrida de confirmación con la configuración elegida (16/16); el detalle por caso está en el Anexo B.</p>
 <table>
 <thead>
 <tr>
@@ -1293,7 +1293,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li><strong>Biblioteca anonimizada:</strong> la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.</li>
 <li><strong>Mínimo privilegio:</strong> cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).</li>
 </ul></section><section class="pieza" id="pieza-6"><h1>Anexo B. Pruebas de punta a punta</h1>
-<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code>. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: <code>evaluacion/bateria_A.json</code>, <code>_B.json</code> y <code>_C.json</code>.</p>
+<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code>. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Una corrida de confirmación con la configuración C, ya con los nombres de producción, repitió el 16/16 con el mismo costo (US$ 0,0166 por consulta y US$ 0,0092 por acción). Datos completos: <code>evaluacion/bateria_A.json</code>, <code>_B.json</code>, <code>_C.json</code> y <code>_E.json</code> (confirmación).</p>
 <table>
 <thead>
 <tr>
