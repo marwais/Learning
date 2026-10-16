@@ -1,0 +1,34 @@
+{
+  "nombre": "accion_email_sin_arroba_voz",
+  "ejecucion_manager": "592",
+  "ejecucion_juez": "593",
+  "tipo_caso": "ACCION",
+  "pedido_del_paciente": "Hola, ¿qué tal? Quiero un turno para un fulemonólogo para el 11 de noviembre a las 8 am, por favor. Mi nombre es Adrián y mi email es mwhore.gmail.com",
+  "propuesta_evaluada": "Alta de turno: neumonología el 11/11/2026 a las 08:00 para Adrián (mwhore.gmail.com)",
+  "fragmento_recuperado": "Agenda actual de la persona: [{\"id\":\"T1790467097820\",\"fecha\":\"13/10/2026\",\"hora\":\"17:00\",\"motivo\":\"RPG\",\"estado\":\"Reprogramado\"}]",
+  "salida_del_juez_json": {
+    "exactitud_factual": 2,
+    "estado_veredicto": "CORREGIR",
+    "critica": "El email proporcionado por el paciente ('mwhore.gmail.com') no tiene formato válido (le falta el símbolo '@'). La acción no debe ejecutarse hasta confirmar el email correcto con el paciente."
+  },
+  "log_de_auditoria": {
+    "timestamp": "2026-10-15T02:56:23.130Z",
+    "traceId": "trc-20261015025615-592-o5wf",
+    "parentExecutionId": "592",
+    "executionId": "593",
+    "environment": "desarrollo (n8n local)",
+    "nodeName": "SUPERVISOR_Judge (M11) › Juez (LLM con JSON Schema)",
+    "agentNode": "Router + Resolver accion (acción propuesta)",
+    "toolOutput": "Agenda actual de la persona: [{\"id\":\"T[TEL]\",\"fecha\":\"13/10/2026\",\"hora\":\"17:00\",\"motivo\":\"RPG\",\"estado\":\"Reprogramado\"}]",
+    "systemPromptSnapshot": {
+      "version": "juez-rubrica-v3.1 (M11: acciones + «No sé»)",
+      "sha256": "5d369ceb1dc7"
+    },
+    "confidenceScore": 0.4,
+    "decision": {
+      "estado_veredicto": "CORREGIR",
+      "ruta": "escalar (acción congelada)",
+      "intento": 1
+    }
+  }
+}

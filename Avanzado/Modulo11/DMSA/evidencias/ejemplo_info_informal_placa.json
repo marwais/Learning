@@ -1,0 +1,34 @@
+{
+  "nombre": "info_informal_placa",
+  "ejecucion_manager": "827",
+  "ejecucion_juez": "829",
+  "tipo_caso": "RESPUESTA",
+  "pedido_del_paciente": "che, ¿me puedo hacer una placa sin sacar turno el finde?",
+  "propuesta_evaluada": "Sí, perfectamente. Las radiografías se hacen sin turno de **lunes a domingos de 08:00 a 21:00 hs.** El fin de semana funciona normal. \n\nSolo necesitás traer tu orden médica y acercarte dentro de esos horarios. Así agilizás todo sin esperar turno.\n\n[Fuente: Diagnóstico por imágenes sin turno — Horarios de atención para estudios sin turno]",
+  "fragmento_recuperado": "[{\"resultado\":\"[Fragmento 1] fuente: Diagnóstico por imágenes sin turno | sección: Diagnóstico por imágenes sin turno > Horarios de atención para estudios sin turno | score: 0.806\\nDocumento: Diagnóstico por imágenes sin turno\\nSección: Diagnóstico por imágenes sin turno > Horarios de atención para estudios sin turno\\n\\n* Radiografías: lunes a domingos de 08:00 a 21:00 hs.\\n* Tomografías sin contraste: lunes a viernes de 07:00 a 23:00 hs. Sábados, domingos y feriados de 08:00 a 20:00 hs.\\n* Espinogramas y escanogramas: lunes a domingos de 08:00 a 21:00 hs.\\n\\n---\\n\\n[Fragmento 2] fuente: Diagnóstico por imágenes sin turno | sección: Diagnóstico por imágenes sin turno | score: 0.647\\nDocumento: Diagnóstico por imágenes sin turno\\nSección: Diagnóstico por imágenes sin turno\\n\\nSi tu médico te indicó un estudio de diagnóstico por imágenes, en Clínica LoDeTincho podés realizarlo sin necesidad de solicitar turno previo. Solo necesitás presentar tu orden médica y acercarte dentro de los horarios habilitados.\\n\\nEsta modalidad permite agilizar el acceso al diagnóstico, reduciendo tiempos de espera y facilitando la realización de estudios esenciales para el seguimiento de tu salud.\\n\\n---\\",
+  "salida_del_juez_json": {
+    "exactitud_factual": 5,
+    "estado_veredicto": "ACEPTADO",
+    "critica": ""
+  },
+  "log_de_auditoria": {
+    "timestamp": "2026-10-16T02:46:47.281Z",
+    "traceId": "trc-20261016024638-826-3ei7",
+    "parentExecutionId": "827",
+    "executionId": "829",
+    "environment": "desarrollo (n8n local)",
+    "nodeName": "SUPERVISOR_Judge (M11) › Juez (LLM con JSON Schema)",
+    "agentNode": "Agente RAG (Consultas)",
+    "toolOutput": "[{\"resultado\":\"[Fragmento 1] fuente: Diagnóstico por imágenes sin turno | sección: Diagnóstico por imágenes sin turno > Horarios de atención para estudios sin turno | score: 0.806\\nDocumento: Diagnóstico por imágenes sin turno\\nSección: Diagnóstico por imágenes sin turno > Horarios de atención para estudios sin turno\\n\\n* Radiografías: lunes a domingos de 08:00 a 21:00 hs.\\n* Tomografías sin contraste: lunes a viernes de 07:00 a 23:00 hs. Sábados, domingos y feriados de 08:00 a 20:00 hs.\\n* Espinogramas y escanogramas: lunes a domingos de 08:00 a 21:00 hs.\\n\\n---\\n\\n[Fragmento 2] fuente: Diagnóstico por imágenes sin turno | sección: Diagnóstico por imágenes sin turno | score: 0.647\\nDocumento: Diagnóstico por imágenes sin turno\\nSección: Diagnóstico por imágenes sin turno\\n\\nSi tu médico te indicó un estudio de diagnóstico por imágenes, en Clínica LoDeTincho podés realizarlo sin necesidad de solicitar turno previo. Solo necesitás presentar tu orden médica y acercarte dentro de los horarios habilitados.\\n\\nEsta modalidad permite agilizar el acceso al diagnóstico, reduciendo tiempos de espera y facilitando la realización de estudios esenciales para el seguimiento de tu salud.\\n\\n---\\n\\n[Fragmento 3] fuente: Clínica LoDeTincho — Inicio | sección: Clínica LoDeTincho — Inicio > Servicios destacados > Demanda espontánea | score: 0.621\\nDocumento: Clínica LoDeTincho — Inicio\\nSección: Clínica LoDeTincho — Inicio > Servicios destacados > Demanda espontánea\\n\\nEstudios de diagnóstico ",
+    "systemPromptSnapshot": {
+      "version": "juez-rubrica-v3.1 (M11: acciones + «No sé»)",
+      "sha256": "5d369ceb1dc7"
+    },
+    "confidenceScore": 1,
+    "decision": {
+      "estado_veredicto": "ACEPTADO",
+      "ruta": "aceptar",
+      "intento": 1
+    }
+  }
+}

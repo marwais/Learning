@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Arma el PDF único del Proyecto Final (DMSA, Documentación Maestra del Sistema Agéntico) a partir de Seccion1..4 (*.md) + capturas/.
+"""Arma el PDF único del Proyecto Final (DMSA, Documentación Maestra del Sistema Agéntico) a partir de Seccion1..4 y AnexoA..Z (*.md) + capturas/.
 
 - Portada con el índice al pie de la página: cada entrada es un link interno a su pieza, con el n.º de página.
 - Cada pieza empieza en una página nueva; número de página al pie; marcadores (outline) del PDF.
@@ -12,7 +12,7 @@ import markdown
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 NOMBRE = "Waisburd_JulioMartin_ProyectoFinal_AI_Experto"
-PIEZAS = sorted(glob.glob(os.path.join(HERE, "Seccion[1-4]_*.md")))
+PIEZAS = sorted(glob.glob(os.path.join(HERE, "Seccion[1-4]_*.md"))) + sorted(glob.glob(os.path.join(HERE, "Anexo[A-Z]_*.md")))
 BROWSERS = [r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
             r"C:\Program Files\Google\Chrome\Application\chrome.exe"]
 

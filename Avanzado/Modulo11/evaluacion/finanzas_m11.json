@@ -1,0 +1,149 @@
+{
+ "medido_en_pruebas": {
+  "C (Router y Agente en Haiku 4.5, Juez en Sonnet 4.6)": {
+   "consulta_informativa": 0.0165455,
+   "accion_con_juez": 0.009193666666666668,
+   "mensaje_complementario": 0.002003333333333333,
+   "casos": {
+    "info": 4,
+    "accion": 3,
+    "complementario": 3
+   }
+  },
+  "A (todo Sonnet 4.6)": {
+   "consulta_informativa": 0.0349935,
+   "accion_con_juez": 0.011711,
+   "mensaje_complementario": 0.004595,
+   "casos": {
+    "info": 4,
+    "accion": 3,
+    "complementario": 3
+   }
+  }
+ },
+ "volumenes_proyectados": {
+  "consultas_informativas_mes": 1584,
+  "gestiones_mes": 2376,
+  "reintentos_juez": 0.15
+ },
+ "tokens_mes_usd": {
+  "consultas": 30.1392828,
+  "gestiones": 26.604072000000002,
+  "resumenes": 3.17,
+  "total": 59.91335480000001,
+  "M9_sin_juez_de_acciones": 68.9
+ },
+ "otros_servicios_usd": [
+  [
+   "Whisper (transcripción de notas de voz)",
+   1.9,
+   "supuesto 10 % voz"
+  ],
+  [
+   "ElevenLabs (respuesta por voz, plan Creator)",
+   22.0,
+   "supuesto: respuestas ≤ 200 caracteres"
+  ],
+  [
+   "Embeddings Cohere (búsquedas RAG)",
+   0.1,
+   "~2 búsquedas × 20 tokens por consulta"
+  ],
+  [
+   "Qdrant Cloud (195 fragmentos)",
+   0.0,
+   "plan gratuito 1 GB"
+  ],
+  [
+   "n8n self-hosted (VPS 2 vCPU / 4 GB)",
+   24.0,
+   "supuesto"
+  ],
+  [
+   "Airtable Team (1 editor)",
+   20.0,
+   "supuesto; hoy plan gratuito"
+  ],
+  [
+   "Gmail, Sheets, Slack, HubSpot CRM, Telegram",
+   0.0,
+   "planes ya existentes o gratuitos"
+  ],
+  [
+   "Túnel público (ngrok, plan gratuito; en un VPS con dominio propio no hace falta)",
+   0.0,
+   "medido M11"
+  ]
+ ],
+ "costo_total_usd_mes": 127.91335480000001,
+ "tipo_cambio": 1400,
+ "mantenimiento_pesos": 160000,
+ "costo_total_pesos_mes": 339078.69672,
+ "baseline": [
+  {
+   "tarea": "Sacar un turno nuevo",
+   "volumen_mes": 1540,
+   "min": 4.0,
+   "horas_base": 102.7,
+   "autonomia": 0.8,
+   "horas_evitadas": 82.1,
+   "ahorro": 821333
+  },
+  {
+   "tarea": "Modificar o cancelar un turno",
+   "volumen_mes": 836,
+   "min": 3.0,
+   "horas_base": 41.8,
+   "autonomia": 0.7,
+   "horas_evitadas": 29.3,
+   "ahorro": 292600
+  },
+  {
+   "tarea": "Consulta informativa (RAG)",
+   "volumen_mes": 1584,
+   "min": 2.5,
+   "horas_base": 66.0,
+   "autonomia": 0.7,
+   "horas_evitadas": 46.2,
+   "ahorro": 462000
+  },
+  {
+   "tarea": "Confirmación o recordatorio",
+   "volumen_mes": 1540,
+   "min": 1.0,
+   "horas_base": 25.7,
+   "autonomia": 1.0,
+   "horas_evitadas": 25.7,
+   "ahorro": 256667
+  }
+ ],
+ "escenarios": {
+  "Conservador (60 % de autonomía)": {
+   "horas_evitadas": 141.0,
+   "beneficio": 1409692.3076923075,
+   "costo_total": 339078.69672,
+   "neto": 1070613.6109723076,
+   "retorno": 3.157419269711258,
+   "recupero_meses": 1.494470071744105
+  },
+  "Base (78 %)": {
+   "horas_evitadas": 183.3,
+   "beneficio": 1832600.0,
+   "costo_total": 339078.69672,
+   "neto": 1493521.30328,
+   "retorno": 4.404645050624636,
+   "recupero_meses": 1.0712937247605083
+  },
+  "Optimista (90 %)": {
+   "horas_evitadas": 211.5,
+   "beneficio": 2114538.4615384615,
+   "costo_total": 339078.69672,
+   "neto": 1775459.7648184616,
+   "retorno": 5.236128904566888,
+   "recupero_meses": 0.9011750261564491
+  }
+ },
+ "implementacion_pesos": 1600000,
+ "costo_por_1000_consultas_usd": 16.5455,
+ "costo_por_1000_acciones_usd": 9.193666666666667
+}

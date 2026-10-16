@@ -1,0 +1,34 @@
+{
+  "nombre": "info_no_se_estacionamiento",
+  "ejecucion_manager": "831",
+  "ejecucion_juez": "834",
+  "tipo_caso": "RESPUESTA",
+  "pedido_del_paciente": "¿La clínica tiene estacionamiento propio para pacientes?",
+  "propuesta_evaluada": "No sé: ese dato no figura en la documentación de la clínica. Te recomiendo que contactes con la **Central de Turnos** para consultar sobre estacionamiento disponible para pacientes.",
+  "fragmento_recuperado": "[{\"resultado\":\"SIN_RESULTADOS: ningún fragmento superó el Minimum Score (0.6). Respondé \\\"No cuento con ese dato.\\\"\"}]\n\n=====\n\n[{\"resultado\":\"SIN_RESULTADOS: ningún fragmento superó el Minimum Score (0.6). Respondé \\\"No cuento con ese dato.\\\"\"}]",
+  "salida_del_juez_json": {
+    "exactitud_factual": 5,
+    "estado_veredicto": "ACEPTADO",
+    "critica": ""
+  },
+  "log_de_auditoria": {
+    "timestamp": "2026-10-16T02:47:00.213Z",
+    "traceId": "trc-20261016024651-830-9od0",
+    "parentExecutionId": "831",
+    "executionId": "834",
+    "environment": "desarrollo (n8n local)",
+    "nodeName": "SUPERVISOR_Judge (M11) › Juez (LLM con JSON Schema)",
+    "agentNode": "Agente RAG (Consultas)",
+    "toolOutput": "[{\"resultado\":\"SIN_RESULTADOS: ningún fragmento superó el Minimum Score (0.6). Respondé \\\"No cuento con ese dato.\\\"\"}]\n\n=====\n\n[{\"resultado\":\"SIN_RESULTADOS: ningún fragmento superó el Minimum Score (0.6). Respondé \\\"No cuento con ese dato.\\\"\"}]",
+    "systemPromptSnapshot": {
+      "version": "juez-rubrica-v3.1 (M11: acciones + «No sé»)",
+      "sha256": "5d369ceb1dc7"
+    },
+    "confidenceScore": 1,
+    "decision": {
+      "estado_veredicto": "ACEPTADO",
+      "ruta": "aceptar",
+      "intento": 1
+    }
+  }
+}

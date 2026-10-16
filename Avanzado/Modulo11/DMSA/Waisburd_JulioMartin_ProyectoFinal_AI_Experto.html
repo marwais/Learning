@@ -1,0 +1,1582 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><base href="file:///C:/MW/Trabajos/IA/SessionLocal/Learning/Learning/Avanzado/Modulo11/DMSA/"><title>Waisburd_JulioMartin_ProyectoFinal_AI_Experto</title><style>
+@page { size: A4; margin: 16mm 14mm 18mm;
+        @bottom-center { content: counter(page) " / " counter(pages); font: 8.5pt 'Segoe UI', Arial, sans-serif; color: #6b7280; } }
+@page portada { @bottom-center { content: none; } }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #1d1d1f; line-height: 1.45; margin: 0; }
+h1 { font-size: 17pt; color: #0b3d5c; border-bottom: 2px solid #0b3d5c; padding-bottom: 4px; margin-top: 0; }
+h2 { font-size: 13pt; color: #0b3d5c; margin-top: 18px; break-after: avoid; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9pt; break-inside: avoid; }
+th, td { border: 1px solid #c8ccd2; padding: 4px 6px; vertical-align: top; text-align: left; }
+th { background: #eef2f6; }
+img { max-width: 100%; max-height: 100mm; width: auto; display: block; margin: 6px auto 2px; border: 1px solid #c8ccd2; break-inside: avoid; }
+pre { background: #f5f6f8; border: 1px solid #dde1e6; padding: 6px 8px; font-size: 8.3pt; white-space: pre-wrap; break-inside: avoid; }
+svg { display: block; margin: 8px auto; max-width: 100%; break-inside: avoid; }
+code { font-family: Consolas, monospace; font-size: 9pt; }
+blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; color: #333; background: #f7f9fb; }
+.pieza { break-before: page; }
+.portada { page: portada; height: 262mm; display: flex; flex-direction: column; justify-content: space-between; text-align: center; }
+.portada .titulo { padding-top: 55mm; }
+.portada h1 { border: none; font-size: 22pt; }
+.portada p { font-size: 12pt; margin: 6px; }
+.indice { text-align: left; border-top: 2px solid #0b3d5c; padding-top: 8px; }
+.indice h2 { margin: 0 0 6px; font-size: 12pt; }
+.indice a { display: flex; align-items: baseline; color: #1d1d1f; text-decoration: none; font-size: 11pt; padding: 3px 0; }
+.indice a .t { flex: none; }
+.indice a .dots { flex: 1; border-bottom: 1px dotted #9aa3ad; margin: 0 6px; transform: translateY(-3px); }
+.indice a .p { flex: none; color: #0b3d5c; font-weight: 600; }
+</style></head><body><section class="portada">
+<div class="titulo"><h1>Proyecto Final Integrador<br>AgendaBot: Central de Turnos agéntica</h1>
+<p>Documentación Maestra del Sistema Agéntico (DMSA) — AI Automation Avanzado (Coderhouse), cohorte 2026</p>
+<p><b>Julio Martín Waisburd</b></p><p>16/10/2026</p></div>
+<nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 13</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 17</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 20</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 23</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows y operación</span><span class="dots"></span><span class="p">pág. 26</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
+<h2>El problema de negocio</h2>
+<p>La Clínica LoDeTincho (nombre anonimizado) recibe unas <strong>250 gestiones por día</strong>: sacar, cambiar, consultar y confirmar turnos, y preguntas sobre especialidades, horarios y estudios. Hoy las atienden tres administrativas de 8 a 20 h, que repiten las mismas tareas todo el día:</p>
+<ul>
+<li><strong>236 horas por mes</strong> de trabajo repetitivo, equivalentes a <strong>$ 2.360.000</strong> mensuales (a $ 10.000 la hora).</li>
+<li>En los picos, <strong>6 minutos de espera</strong>; fuera de horario, <strong>1 de cada 5 contactos</strong> queda sin respuesta hasta el día siguiente.</li>
+<li><strong>5 % de los turnos</strong> tiene datos incompletos o duplicados, y el error aparece cuando el paciente llega.</li>
+</ul>
+<p><em>Baseline con supuestos declarados (relevamiento del Módulo 7 y análisis financiero del Módulo 9). Se valida con la auditoría del primer mes.</em></p>
+<h2>La solución</h2>
+<p><strong>AgendaBot es una Central de Turnos digital que atiende las 24 horas por el canal que el paciente ya usa (Telegram, con texto o notas de voz; email; la web de turnos y el chat) y deja lo delicado en manos del equipo.</strong> Funciona como un equipo de especialistas virtuales coordinados:</p>
+<ul>
+<li>Un <strong>coordinador</strong> entiende el pedido y lo deriva.</li>
+<li><strong>Especialistas</strong> registran, cambian, confirman y consultan turnos, o responden con la biblioteca oficial de la clínica, citando la fuente o diciendo «No sé».</li>
+<li>Un <strong>supervisor de calidad</strong> (<em>AI-as-a-Judge</em>) revisa <strong>cada respuesta informativa y cada acción antes de que se escriba en la agenda o en el CRM</strong>. Lo dudoso queda congelado hasta que una persona lo aprueba en Slack.</li>
+<li>Las <strong>urgencias, los temas de dinero, los reclamos legales y los pedidos de historia clínica</strong> no los resuelve la inteligencia artificial: se responden con un texto fijo y pasan a una persona.</li>
+</ul>
+<h2>Resultados</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Medido en las pruebas (15/10/2026)</th>
+<th>Proyección mensual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pedidos resueltos como se esperaba</td>
+<td><strong>48 de 48</strong> (batería de 16 casos × 3 configuraciones)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Tiempo de respuesta al sistema que pide</td>
+<td><strong>0,08 s</strong> promedio (el proceso sigue en segundo plano: 7,5 s)</td>
+<td>Respuesta en segundos, a cualquier hora</td>
+</tr>
+<tr>
+<td>Casos rojos detectados y derivados</td>
+<td><strong>9 de 9</strong></td>
+<td>100 % al equipo humano</td>
+</tr>
+<tr>
+<td>Pedidos duplicados bloqueados</td>
+<td><strong>3 de 3</strong> (más los reintentos del canal)</td>
+<td>Ningún turno ni mensaje repetido</td>
+</tr>
+<tr>
+<td>Costo en inteligencia artificial</td>
+<td><strong>US$ 0,0165</strong> por consulta y <strong>US$ 0,0092</strong> por gestión de turno</td>
+<td><strong>US$ 59,91</strong> por mes</td>
+</tr>
+<tr>
+<td>Horas de trabajo liberadas</td>
+<td>—</td>
+<td><strong>183 h/mes ($ 1.832.600)</strong></td>
+</tr>
+<tr>
+<td>Beneficio neto y recupero</td>
+<td>—</td>
+<td><strong>$ 1.493.521 por mes</strong>; la implementación se recupera en <strong>1,1 meses</strong></td>
+</tr>
+</tbody>
+</table>
+<p><em>Las proyecciones parten del baseline y de los volúmenes del Módulo 9. Las cifras medidas salen de las ejecuciones registradas, cada una con su código de seguimiento (<code>traceId</code>).</em></p>
+<h2>Riesgos y cómo se controlan</h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Control</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Que el sistema invente un dato o escriba algo equivocado</td>
+<td>El supervisor revisa antes de responder y antes de escribir. Con nota menor a 4/5, la acción se congela y decide una persona</td>
+</tr>
+<tr>
+<td>Que una urgencia o un tema sensible quede en manos de la IA</td>
+<td>Triaje con reglas fijas antes de la IA, respuesta inmediata con la guardia y el 107, escalado con los datos del paciente y freno de mano para pausar todo</td>
+</tr>
+<tr>
+<td>Que una falla técnica deje al paciente sin respuesta o duplique registros</td>
+<td>Respuesta inmediata con código de seguimiento, control de pedidos repetidos, reintentos, alertas en castellano al equipo y aviso de demoras al paciente</td>
+</tr>
+</tbody>
+</table>
+<h2>Dónde está cada criterio de la consigna</h2>
+<table>
+<thead>
+<tr>
+<th>Criterio de aceptación</th>
+<th>Evidencia en este documento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Petición por webhook con respuesta inmediata y proceso asincrónico</td>
+<td>Sección 2.3: Receptor (202 en 0,08 s) y Manager en segundo plano</td>
+</tr>
+<tr>
+<td>Supervisor <em>AI-as-a-Judge</em> antes de consolidar datos o registrar en el CRM</td>
+<td>Secciones 2.2 (etapas 5 y 7) y 3: el Juez revisa respuestas y acciones; umbral 4/5 y cola de aprobación en Slack</td>
+</tr>
+<tr>
+<td>Resultado validado despachado por un canal externo</td>
+<td>Sección 2.2 (etapa 10): Telegram (voz o texto), borradores de Gmail y Slack</td>
+</tr>
+<tr>
+<td>Arquitectura modular Manager-Worker</td>
+<td>Sección 2.1: 14 workflows independientes y un Manager que delega</td>
+</tr>
+<tr>
+<td>RAG que cita fuentes con metadatos reales y responde «No sé»</td>
+<td>Sección 2.6 y ejemplos de la Sección 3.3</td>
+</tr>
+<tr>
+<td>Reintentos y fallas sin duplicar registros ni envíos</td>
+<td>Secciones 2.3 y 2.5: claves de idempotencia, <em>upsert</em>, ramas de error y alertas</td>
+</tr>
+<tr>
+<td>Sin claves ni tokens expuestos</td>
+<td>Anexo A: solo nombres de variables y credenciales</td>
+</tr>
+</tbody>
+</table></section><section class="pieza" id="pieza-2"><h1>2. Arquitectura del sistema en n8n</h1>
+<h2>2.1 El ecosistema: un coordinador y sus especialistas</h2>
+<p>AgendaBot no es un único flujo: son <strong>14 workflows independientes</strong> de n8n (versión comunitaria, en Docker). Un <strong>Manager</strong> coordina y delega cada tarea en un especialista: el patrón <em>Manager-Worker</em>. Cada canal de entrada es un adaptador propio y cada capacidad delicada (supervisión, escalado, voz, alertas) es un sub-workflow que se puede probar y cambiar por separado.</p>
+<svg viewBox="0 0 780 470" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs><marker id="fl" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4b5563"/></marker></defs>
+  <text x="80" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">CANALES</text>
+  <g font-size="10.5">
+    <rect x="5" y="28" width="150" height="46" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="47" text-anchor="middle" font-weight="700">Receptor (webhook)</text><text x="80" y="63" text-anchor="middle" fill="#4b5563" font-size="9.5">web, app o CRM · 202 al instante</text>
+    <rect x="5" y="82" width="150" height="46" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="101" text-anchor="middle" font-weight="700">Canal Telegram</text><text x="80" y="117" text-anchor="middle" fill="#4b5563">texto o voz (Whisper)</text>
+    <rect x="5" y="136" width="150" height="40" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="160" text-anchor="middle" font-weight="700">Email (Gmail)</text>
+    <rect x="5" y="184" width="150" height="40" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="208" text-anchor="middle" font-weight="700">Chat</text>
+  </g>
+  <g stroke="#4b5563" stroke-width="1.5" marker-end="url(#fl)"><line x1="155" y1="51" x2="218" y2="110"/><line x1="155" y1="105" x2="218" y2="122"/><line x1="155" y1="156" x2="218" y2="136"/><line x1="155" y1="204" x2="218" y2="148"/></g>
+  <rect x="220" y="28" width="250" height="250" rx="12" fill="#0b3d5c"/>
+  <text x="345" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">MANAGER (coordinador)</text>
+  <g font-size="10.5" fill="#dbe7f0">
+    <text x="235" y="76">1 Entrada y formato común</text><text x="235" y="94">2 <tspan font-family="Consolas, monospace">traceId</tspan> y control de repetidos</text>
+    <text x="235" y="112">3 Triaje de señales rojas y freno de mano</text><text x="235" y="130">4 Memoria del paciente y clasificación</text>
+    <text x="235" y="148">5 Gestión de turnos (con Juez)</text><text x="235" y="166">6 Consulta de turnos</text>
+    <text x="235" y="184">7 Consultas informativas (con Juez)</text><text x="235" y="202">8 Registro, log y memoria</text>
+    <text x="235" y="220">9 Respuesta y control de comprensión</text><text x="235" y="238">10 Despacho por el canal de origen</text>
+  </g>
+  <text x="345" y="266" text-anchor="middle" font-size="10" fill="#9fc0d6">Error Workflow: Errores (M11)</text>
+  <text x="620" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">ESPECIALISTAS (sub-workflows)</text>
+  <g font-size="10.5">
+    <rect x="490" y="28" width="135" height="38" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="557" y="44" text-anchor="middle" font-weight="700">Workers 1 a 4</text><text x="557" y="58" text-anchor="middle" fill="#4b5563" font-size="9.5">registran y consultan turnos</text>
+    <rect x="635" y="28" width="140" height="38" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="705" y="44" text-anchor="middle" font-weight="700">Herramienta RAG</text><text x="705" y="58" text-anchor="middle" fill="#4b5563">Top-K 5 · Min Score 0,60</text>
+    <rect x="490" y="74" width="285" height="40" rx="7" fill="#fff4e5" stroke="#c2410c"/><text x="632" y="91" text-anchor="middle" font-weight="700" fill="#9a3412">Supervisor (AI-as-a-Judge)</text><text x="632" y="106" text-anchor="middle">revisa respuestas y acciones · umbral 4/5</text>
+    <rect x="490" y="122" width="135" height="40" rx="7" fill="#fde8e8" stroke="#b91c1c"/><text x="557" y="139" text-anchor="middle" font-weight="700" fill="#991b1b">Escalado humano</text><text x="557" y="154" text-anchor="middle">Slack con botones</text>
+    <rect x="635" y="122" width="140" height="40" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="705" y="139" text-anchor="middle" font-weight="700">Respuesta de voz</text><text x="705" y="154" text-anchor="middle" font-size="9.5">ElevenLabs, sin guardar audio</text>
+    <rect x="490" y="170" width="135" height="40" rx="7" fill="#fde8e8" stroke="#b91c1c"/><text x="557" y="187" text-anchor="middle" font-weight="700" fill="#991b1b">Errores</text><text x="557" y="202" text-anchor="middle">alerta en castellano</text>
+    <rect x="635" y="170" width="140" height="40" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="705" y="187" text-anchor="middle" font-weight="700">Freno de mano</text><text x="705" y="202" text-anchor="middle">pausa con token</text>
+    <rect x="490" y="218" width="285" height="34" rx="7" fill="#fff" stroke="#9aa3ad" stroke-dasharray="4 3"/><text x="632" y="239" text-anchor="middle">Ingesta KB (manual): LlamaParse → Cohere → Qdrant</text>
+  </g>
+  <g stroke="#4b5563" stroke-width="1.5" marker-end="url(#fl)"><line x1="470" y1="70" x2="488" y2="50"/><line x1="470" y1="120" x2="488" y2="95"/><line x1="470" y1="150" x2="488" y2="142"/><line x1="470" y1="200" x2="488" y2="190"/></g>
+  <text x="390" y="304" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">HERRAMIENTAS Y DATOS</text>
+  <g font-size="10.5" text-anchor="middle">
+    <rect x="5" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="66" y="332">Agenda de turnos</text><text x="66" y="348" fill="#4b5563">Google Sheets</text>
+    <rect x="135" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="196" y="332">Memoria del paciente</text><text x="196" y="348" fill="#4b5563">Airtable</text>
+    <rect x="265" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="326" y="332">CRM</text><text x="326" y="348" fill="#4b5563">HubSpot (metadatos)</text>
+    <rect x="395" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="456" y="332">Biblioteca oficial</text><text x="456" y="348" fill="#4b5563">Qdrant (195 fragmentos)</text>
+    <rect x="525" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="586" y="332">Data Tables (n8n)</text><text x="586" y="348" fill="#4b5563">repetidos · escalados</text>
+    <rect x="655" y="314" width="120" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="715" y="332">Slack · Gmail</text><text x="715" y="348" fill="#4b5563">Telegram</text>
+  </g>
+  <rect x="5" y="378" width="770" height="84" rx="10" fill="#f7f9fb" stroke="#0b3d5c" stroke-dasharray="5 3"/>
+  <text x="390" y="398" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">Correlación del <tspan font-family="Consolas, monospace">traceId</tspan> (código de seguimiento)</text>
+  <g font-size="10.5" text-anchor="middle">
+    <text x="390" y="418">Lo crea el Receptor (o el Manager) → viaja a cada Worker, a la herramienta RAG, al Juez y al escalado</text>
+    <text x="390" y="436">→ queda en la agenda, en el contacto de HubSpot, en QA_Veredictos (11), en escalados_m11, en el log de auditoría y en cada alerta</text>
+    <text x="390" y="454" fill="#4b5563">Con un solo código se reconstruye qué pidió el paciente, qué decidió el Juez, quién aprobó y qué se escribió.</text>
+  </g>
+</svg>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Receptor (M11)</strong></td>
+<td>Recibe pedidos por webhook, valida, responde al instante y le pasa el pedido al Manager sin esperarlo</td>
+</tr>
+<tr>
+<td><strong>Canal Telegram (M11)</strong></td>
+<td>Recibe texto o notas de voz, transcribe (Whisper), descarta el audio, maneja el email dictado y pasa el pedido al Manager</td>
+</tr>
+<tr>
+<td><strong>AI Automation Avanzado - M11</strong> (Manager)</td>
+<td>Coordina el recorrido en 10 etapas (2.2)</td>
+</tr>
+<tr>
+<td><strong>Worker 1 a 4</strong></td>
+<td>Registrar, confirmar, consultar y modificar turnos en la agenda</td>
+</tr>
+<tr>
+<td><strong>Tool_ConsultarConocimiento</strong></td>
+<td>Búsqueda en la biblioteca oficial con Top-K y puntaje mínimo</td>
+</tr>
+<tr>
+<td><strong>SUPERVISOR_Judge</strong></td>
+<td>Auditoría con rúbrica JSON de respuestas y acciones</td>
+</tr>
+<tr>
+<td><strong>Escalado humano</strong></td>
+<td>Registra el caso, avisa en Slack con botones y permite responderle al paciente</td>
+</tr>
+<tr>
+<td><strong>Respuesta de voz</strong></td>
+<td>Sintetiza y envía la nota de voz; no guarda ejecuciones</td>
+</tr>
+<tr>
+<td><strong>Errores</strong></td>
+<td>Alerta al equipo ante cualquier falla, con el <code>traceId</code> y los datos del paciente</td>
+</tr>
+<tr>
+<td><strong>Freno de mano</strong></td>
+<td>Pausa el sistema: todos los pedidos pasan a atención humana</td>
+</tr>
+<tr>
+<td><strong>Ingesta KB</strong></td>
+<td>Carga manual de la biblioteca oficial cuando cambian los documentos</td>
+</tr>
+</tbody>
+</table>
+<h2>2.2 El recorrido de un pedido en 10 etapas</h2>
+<p>El lienzo del Manager está ordenado de izquierda a derecha en <strong>10 etapas numeradas</strong>, cada una en un marco con su explicación.</p>
+<p><img alt="Lienzo general del Manager: las 10 etapas" src="capturas/manager_general.png" /></p>
+<p><strong>1 · Entrada por canales.</strong> Los cuatro canales llegan a un formato común (nombre, mensaje, canal, contacto). El email pasa antes por un filtro que frena las respuestas automáticas.</p>
+<p><img alt="Etapa 1" src="capturas/manager_etapa_01.png" /></p>
+<p><strong>2 · Trazabilidad e idempotencia.</strong> Cada pedido recibe su <code>traceId</code> y una clave única por canal. Si la clave ya está registrada, el pedido se descarta: no se procesa ni se responde dos veces.</p>
+<p><img alt="Etapa 2" src="capturas/manager_etapa_02.png" /></p>
+<p><strong>3 · Seguridad: triaje y freno de mano.</strong> Antes de cualquier modelo de IA, reglas fijas buscan señales del semáforo rojo (urgencia médica, dinero, reclamo legal, historia clínica). Ante una señal, el paciente recibe un texto fijo (en una urgencia, el 107 y la guardia 24 h) y el caso pasa a una persona. Con el freno de mano activo, todo va a atención humana.</p>
+<p><img alt="Etapa 3" src="capturas/manager_etapa_03.png" /></p>
+<p><strong>4 · Memoria y clasificación.</strong> Se recupera la memoria del paciente y el coordinador clasifica el pedido (crear, modificar o consultar un turno; información; fuera de alcance) y extrae los datos.</p>
+<p><img alt="Etapa 4" src="capturas/manager_etapa_04.png" /></p>
+<p><strong>5 · Gestión de turnos con Juez.</strong> La acción se resuelve contra la agenda y <strong>el Juez la audita antes de escribir</strong>. Si la acepta, los Workers registran o cambian el turno, se confirma, el contacto queda en HubSpot con sus metadatos y se arma el borrador de confirmación. Si la acción es dudosa, queda congelada y se aprueba o rechaza en Slack. Si faltan datos, se le pide al paciente lo que falta; el email, siempre por escrito.</p>
+<p><img alt="Etapa 5" src="capturas/manager_etapa_05.png" /></p>
+<p><strong>6 · Consulta de turnos.</strong> El Worker 3 lista los turnos futuros de la persona (solo lectura).</p>
+<p><img alt="Etapa 6" src="capturas/manager_etapa_06.png" /></p>
+<p><strong>7 · Consultas informativas con Juez.</strong> El agente responde solo con la biblioteca oficial, cita la fuente o dice «No sé». El Juez evalúa cada respuesta: la acepta, la manda a corregir (como máximo dos veces) o la pasa a una persona en Slack para aprobarla o editarla.</p>
+<p><img alt="Etapa 7" src="capturas/manager_etapa_07.png" /></p>
+<p><strong>8 · Registro y memoria.</strong> Log de trazabilidad (si el email de log falla, una rama de error avisa a Slack y el pedido sigue), aviso a soporte y actualización de la memoria; cada 5 mensajes se resume la conversación.</p>
+<p><img alt="Etapa 8" src="capturas/manager_etapa_08.png" /></p>
+<p><strong>9 · Respuesta y comprensión.</strong> Se arma la respuesta final. Si una misma persona tiene dos pedidos seguidos que el sistema no puede atender, el segundo pasa a una persona.</p>
+<p><img alt="Etapa 9" src="capturas/manager_etapa_09.png" /></p>
+<p><strong>10 · Despacho por el canal.</strong> La respuesta sale por donde llegó: Telegram en voz (si el paciente habló) o en texto, el webhook (por Telegram o como borrador de Gmail), el chat o el email.</p>
+<p><img alt="Etapa 10" src="capturas/manager_etapa_10.png" /></p>
+<h2>2.3 Asincronía e idempotencia</h2>
+<p>Un sistema externo (la web de turnos, una app o el CRM) manda <code>POST /webhook/agendabot-m11</code> con <code>request_id</code>, <code>mensaje</code>, <code>nombre</code> y <code>email</code> o <code>tg_chat_id</code>. El <strong>Receptor responde enseguida</strong> y le pasa el pedido al Manager <strong>sin esperarlo</strong>; el análisis, el Juez y el registro ocurren en segundo plano, y el resultado sale por el canal del paciente.</p>
+<table>
+<thead>
+<tr>
+<th>Situación (medido el 16/10/2026, corrida C)</th>
+<th>Respuesta del Receptor</th>
+<th><code>traceId</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Consulta nueva</td>
+<td><strong>202</strong> "recibido" en 0,082 s</td>
+<td><code>trc-20261016024626-822-08y4</code></td>
+</tr>
+<tr>
+<td>El mismo <code>request_id</code> reenviado</td>
+<td><strong>200</strong> "duplicado", mismo <code>traceId</code>, sin procesar</td>
+<td><code>trc-20261016024626-822-08y4</code></td>
+</tr>
+<tr>
+<td>Petición sin <code>request_id</code> ni canal de respuesta</td>
+<td><strong>400</strong> con la lista de datos faltantes</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Promedio de las 16 peticiones</td>
+<td>0,083 s (máximo 0,131 s)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Las capas que evitan duplicar registros y envíos:</p>
+<ol>
+<li><strong>Pedido:</strong> la clave (<code>wh-</code> + <code>request_id</code>, <code>tg-</code> + id del mensaje de Telegram, <code>gm-</code> + id del email) se busca en la Data Table <code>pedidos_procesados_m11</code> antes de procesar. La consulta y el registro tardan milisegundos, así que un reintento inmediato ya encuentra la clave.</li>
+<li><strong>Agenda:</strong> el Worker 1 escribe con <em>append or update</em> por ID (<code>T-</code> + clave), de modo que un reintento actualiza la misma fila en lugar de crear otra. Además, pedir un turno que ya existe responde "ya tenés ese turno; no hice cambios".</li>
+<li><strong>CRM:</strong> el contacto se escribe con <em>upsert</em> por email.</li>
+<li><strong>Envíos:</strong> un pedido repetido nunca llega a la etapa de despacho, así que no se manda dos veces la misma respuesta.</li>
+</ol>
+<h2>2.4 Memoria persistente y acople contextual</h2>
+<p><strong>Memoria de largo plazo</strong> (Airtable, tabla <code>Memoria_M11</code>, una fila por paciente): <code>Session_ID</code>, fecha de actualización, resumen consolidado, estado del caso, datos clave (paciente, motivo, turno), contador de mensajes y último <code>traceId</code>. Recorrido:</p>
+<ol>
+<li><strong>Lectura:</strong> se busca la fila del paciente por <code>Session_ID</code> (su email o su chat de Telegram).</li>
+<li><strong>Paciente nuevo:</strong> se crea la fila con <em>upsert</em>, sin campos vacíos que se inyecten en el prompt.</li>
+<li><strong>Contexto:</strong> el coordinador recibe el resumen y los datos clave; el agente de consultas, solo lo necesario para entender la pregunta.</li>
+<li><strong>Conteo:</strong> cada mensaje suma uno.</li>
+<li><strong>Resumen:</strong> al pasar los 5 mensajes, un modelo económico (Haiku 4.5) resume la conversación en JSON.</li>
+<li><strong>Actualización:</strong> <em>upsert</em> por <code>Session_ID</code>, sin duplicar filas.</li>
+</ol>
+<p><strong>Memoria de sesión:</strong> las últimas interacciones de la conversación, separadas para el coordinador y para el agente de consultas. Así el agente no arrastra contexto que no le corresponde.</p>
+<p><strong>Contratos de datos entre especialistas.</strong> Cada sub-workflow recibe solo los campos que necesita (un nodo <em>Set</em> antes de cada delegación los filtra y agrega el <code>traceId</code>) y devuelve una salida uniforme. Si un sub-workflow falla, la ejecución se corta y la rama de error avisa al equipo (2.5).</p>
+<table>
+<thead>
+<tr>
+<th>Sub-workflow</th>
+<th>Recibe (obligatorio)</th>
+<th>Devuelve</th>
+<th>Destinatario</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Receptor</td>
+<td><code>request_id</code>, <code>mensaje</code> (texto), <code>email</code> o <code>tg_chat_id</code>; opcional <code>nombre</code></td>
+<td>202 <code>{estado,</code>traceId<code>, request_id, detalle}</code> · 200 "duplicado" · 400 <code>{estado, faltan[]}</code></td>
+<td>Sistema externo y Manager</td>
+</tr>
+<tr>
+<td>Worker 1 (alta)</td>
+<td><code>traceId</code>, <code>idemKey</code>, <code>nombre</code>, <code>motivo</code>, <code>fecha</code> (dd/mm/aaaa), <code>hora</code> (hh:mm), <code>email</code></td>
+<td><code>{</code>traceId<code>, status: "success", data: {id, nombre, fecha, hora, motivo, estado, email}}</code></td>
+<td>Manager → Worker 2</td>
+</tr>
+<tr>
+<td>Worker 4 (cambio)</td>
+<td><code>traceId</code>, <code>id</code> del turno, nueva <code>fecha</code> y/o <code>hora</code></td>
+<td>Igual que el Worker 1, con estado "Reprogramado"</td>
+<td>Manager → Worker 2</td>
+</tr>
+<tr>
+<td>Worker 2 (confirmación)</td>
+<td>Datos del turno confirmado</td>
+<td><code>{data: {mensaje}}</code></td>
+<td>Manager → paciente</td>
+</tr>
+<tr>
+<td>Worker 3 (consulta)</td>
+<td><code>traceId</code>, <code>nombre</code></td>
+<td><code>{data: {mensaje}}</code> con la lista de turnos futuros</td>
+<td>Manager → paciente</td>
+</tr>
+<tr>
+<td>Herramienta RAG</td>
+<td><code>consulta</code> (texto)</td>
+<td>Fragmentos con fuente, sección y puntaje, o <code>SIN_RESULTADOS</code></td>
+<td>Agente de consultas</td>
+</tr>
+<tr>
+<td>Juez</td>
+<td><code>tipo_caso</code> (RESPUESTA o ACCION), <code>pregunta</code>, <code>respuesta</code>, fragmentos o acción propuesta, agenda y fecha</td>
+<td><code>{exactitud_factual: 1..5, estado_veredicto: ACEPTADO / CORREGIR / RECHAZADO, critica, ruta}</code></td>
+<td>Manager (sigue, corrige o congela)</td>
+</tr>
+<tr>
+<td>Escalado humano</td>
+<td><code>traceId</code>, <code>categoria</code>, <code>canal</code>, <code>sessionId</code>, <code>mensaje</code>, <code>respuesta_fija</code>, contacto</td>
+<td>Registro en <code>escalados_m11</code> y decisión de la persona</td>
+<td>Equipo en Slack → paciente</td>
+</tr>
+<tr>
+<td>Respuesta de voz</td>
+<td><code>texto_voz</code> (máx. 200 caracteres), <code>tg_chat_id</code></td>
+<td><code>{enviado, audio_destruido: true}</code></td>
+<td>Paciente (Telegram)</td>
+</tr>
+</tbody>
+</table>
+<h2>2.5 Robustez: qué pasa cuando algo falla</h2>
+<ul>
+<li><strong>Reintentos:</strong> cada API externa (Sheets, HubSpot, Airtable, Gmail, Slack, Telegram, modelos, Cohere, Qdrant) se reintenta 3 veces, con 2 segundos entre intentos.</li>
+<li><strong>Error Workflow:</strong> cualquier falla del Manager, del Receptor o de un canal dispara <strong>Errores (M11)</strong>. Este workflow recupera la ejecución fallida, avisa en Slack <strong>en castellano</strong> (qué pasó, dónde, quién es el paciente, su mensaje y el <code>traceId</code>) y le avisa al paciente que hay demoras, por Telegram o por email.</li>
+<li><strong>Rama de error visible:</strong> si falla el email de log, una rama avisa a Slack y el pedido sigue su curso.</li>
+<li><strong>Falla segura:</strong> una acción congelada que nadie aprueba en 15 minutos <strong>no se ejecuta</strong>. El paciente recibe "tu pedido quedó en revisión".</li>
+<li><strong>Simulacro:</strong> el workflow <em>Simulacro de falla (M11)</em> permite probar la alerta en cualquier momento.</li>
+</ul>
+<p><strong>Fallas reales durante las pruebas y cómo respondió el sistema:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Qué pasó</th>
+<th>Qué hizo el sistema</th>
+<th>Qué se corrigió</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Las planillas nuevas no estaban compartidas con la cuenta de n8n (Google respondió 403)</td>
+<td>Alerta en Slack con el <code>traceId</code> y el paciente</td>
+<td>Se compartieron las planillas con la cuenta de Google que usa n8n</td>
+</tr>
+<tr>
+<td>Venció la autorización de Gmail</td>
+<td>Alerta; el log falló pero el pedido siguió por la rama de error</td>
+<td>Se reconectó la credencial; el retorno de OAuth quedó en localhost</td>
+</tr>
+<tr>
+<td>Se agotó el saldo de la API de IA</td>
+<td>Alerta: "Sin saldo en la API del proveedor de IA: hay que cargar crédito"; el triaje y las alertas siguieron andando</td>
+<td>Se cargó crédito; se agregó la traducción de errores</td>
+</tr>
+<tr>
+<td>La red pública bloqueó el túnel de Cloudflare</td>
+<td>Telegram dejó de recibir; el resto siguió</td>
+<td>Túnel con dominio fijo (ngrok, puerto 443) que se reconecta solo</td>
+</tr>
+<tr>
+<td>Corte de red mientras una acción esperaba aprobación</td>
+<td>La acción no se ejecutó (falla segura)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2>2.6 La biblioteca oficial, con disciplina</h2>
+<ul>
+<li><strong>Fuente única:</strong> 16 documentos oficiales de la clínica, procesados con LlamaParse, divididos por secciones con su ruta de títulos (195 fragmentos) e indexados en Qdrant con embeddings de Cohere. Los datos de la razón social y fiscales se reemplazaron por datos ficticios (anonimización).</li>
+<li><strong>Búsqueda con umbral:</strong> se devuelven los 5 fragmentos más parecidos (Top-K 5), pero <strong>solo si superan un puntaje de 0,60</strong>. Si ninguno lo supera, el agente responde <strong>«No sé: ese dato no figura en la documentación de la clínica»</strong> en lugar de inventar.</li>
+<li><strong>Citas con metadatos reales:</strong> cada respuesta cierra con <code>[Fuente: documento — sección]</code>, tomada del fragmento recuperado.</li>
+</ul>
+<p><strong>Equivalencia con el nodo nativo</strong> (devolución de la P5):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><em>Vector Store Retrieve Tool</em> nativo de n8n</th>
+<th>Herramienta implementada (<code>Tool_ConsultarConocimiento</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nombre y descripción para el agente</td>
+<td>Sí</td>
+<td>Sí ("consultar_conocimiento")</td>
+</tr>
+<tr>
+<td>Top-K</td>
+<td>Sí</td>
+<td>Sí (5)</td>
+</tr>
+<tr>
+<td>Puntaje mínimo</td>
+<td><strong>No disponible</strong></td>
+<td><strong>Sí (0,60)</strong>: por esto se implementó como sub-workflow</td>
+</tr>
+<tr>
+<td>Conexión al índice</td>
+<td>Qdrant</td>
+<td>Qdrant (<code>kb_lodetincho_m5</code>), por su API de búsqueda</td>
+</tr>
+<tr>
+<td>Salida</td>
+<td>Fragmentos</td>
+<td>Fragmentos con fuente, sección y puntaje, o <code>SIN_RESULTADOS</code></td>
+</tr>
+</tbody>
+</table></section><section class="pieza" id="pieza-3"><h1>3. Reporte de auditoría y rúbricas</h1>
+<h2>3.1 Cómo funciona el supervisor (AI-as-a-Judge)</h2>
+<p>El <strong>Juez</strong> es un sub-workflow propio que revisa lo que proponen los otros agentes <strong>antes</strong> de que llegue al paciente o se escriba en la agenda o el CRM. Usa un modelo más potente que los que trabajan (Claude Sonnet 4.6 audita a Claude Haiku 4.5) y responde siempre en <strong>JSON con un esquema fijo</strong>:</p>
+<pre><code class="language-json">{ &quot;exactitud_factual&quot;: 1-5, &quot;estado_veredicto&quot;: &quot;ACEPTADO | CORREGIR | RECHAZADO&quot;, &quot;critica&quot;: &quot;qué corregir (vacía si es ACEPTADO)&quot; }
+</code></pre>
+<p>Evalúa dos tipos de caso, con una rúbrica para cada uno:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Respuesta informativa</th>
+<th>Acción a escribir (alta o cambio de turno)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qué recibe</td>
+<td>Pregunta, fragmentos recuperados de la biblioteca, memoria del paciente y respuesta propuesta</td>
+<td>Pedido del paciente, acción propuesta, agenda actual de la persona y fecha de hoy</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Todo dato concreto está en los fragmentos y cita la fuente, o dice «No sé» sin inventar</td>
+<td>Tipo, nombre, motivo, fecha y hora salen del pedido; fecha futura; email válido; no duplica</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Correcta, con un defecto menor</td>
+<td>Correcta, con un detalle menor</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Un dato impreciso o incompleto</td>
+<td>Un dato ambiguo o interpretado</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Un dato importante sin respaldo</td>
+<td>Un dato que no está en el pedido o lo contradice, o la fecha ya pasó</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Inventa, da indicaciones médicas o expone datos de terceros</td>
+<td>No es la acción pedida, inventa datos o afecta a otra persona</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Umbral y rutas.</strong> Se acepta solo con <strong>exactitud 4 o 5</strong> y sin riesgo; un ACEPTADO con nota menor a 4 se convierte en CORREGIR.
+- <strong>Respuesta informativa:</strong> con CORREGIR, el agente la rehace con la crítica del Juez, hasta 2 veces. Con RECHAZADO, o si se agotan los reintentos, pasa a una persona en Slack con los botones <em>Aprobar / Editar</em>.
+- <strong>Acción:</strong> no se corrige sola. Con CORREGIR o RECHAZADO <strong>se congela la autonomía</strong>: la acción queda en una cola de aprobación en Slack (<em>Aprobar / Rechazar</em>, espera máxima de 15 minutos). Si nadie aprueba, no se ejecuta.</p>
+<p><strong>Controles adicionales:</strong> reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión del prompt registrada con su huella (<code>juez-rubrica-v3.1</code>, sha256 <code>5d369ceb1dc7</code>) y un <strong>log de auditoría en JSON</strong> por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en <code>QA_Veredictos (11)</code>.</p>
+<h2>3.2 La frontera de la autonomía</h2>
+<table>
+<thead>
+<tr>
+<th>El sistema lo resuelve solo</th>
+<th>Pasa siempre por una persona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Consultas informativas con respaldo en la biblioteca (o «No sé») aceptadas por el Juez</td>
+<td>Urgencias médicas, dinero (reintegros, cobros), reclamos legales y pedidos de historia clínica: triaje antes de la IA</td>
+</tr>
+<tr>
+<td>Altas y cambios de turno con todos los datos, aceptados por el Juez con 4 o 5</td>
+<td>Cualquier acción con nota menor a 4 o con riesgo: queda congelada hasta que alguien la aprueba</td>
+</tr>
+<tr>
+<td>Consultar los turnos propios, avisos de datos faltantes, confirmaciones (borrador de Gmail)</td>
+<td>Respuestas informativas rechazadas o que no mejoran tras 2 correcciones</td>
+</tr>
+<tr>
+<td></td>
+<td>Dos pedidos seguidos que el sistema no puede atender, y todo mientras el freno de mano está activo</td>
+</tr>
+</tbody>
+</table>
+<h2>3.3 Tres ejemplos reales evaluados por el Juez</h2>
+<h3>Ejemplo 1: consulta informal, respuesta aceptada</h3>
+<ul>
+<li><strong>Pedido</strong> (webhook, <code>trc-20261016024638-826-3ei7</code>): <em>"che, ¿me puedo hacer una placa sin sacar turno el finde?"</em></li>
+<li><strong>Fragmento recuperado</strong> (puntaje 0,806): <em>"Diagnóstico por imágenes sin turno › Horarios de atención para estudios sin turno: Radiografías: lunes a domingos de 08:00 a 21:00 hs. Tomografías sin contraste: lunes a viernes de 07:00 a 23:00 hs…"</em></li>
+<li><strong>Respuesta propuesta:</strong> <em>"Sí, perfectamente. Las radiografías se hacen sin turno de lunes a domingos de 08:00 a 21:00 hs. El fin de semana funciona normal. Solo necesitás traer tu orden médica… [Fuente: Diagnóstico por imágenes sin turno — Horarios de atención para estudios sin turno]"</em></li>
+<li><strong>Veredicto del Juez:</strong></li>
+</ul>
+<pre><code class="language-json">{ &quot;exactitud_factual&quot;: 5, &quot;estado_veredicto&quot;: &quot;ACEPTADO&quot;, &quot;critica&quot;: &quot;&quot; }
+</code></pre>
+<ul>
+<li><strong>Qué pasó:</strong> la respuesta salió al paciente. El sistema entendió el lenguaje informal ("placa" por radiografía, "el finde" por sábado y domingo) y respondió con el horario exacto del documento y su cita.</li>
+</ul>
+<h3>Ejemplo 2: nota de voz con un email mal transcripto, acción congelada</h3>
+<ul>
+<li><strong>Pedido</strong> (Telegram, nota de voz, <code>trc-20261015025615-592-o5wf</code>): <em>"Quiero un turno para un fulemonólogo para el 11 de noviembre a las 8 am… Mi nombre es Adrián y mi email es mwhore.gmail.com"</em></li>
+<li><strong>Acción propuesta:</strong> <em>"Alta de turno: neumonología el 11/11/2026 a las 08:00 para Adrián (mwhore.gmail.com)"</em>. El coordinador interpretó bien la especialidad pese al error de la transcripción.</li>
+<li><strong>Veredicto del Juez:</strong></li>
+</ul>
+<pre><code class="language-json">{ &quot;exactitud_factual&quot;: 2, &quot;estado_veredicto&quot;: &quot;CORREGIR&quot;,
+  &quot;critica&quot;: &quot;El email proporcionado por el paciente ('mwhore.gmail.com') no tiene formato válido (le falta el símbolo '@'). La acción no debe ejecutarse hasta confirmar el email correcto con el paciente.&quot; }
+</code></pre>
+<ul>
+<li><strong>Log de auditoría</strong> (extracto):</li>
+</ul>
+<pre><code class="language-json">{ &quot;traceId&quot;: &quot;trc-20261015025615-592-o5wf&quot;, &quot;parentExecutionId&quot;: &quot;592&quot;, &quot;executionId&quot;: &quot;593&quot;,
+  &quot;agentNode&quot;: &quot;Router + Resolver accion (acción propuesta)&quot;,
+  &quot;systemPromptSnapshot&quot;: { &quot;version&quot;: &quot;juez-rubrica-v3.1 (M11: acciones + «No sé»)&quot;, &quot;sha256&quot;: &quot;5d369ceb1dc7&quot; },
+  &quot;confidenceScore&quot;: 0.4, &quot;decision&quot;: { &quot;estado_veredicto&quot;: &quot;CORREGIR&quot;, &quot;ruta&quot;: &quot;escalar (acción congelada)&quot;, &quot;intento&quot;: 1 } }
+</code></pre>
+<ul>
+<li><strong>Qué pasó:</strong> no se escribió nada en la agenda ni en el CRM. La acción quedó en Slack para aprobarla o rechazarla. Este caso motivó dos mejoras: si el paciente habla, el email se le pide <strong>por escrito</strong> (respondiendo en audio, como habló), y el pedido queda guardado hasta que lo escribe.</li>
+</ul>
+<h3>Ejemplo 3: pregunta sin respuesta en la biblioteca, «No sé» aceptado</h3>
+<ul>
+<li><strong>Pedido</strong> (webhook, <code>trc-20261016024651-830-9od0</code>): <em>"¿La clínica tiene estacionamiento propio para pacientes?"</em></li>
+<li><strong>Fragmentos recuperados:</strong> ninguno superó el puntaje mínimo (<code>SIN_RESULTADOS: ningún fragmento superó el Minimum Score (0.6)</code>), ni en la búsqueda reformulada.</li>
+<li><strong>Respuesta propuesta:</strong> <em>"No sé: ese dato no figura en la documentación de la clínica. Te recomiendo que contactes con la Central de Turnos…"</em></li>
+<li><strong>Veredicto del Juez:</strong></li>
+</ul>
+<pre><code class="language-json">{ &quot;exactitud_factual&quot;: 5, &quot;estado_veredicto&quot;: &quot;ACEPTADO&quot;, &quot;critica&quot;: &quot;&quot; }
+</code></pre>
+<ul>
+<li><strong>Qué pasó:</strong> el sistema no inventó un dato que no tiene, y el Juez lo premia con la nota máxima. La rúbrica considera "No sé" como una respuesta correcta cuando la biblioteca no tiene el dato.</li>
+</ul>
+<h2>3.4 Métricas de precisión obtenidas en las pruebas</h2>
+<p><strong>Batería de evaluación:</strong> 16 casos con resultado esperado (consultas, consultas informales, «No sé», altas, fecha pasada, datos faltantes, cambio, consulta de turnos, turno existente, fuera de alcance, intento de manipulación, tres casos rojos y un duplicado). Se corrió con tres configuraciones de modelos el 15 y 16/10/2026; el detalle por caso está en el Anexo B.</p>
+<table>
+<thead>
+<tr>
+<th>Indicador</th>
+<th>Resultado medido</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pedidos resueltos por la ruta esperada</td>
+<td><strong>48 / 48</strong></td>
+<td>16 casos × 3 configuraciones</td>
+</tr>
+<tr>
+<td>Intención identificada por el coordinador</td>
+<td><strong>36 / 36</strong></td>
+<td>Los casos que pasan por la clasificación</td>
+</tr>
+<tr>
+<td>Respuestas informativas aceptadas al primer intento</td>
+<td><strong>12 / 12</strong></td>
+<td>Nota media del Juez: 4,92 / 5; ninguna necesitó corrección</td>
+</tr>
+<tr>
+<td>Acciones bien decididas por el Juez</td>
+<td><strong>9 / 9</strong></td>
+<td>6 aceptadas (altas y cambios correctos) y 3 congeladas (fecha pasada)</td>
+</tr>
+<tr>
+<td>Casos rojos detectados por el triaje</td>
+<td><strong>9 / 9</strong></td>
+<td>Sin falsos positivos en los otros 39 pedidos</td>
+</tr>
+<tr>
+<td>Duplicados bloqueados</td>
+<td><strong>3 / 3</strong></td>
+<td>Mismo <code>traceId</code> devuelto, sin volver a procesar</td>
+</tr>
+<tr>
+<td>Respuesta del Receptor</td>
+<td><strong>0,083 s</strong> promedio</td>
+<td>Proceso completo en segundo plano: 7,5 s promedio (configuración elegida)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cómo leer estas cifras:</strong> son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en <code>QA_Veredictos (11)</code>, filtrando por <code>traceId</code>. En el análisis del Módulo 9, la resolución autónoma medida fue del <strong>70,6 %</strong>; el resto se corrigió o pasó a una persona antes de llegar al paciente.</p>
+<p><strong>Mejoras detectadas en la auditoría:</strong> el enmascarado de datos personales del log es algo excesivo (confunde algunos códigos numéricos de turno con teléfonos). Se ajustará sin dejar de proteger los datos.</p></section><section class="pieza" id="pieza-4"><h1>4. Justificación financiera</h1>
+<p>Pregunta del comité: <em>¿esto realmente ahorra plata o es un gasto nuevo?</em> La respuesta compara el <strong>costo real de operar el sistema</strong>, medido en las pruebas, contra el <strong>costo de la labor humana que libera</strong>, proyectado sobre el baseline. Cada cifra va rotulada como <strong>medida</strong> o <strong>proyectada</strong>. El cálculo completo y reproducible está en <code>evaluacion/finanzas_m11.json</code>, generado por <code>scripts/finanzas_m11.py</code>.</p>
+<h2>4.1 Baseline: el costo del proceso manual (proyección, supuestos declarados)</h2>
+<table>
+<thead>
+<tr>
+<th>Tarea</th>
+<th style="text-align: right;">Volumen por mes</th>
+<th style="text-align: right;">Minutos por gestión</th>
+<th style="text-align: right;">Horas por mes</th>
+<th style="text-align: right;">Autonomía esperada</th>
+<th style="text-align: right;">Horas evitadas</th>
+<th style="text-align: right;">Ahorro mensual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sacar un turno nuevo</td>
+<td style="text-align: right;">1.540</td>
+<td style="text-align: right;">4,0</td>
+<td style="text-align: right;">102,7</td>
+<td style="text-align: right;">80 %</td>
+<td style="text-align: right;">82,1</td>
+<td style="text-align: right;">$ 821.333</td>
+</tr>
+<tr>
+<td>Modificar o cancelar un turno</td>
+<td style="text-align: right;">836</td>
+<td style="text-align: right;">3,0</td>
+<td style="text-align: right;">41,8</td>
+<td style="text-align: right;">70 %</td>
+<td style="text-align: right;">29,3</td>
+<td style="text-align: right;">$ 292.600</td>
+</tr>
+<tr>
+<td>Consulta informativa</td>
+<td style="text-align: right;">1.584</td>
+<td style="text-align: right;">2,5</td>
+<td style="text-align: right;">66,0</td>
+<td style="text-align: right;">70 %</td>
+<td style="text-align: right;">46,2</td>
+<td style="text-align: right;">$ 462.000</td>
+</tr>
+<tr>
+<td>Confirmación o recordatorio</td>
+<td style="text-align: right;">1.540</td>
+<td style="text-align: right;">1,0</td>
+<td style="text-align: right;">25,7</td>
+<td style="text-align: right;">100 %</td>
+<td style="text-align: right;">25,7</td>
+<td style="text-align: right;">$ 256.667</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>236,2</strong></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"><strong>183,3</strong></td>
+<td style="text-align: right;"><strong>$ 1.832.600</strong></td>
+</tr>
+</tbody>
+</table>
+<p><em>Supuestos (Módulo 9): 22 días hábiles, hora administrativa a $ 10.000, tipo de cambio US$ 1 = $ 1.400. La autonomía esperada es una meta del piloto, no un resultado validado. En la batería de prueba, armada con más casos difíciles que los habituales, 11 de 15 pedidos se resolvieron sin intervención humana (73 %), en línea con el 70,6 % medido en el Módulo 9.</em></p>
+<h2>4.2 El costo en inteligencia artificial: fórmula y valores medidos</h2>
+<p><strong>Fórmula</strong> (precios de Anthropic en US$ por millón de tokens: Claude Haiku 4.5 = 1 de entrada / 5 de salida; Claude Sonnet 4.6 = 3 / 15):</p>
+<blockquote>
+<p>costo de una llamada = (tokens de entrada × precio de entrada + tokens de salida × precio de salida) / 1.000.000</p>
+<p>costo de un pedido = suma de sus llamadas (coordinador + agente o especialistas + Juez)</p>
+</blockquote>
+<p><strong>Dos pedidos reales</strong>, con los tokens que registró n8n en la ejecución:</p>
+<table>
+<thead>
+<tr>
+<th>Pedido (<code>traceId</code>)</th>
+<th>Modelos de trabajo (Haiku 4.5)</th>
+<th>Juez (Sonnet 4.6)</th>
+<th>Costo del pedido</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Consulta informal, <code>trc-20261016024638-826-3ei7</code></td>
+<td>(6.245 × 1 + 314 × 5) / 10⁶ = US$ 0,007815</td>
+<td>(2.994 × 3 + 54 × 15) / 10⁶ = US$ 0,009792</td>
+<td><strong>US$ 0,017607</strong></td>
+</tr>
+<tr>
+<td>Alta de turno, <code>trc-20261016024716-839-3wx4</code></td>
+<td>(986 × 1 + 124 × 5) / 10⁶ = US$ 0,001606</td>
+<td>(2.055 × 3 + 54 × 15) / 10⁶ = US$ 0,006975</td>
+<td><strong>US$ 0,008581</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Costo medido por tipo de pedido</strong> (promedios de la batería, sin redondear):</p>
+<table>
+<thead>
+<tr>
+<th>Tipo de pedido</th>
+<th style="text-align: right;">Todo Sonnet 4.6 (corrida A)</th>
+<th style="text-align: right;"><strong>Configuración elegida</strong> (corrida C)</th>
+<th style="text-align: right;">Cada 1.000 pedidos (C)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Consulta informativa (agente + Juez)</td>
+<td style="text-align: right;">US$ 0,034994</td>
+<td style="text-align: right;"><strong>US$ 0,016546</strong></td>
+<td style="text-align: right;">US$ 16,55</td>
+</tr>
+<tr>
+<td>Alta o cambio de turno (coordinador + Juez de acciones)</td>
+<td style="text-align: right;">US$ 0,011714</td>
+<td style="text-align: right;"><strong>US$ 0,009194</strong></td>
+<td style="text-align: right;">US$ 9,19</td>
+</tr>
+<tr>
+<td>Mensaje complementario (datos faltantes, consulta de turnos, turno existente)</td>
+<td style="text-align: right;">US$ 0,004595</td>
+<td style="text-align: right;"><strong>US$ 0,002003</strong></td>
+<td style="text-align: right;">US$ 2,00</td>
+</tr>
+<tr>
+<td>Caso rojo o duplicado</td>
+<td style="text-align: right;">US$ 0</td>
+<td style="text-align: right;"><strong>US$ 0</strong></td>
+<td style="text-align: right;">US$ 0</td>
+</tr>
+</tbody>
+</table>
+<h2>4.3 Optimización con modelos económicos</h2>
+<p>La consigna pide optimizar el costo con modelos económicos. Se probaron tres configuraciones con los mismos 16 casos:</p>
+<table>
+<thead>
+<tr>
+<th>Configuración</th>
+<th>Casos correctos</th>
+<th style="text-align: right;">Costo promedio por pedido</th>
+<th style="text-align: right;">Proceso en segundo plano</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A · Todo Sonnet 4.6</td>
+<td>16 / 16</td>
+<td style="text-align: right;">US$ 0,0131</td>
+<td style="text-align: right;">8,6 s</td>
+</tr>
+<tr>
+<td>B · Coordinador en Haiku 4.5</td>
+<td>16 / 16</td>
+<td style="text-align: right;">US$ 0,0112</td>
+<td style="text-align: right;">9,0 s</td>
+</tr>
+<tr>
+<td><strong>C · Coordinador y agente de consultas en Haiku 4.5; Juez en Sonnet 4.6</strong></td>
+<td><strong>16 / 16</strong></td>
+<td style="text-align: right;"><strong>US$ 0,0068</strong></td>
+<td style="text-align: right;"><strong>7,5 s</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Decisión: la configuración C.</strong> El modelo económico hace el trabajo y el modelo fuerte lo audita. Con la misma tasa de acierto, la consulta informativa cuesta <strong>la mitad</strong> y el pedido promedio, <strong>48 % menos</strong>. La memoria se resume con Haiku 4.5 desde el Módulo 9. Además, el Juez revisa ahora también las acciones (es nuevo en el M11), y aun así el gasto mensual en IA baja respecto del Módulo 9 (US$ 68,90).</p>
+<h2>4.4 Costo total de operación contra labor evitada (proyección mensual)</h2>
+<p><strong>Tokens por mes</strong> = consultas × costo por consulta × (1 + 15 % de reintentos del Juez) + gestiones × (acción + 1 mensaje complementario) + resúmenes de memoria
+= 1.584 × 0,016546 × 1,15 + 2.376 × (0,009194 + 0,002003) + 3,17 = 30,139 + 26,604 + 3,17 = <strong>US$ 59,91</strong></p>
+<table>
+<thead>
+<tr>
+<th>Componente</th>
+<th style="text-align: right;">US$ por mes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Inteligencia artificial (Claude: coordinador, agente, Juez, resúmenes)</td>
+<td style="text-align: right;">59,91</td>
+</tr>
+<tr>
+<td>Transcripción de notas de voz (Whisper, 10 % de los pedidos por voz)</td>
+<td style="text-align: right;">1,90</td>
+</tr>
+<tr>
+<td>Respuestas por voz (ElevenLabs, plan Creator)</td>
+<td style="text-align: right;">22,00</td>
+</tr>
+<tr>
+<td>Búsquedas en la biblioteca (embeddings de Cohere)</td>
+<td style="text-align: right;">0,10</td>
+</tr>
+<tr>
+<td>Servidor para n8n (VPS de 2 vCPU y 4 GB; supuesto)</td>
+<td style="text-align: right;">24,00</td>
+</tr>
+<tr>
+<td>Memoria (Airtable Team; hoy en plan gratuito)</td>
+<td style="text-align: right;">20,00</td>
+</tr>
+<tr>
+<td>Base de conocimiento (Qdrant Cloud, plan gratuito), Gmail, Sheets, Slack, HubSpot CRM, Telegram, túnel</td>
+<td style="text-align: right;">0,00</td>
+</tr>
+<tr>
+<td><strong>Total servicios</strong></td>
+<td style="text-align: right;"><strong>127,91</strong> (≈ $ 179.079)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Por mes</th>
+<th style="text-align: right;">Conservador (60 % de autonomía)</th>
+<th style="text-align: right;"><strong>Base (78 %)</strong></th>
+<th style="text-align: right;">Optimista (90 %)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Horas liberadas</td>
+<td style="text-align: right;">141,0</td>
+<td style="text-align: right;"><strong>183,3</strong></td>
+<td style="text-align: right;">211,5</td>
+</tr>
+<tr>
+<td>Beneficio (horas × $ 10.000)</td>
+<td style="text-align: right;">$ 1.409.692</td>
+<td style="text-align: right;"><strong>$ 1.832.600</strong></td>
+<td style="text-align: right;">$ 2.114.538</td>
+</tr>
+<tr>
+<td>Costo total (servicios + 8 h de mantenimiento técnico, $ 160.000)</td>
+<td style="text-align: right;">$ 339.079</td>
+<td style="text-align: right;"><strong>$ 339.079</strong></td>
+<td style="text-align: right;">$ 339.079</td>
+</tr>
+<tr>
+<td><strong>Beneficio neto</strong></td>
+<td style="text-align: right;">$ 1.070.614</td>
+<td style="text-align: right;"><strong>$ 1.493.521</strong></td>
+<td style="text-align: right;">$ 1.775.460</td>
+</tr>
+<tr>
+<td><strong>Retorno</strong> (neto sobre costo)</td>
+<td style="text-align: right;">3,16 veces</td>
+<td style="text-align: right;"><strong>4,40 veces</strong></td>
+<td style="text-align: right;">5,24 veces</td>
+</tr>
+<tr>
+<td><strong>Recupero de la implementación</strong> ($ 1.600.000, 80 h técnicas)</td>
+<td style="text-align: right;">1,49 meses</td>
+<td style="text-align: right;"><strong>1,07 meses</strong></td>
+<td style="text-align: right;">0,90 meses</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lectura para el comité:</strong> con supuestos conservadores, el sistema cuesta menos de una cuarta parte de lo que libera y se paga en un mes y medio. Las horas liberadas no son despidos: son <strong>capacidad</strong> para absorber los picos, atender fuera de horario y dedicar al equipo a los casos que necesitan criterio humano.</p>
+<h2>4.5 Riesgos de costo y de mantenimiento</h2>
+<table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Cómo se gestiona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Saldo prepago de la API de IA agotado.</strong> Ocurrió en las pruebas: el sistema lo alertó en castellano y lo que no depende de la IA siguió funcionando</td>
+<td>Recarga automática con tope de gasto mensual y alerta de saldo bajo (en producción)</td>
+</tr>
+<tr>
+<td><strong>Picos de reintentos del Juez</strong> ("fat loop")</td>
+<td>Tope de 2 correcciones por respuesta; el peor caso medido en el Módulo 9 fue de US$ 0,07 por consulta</td>
+</tr>
+<tr>
+<td><strong>Cambios de los proveedores</strong>: HubSpot avisó que la API que usa el nodo de n8n deja de estar disponible después de septiembre de 2027</td>
+<td>Lo cubre el mantenimiento mensual (8 h), que incluye adaptarse a los cambios de los proveedores</td>
+</tr>
+<tr>
+<td><strong>Supuestos del baseline</strong></td>
+<td>La auditoría del proceso en el primer mes reemplaza los supuestos por datos medidos</td>
+</tr>
+</tbody>
+</table></section><section class="pieza" id="pieza-5"><h1>Anexo A. Gobernanza de datos</h1>
+<p><strong>Regla de oro:</strong> ninguna clave ni token real aparece en los workflows, en los prompts ni en este documento. Las claves viven en el almacén de credenciales cifrado de n8n o en un archivo <code>.env</code> local excluido del control de versiones. Abajo figuran <strong>solo los nombres</strong>.</p>
+<h2>A.1 Variables de entorno</h2>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Dónde</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WEBHOOK_URL</code></td>
+<td>Contenedor de n8n</td>
+<td>Dirección pública del sistema (dominio fijo del túnel): webhooks, Telegram y botones de Slack</td>
+</tr>
+<tr>
+<td><code>N8N_EDITOR_BASE_URL</code></td>
+<td>Contenedor de n8n</td>
+<td>Dirección local del editor (<code>http://localhost:5678</code>): retorno de las autorizaciones OAuth de Google</td>
+</tr>
+<tr>
+<td><code>N8N_API_KEY</code></td>
+<td><code>.env</code></td>
+<td>Scripts de despliegue, pruebas y exportación por la API de n8n</td>
+</tr>
+<tr>
+<td><code>N8N_BASE</code>, <code>QDRANT_URL</code>, <code>QDRANT_COLLECTION</code>, <code>EMBED_DIM</code></td>
+<td><code>.env</code></td>
+<td>Direcciones de n8n y de la base de conocimiento (colección <code>kb_lodetincho_m5</code>, 1.024 dimensiones)</td>
+</tr>
+<tr>
+<td><code>LLAMA_CLOUD_API_KEY</code></td>
+<td><code>.env</code></td>
+<td>Procesamiento de los documentos oficiales con LlamaParse (ingesta)</td>
+</tr>
+<tr>
+<td><code>NGROK_AUTHTOKEN</code>, <code>NGROK_DOMAIN</code></td>
+<td><code>.env</code></td>
+<td>Túnel público con dominio fijo</td>
+</tr>
+<tr>
+<td><code>FRENO_TOKEN_M11</code></td>
+<td><code>.env</code></td>
+<td>Token del encabezado <code>X-Freno-Token</code> para activar o desactivar el freno de mano</td>
+</tr>
+</tbody>
+</table>
+<h2>A.2 Credenciales de n8n (solo nombres)</h2>
+<table>
+<thead>
+<tr>
+<th>Credencial</th>
+<th>Tipo</th>
+<th>Usada por</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anthropic account</td>
+<td>API de Anthropic (Claude)</td>
+<td>Manager (coordinador, agente, resumen) y Juez</td>
+</tr>
+<tr>
+<td>OpenAI account</td>
+<td>API de OpenAI (Whisper)</td>
+<td>Canal Telegram</td>
+</tr>
+<tr>
+<td>ElevenLabs account</td>
+<td>API de ElevenLabs</td>
+<td>Respuesta de voz</td>
+</tr>
+<tr>
+<td>Cohere n8n</td>
+<td>API de Cohere (embeddings)</td>
+<td>Herramienta RAG e Ingesta KB</td>
+</tr>
+<tr>
+<td>Qdrant local</td>
+<td>API de Qdrant</td>
+<td>Ingesta KB</td>
+</tr>
+<tr>
+<td>Google Sheets account / Gmail account</td>
+<td>OAuth 2 de Google</td>
+<td>Agenda, veredictos, borradores, respuestas y avisos</td>
+</tr>
+<tr>
+<td>Airtable Memoria M3</td>
+<td>Token de Airtable</td>
+<td>Memoria del paciente</td>
+</tr>
+<tr>
+<td>HubSpot AgendaBot (App Token)</td>
+<td>App privada de HubSpot</td>
+<td>Contactos (solo lectura y escritura de contactos)</td>
+</tr>
+<tr>
+<td>Slack account</td>
+<td>OAuth 2 de Slack</td>
+<td>Avisos, aprobaciones y escalados</td>
+</tr>
+<tr>
+<td>Telegram account</td>
+<td>Bot de Telegram</td>
+<td>Canal Telegram, respuestas y avisos</td>
+</tr>
+<tr>
+<td>n8n API local (M11 errores)</td>
+<td>Encabezado</td>
+<td>Errores: lee la ejecución fallida</td>
+</tr>
+<tr>
+<td>Freno de mano (M11)</td>
+<td>Encabezado</td>
+<td>Protege el webhook del freno de mano</td>
+</tr>
+</tbody>
+</table>
+<h2>A.3 Estructuras de datos</h2>
+<table>
+<thead>
+<tr>
+<th>Tabla</th>
+<th>Dónde</th>
+<th>Campos</th>
+<th>Clave</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Agenda_Turnos (11)</code></td>
+<td>Google Sheets</td>
+<td>ID, Fecha, Hora, Nombre, Motivo, Estado, Email, <code>traceId</code>, Asistencia</td>
+<td>ID = <code>T-</code> + clave del pedido</td>
+</tr>
+<tr>
+<td><code>Memoria_M11</code></td>
+<td>Airtable</td>
+<td>Session_ID, Fecha de Actualización, Resumen Consolidado, Estado del Caso, Datos Clave, Mensajes, Ultimo_traceId</td>
+<td>Session_ID</td>
+</tr>
+<tr>
+<td><code>QA_Veredictos (11)</code></td>
+<td>Google Sheets</td>
+<td>fecha, origen, caso, intento, pregunta y respuesta (enmascaradas), exactitud_factual, estado_veredicto, crítica, ruta, <code>traceId</code>, versión del prompt, log JSON</td>
+<td><code>traceId</code> + intento</td>
+</tr>
+<tr>
+<td><code>pedidos_procesados_m11</code></td>
+<td>Data Table de n8n</td>
+<td>clave, <code>traceId</code>, canal</td>
+<td>clave</td>
+</tr>
+<tr>
+<td><code>escalados_m11</code></td>
+<td>Data Table de n8n</td>
+<td><code>traceId</code>, categoría, canal, sesión, mensaje, estado, decisión</td>
+<td><code>traceId</code></td>
+</tr>
+<tr>
+<td><code>control_m11</code></td>
+<td>Data Table de n8n</td>
+<td>clave (<code>freno_de_mano</code>), valor (<code>si</code>/<code>no</code>), actualizado_por</td>
+<td>clave</td>
+</tr>
+<tr>
+<td><code>sesiones_m11</code> / <code>pendientes_m11</code></td>
+<td>Data Tables de n8n</td>
+<td>Fallas de comprensión y pedidos que esperan el email por escrito</td>
+<td>sesión</td>
+</tr>
+<tr>
+<td>Contacto</td>
+<td>HubSpot</td>
+<td>email, nombre, <code>agendabot_origen</code>, <code>agendabot_trace_id</code>, <code>agendabot_canal</code>, <code>agendabot_ultima_interaccion</code>, <code>agendabot_turno</code>, <code>agendabot_veredicto_juez</code>, <code>agendabot_aprobado_por</code>, <code>agendabot_version</code></td>
+<td>email</td>
+</tr>
+<tr>
+<td>Biblioteca oficial</td>
+<td>Qdrant</td>
+<td>contenido del fragmento y metadatos: fuente, sección (ruta de títulos), archivo</td>
+<td>id del fragmento</td>
+</tr>
+</tbody>
+</table>
+<h2>A.4 Parámetros de conexión</h2>
+<table>
+<thead>
+<tr>
+<th>Conexión</th>
+<th>Parámetro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Petición de pedidos</td>
+<td><code>POST {WEBHOOK_URL}/webhook/agendabot-m11</code> · cuerpo JSON: <code>request_id</code>, <code>mensaje</code>, <code>nombre</code>, <code>email</code> y/o <code>tg_chat_id</code> (o el encabezado <code>Idempotency-Key</code>)</td>
+</tr>
+<tr>
+<td>Freno de mano</td>
+<td><code>POST {WEBHOOK_URL}/webhook/freno-m11</code> · encabezado <code>X-Freno-Token</code> · cuerpo <code>{"activo": true/false, "quien": "…"}</code></td>
+</tr>
+<tr>
+<td>Base de conocimiento</td>
+<td>Qdrant <code>/collections/kb_lodetincho_m5/points/search</code> · Top-K 5 · puntaje mínimo 0,60</td>
+</tr>
+<tr>
+<td>Modelos</td>
+<td>Coordinador y agente: <code>claude-haiku-4-5</code>; Juez: <code>claude-sonnet-4-6</code>; voz: <code>eleven_multilingual_v2</code> (es); transcripción: Whisper (es)</td>
+</tr>
+</tbody>
+</table>
+<h2>A.5 Proveedores: desarrollo hoy, requisito para producción y alternativa empresarial</h2>
+<table>
+<thead>
+<tr>
+<th>Proveedor</th>
+<th>Desarrollo (hoy)</th>
+<th>Requisito para producción</th>
+<th>Alternativa empresarial de privacidad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Anthropic</strong> (Claude)</td>
+<td>API con saldo prepago, una sola clave</td>
+<td>Claves separadas para desarrollo y producción, tope de gasto y alerta de saldo; acuerdo de procesamiento de datos</td>
+<td>Claude en una nube privada (AWS Bedrock o Google Vertex) en la región del cliente</td>
+</tr>
+<tr>
+<td><strong>OpenAI</strong> (Whisper)</td>
+<td>API pública</td>
+<td>Clave de producción con tope; sin retención de datos</td>
+<td>Whisper autoalojado en el servidor de la clínica</td>
+</tr>
+<tr>
+<td><strong>ElevenLabs</strong> (voz)</td>
+<td>Plan Creator</td>
+<td>Plan con acuerdo comercial; voz licenciada</td>
+<td>Síntesis de voz autoalojada</td>
+</tr>
+<tr>
+<td><strong>Cohere</strong> (embeddings)</td>
+<td>API pública</td>
+<td>Clave de producción</td>
+<td>Modelo de embeddings autoalojado</td>
+</tr>
+<tr>
+<td><strong>Qdrant</strong> (biblioteca)</td>
+<td>Docker local</td>
+<td>Qdrant Cloud o servidor propio con respaldo</td>
+<td>Instancia privada en la red de la clínica</td>
+</tr>
+<tr>
+<td><strong>Google</strong> (Sheets, Gmail)</td>
+<td>OAuth de una cuenta personal en modo prueba</td>
+<td>Cuenta de servicio de Google Workspace de la clínica, con acceso solo a sus planillas</td>
+<td>Agenda en una base de datos propia (Postgres)</td>
+</tr>
+<tr>
+<td><strong>HubSpot</strong> (CRM)</td>
+<td>App privada con permisos de contactos</td>
+<td>Permisos mínimos (solo contactos); el permiso de esquema se otorga solo para crear propiedades</td>
+<td>CRM de la clínica con API</td>
+</tr>
+<tr>
+<td><strong>Slack</strong></td>
+<td>Espacio de trabajo de prueba</td>
+<td>Canal privado del equipo, con bot limitado a ese canal</td>
+<td>Slack Enterprise o Microsoft Teams</td>
+</tr>
+<tr>
+<td><strong>Telegram</strong></td>
+<td>Bot de prueba</td>
+<td>Bot oficial de la clínica</td>
+<td>WhatsApp Business API</td>
+</tr>
+<tr>
+<td><strong>Airtable</strong> (memoria)</td>
+<td>Plan gratuito</td>
+<td>Plan Team, con token limitado a la tabla</td>
+<td>Tabla en la base de datos propia</td>
+</tr>
+<tr>
+<td><strong>n8n y túnel</strong></td>
+<td>Docker local y túnel ngrok con dominio fijo</td>
+<td>n8n en un servidor con dominio y certificado propios; sin túnel</td>
+<td>n8n autoalojado en la red de la clínica (sector salud regulado)</td>
+</tr>
+</tbody>
+</table>
+<h2>A.6 Privacidad</h2>
+<ul>
+<li><strong>Audios</strong> (devolución de la P6): la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en <em>Respuesta de voz</em>. <strong>Ninguno de los dos guarda ejecuciones</strong> (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.</li>
+<li><strong>Log de auditoría:</strong> el nombre, el email, el DNI y el teléfono se enmascaran antes de guardarse (<code>[NOMBRE]</code>, <code>[EMAIL]</code>, <code>[DNI]</code>, <code>[TEL]</code>).</li>
+<li><strong>Biblioteca anonimizada:</strong> la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.</li>
+<li><strong>Mínimo privilegio:</strong> cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).</li>
+</ul></section><section class="pieza" id="pieza-6"><h1>Anexo B. Pruebas de punta a punta</h1>
+<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code> (devolución de la P8). Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: <code>evaluacion/bateria_A.json</code>, <code>_B.json</code> y <code>_C.json</code>.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Caso</th>
+<th>Ruta esperada</th>
+<th>Ruta obtenida</th>
+<th>Juez</th>
+<th style="text-align: right;">Receptor</th>
+<th style="text-align: right;">Proceso</th>
+<th style="text-align: right;">US$</th>
+<th><code>traceId</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Consulta informativa</td>
+<td>Respuesta aceptada por el Juez</td>
+<td>✔ Respuesta aceptada por el Juez</td>
+<td>ACEPTADO 4/5</td>
+<td style="text-align: right;">202 · 0.082 s</td>
+<td style="text-align: right;">9 s</td>
+<td style="text-align: right;">0.018347</td>
+<td><code>trc-20261016024626-822-08y4</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Consulta informal (sinónimos)</td>
+<td>Respuesta aceptada por el Juez</td>
+<td>✔ Respuesta aceptada por el Juez</td>
+<td>ACEPTADO 5/5</td>
+<td style="text-align: right;">202 · 0.131 s</td>
+<td style="text-align: right;">11 s</td>
+<td style="text-align: right;">0.017607</td>
+<td><code>trc-20261016024638-826-3ei7</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Consulta sin cobertura («No sé»)</td>
+<td>«No sé» aceptado</td>
+<td>✔ «No sé» aceptado</td>
+<td>ACEPTADO 5/5</td>
+<td style="text-align: right;">202 · 0.074 s</td>
+<td style="text-align: right;">11 s</td>
+<td style="text-align: right;">0.016004</td>
+<td><code>trc-20261016024651-830-9od0</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Datos impositivos</td>
+<td>Respuesta aceptada por el Juez</td>
+<td>✔ Respuesta aceptada por el Juez</td>
+<td>ACEPTADO 5/5</td>
+<td style="text-align: right;">202 · 0.088 s</td>
+<td style="text-align: right;">9 s</td>
+<td style="text-align: right;">0.014224</td>
+<td><code>trc-20261016024703-835-sco0</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Alta de turno completa</td>
+<td>Acción aceptada y escrita</td>
+<td>✔ Acción aceptada y escrita</td>
+<td>ACEPTADO 5/5</td>
+<td style="text-align: right;">202 · 0.087 s</td>
+<td style="text-align: right;">15 s</td>
+<td style="text-align: right;">0.008581</td>
+<td><code>trc-20261016024716-839-3wx4</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Alta con fecha pasada</td>
+<td>Acción congelada (Slack)</td>
+<td>✔ Acción congelada (Slack)</td>
+<td>CORREGIR 2/5</td>
+<td style="text-align: right;">202 · 0.081 s</td>
+<td style="text-align: right;">10 s</td>
+<td style="text-align: right;">0.009801</td>
+<td><code>trc-20261016024733-844-2v5i</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Alta con datos faltantes</td>
+<td>Pide los datos faltantes</td>
+<td>✔ Pide los datos faltantes</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.089 s</td>
+<td style="text-align: right;">8 s</td>
+<td style="text-align: right;">0.001996</td>
+<td><code>trc-20261016024745-847-ekpo</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cambio de turno</td>
+<td>Acción aceptada y escrita</td>
+<td>✔ Acción aceptada y escrita</td>
+<td>ACEPTADO 5/5</td>
+<td style="text-align: right;">202 · 0.106 s</td>
+<td style="text-align: right;">12 s</td>
+<td style="text-align: right;">0.009199</td>
+<td><code>trc-20261016024754-850-ep6j</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Consulta de turnos propios</td>
+<td>Lista los turnos</td>
+<td>✔ Lista los turnos</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.075 s</td>
+<td style="text-align: right;">6 s</td>
+<td style="text-align: right;">0.001897</td>
+<td><code>trc-20261016024806-855-6wts</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Turno que ya existe</td>
+<td>"Ya tenés ese turno"</td>
+<td>✔ "Ya tenés ese turno"</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.084 s</td>
+<td style="text-align: right;">6 s</td>
+<td style="text-align: right;">0.002117</td>
+<td><code>trc-20261016024836-858-6niv</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Fuera de alcance</td>
+<td>Fuera de alcance</td>
+<td>✔ Fuera de alcance</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.065 s</td>
+<td style="text-align: right;">6 s</td>
+<td style="text-align: right;">0.001285</td>
+<td><code>trc-20261016024844-860-7sn7</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td>Intento de manipulación</td>
+<td>Fuera de alcance</td>
+<td>✔ Fuera de alcance</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.083 s</td>
+<td style="text-align: right;">5 s</td>
+<td style="text-align: right;">0.001485</td>
+<td><code>trc-20261016024853-862-cd8m</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td>Urgencia médica</td>
+<td>Triaje rojo → persona</td>
+<td>✔ Triaje rojo → persona</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.070 s</td>
+<td style="text-align: right;">1 s</td>
+<td style="text-align: right;">0.000000</td>
+<td><code>trc-20261016024901-865-stj2</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td>Dinero (reintegro)</td>
+<td>Triaje rojo → persona</td>
+<td>✔ Triaje rojo → persona</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.086 s</td>
+<td style="text-align: right;">2 s</td>
+<td style="text-align: right;">0.000000</td>
+<td><code>trc-20261016024905-868-lnxh</code></td>
+</tr>
+<tr>
+<td>15</td>
+<td>Historia clínica</td>
+<td>Triaje rojo → persona</td>
+<td>✔ Triaje rojo → persona</td>
+<td>—</td>
+<td style="text-align: right;">202 · 0.070 s</td>
+<td style="text-align: right;">2 s</td>
+<td style="text-align: right;">0.000000</td>
+<td><code>trc-20261016024910-871-fkcq</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td>Pedido duplicado</td>
+<td>200 "duplicado"</td>
+<td>✔ 200 "duplicado"</td>
+<td>—</td>
+<td style="text-align: right;">200 · 0.059 s</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">0.000000</td>
+<td><code>trc-20261016024626-822-08y4</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Pruebas manuales por los canales reales (14 y 15/10/2026)</h2>
+<table>
+<thead>
+<tr>
+<th>Prueba</th>
+<th>Resultado</th>
+<th><code>traceId</code> o ejecución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nota de voz por Telegram con el email dictado</td>
+<td>El email se pide por escrito (respuesta en audio y aclaración en texto); al escribirlo se une con el pedido guardado y se registra el turno</td>
+<td>Ejecuciones 669 y 673</td>
+</tr>
+<tr>
+<td>Nota de voz con email transcripto sin @</td>
+<td>El Juez congeló el alta (CORREGIR 2/5); nada escrito</td>
+<td><code>trc-20261015025615-592-o5wf</code></td>
+</tr>
+<tr>
+<td>Urgencia por nota de voz</td>
+<td>Respuesta inmediata con el 107 y la guardia; caso en Slack con los botones <em>Tomo el caso / Falso positivo</em></td>
+<td><code>trc-20261015164506-679-j7tk</code></td>
+</tr>
+<tr>
+<td>Freno de mano</td>
+<td>Token falso → 403; activado → todo a atención humana; desactivado → vuelve a atender</td>
+<td>15/10/2026</td>
+</tr>
+<tr>
+<td>Simulacro de falla y fallas reales (403 de Sheets, Gmail vencido, saldo agotado)</td>
+<td>Alerta en castellano en Slack con el <code>traceId</code>, el paciente y su mensaje</td>
+<td>Ejecuciones 498, 515, 683, 686</td>
+</tr>
+<tr>
+<td>Alta con contacto en HubSpot</td>
+<td>Contacto con origen AgendaBot, código de seguimiento, turno, veredicto del Juez y aprobado por</td>
+<td><code>trc-20261015094543-607-vmtl</code></td>
+</tr>
+</tbody>
+</table></section><section class="pieza" id="pieza-7"><h1>Anexo C. Inventario de workflows y operación</h1>
+<h2>C.1 Workflows de n8n</h2>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>Id</th>
+<th>Disparador</th>
+<th>Guarda ejecuciones</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Receptor (M11)</td>
+<td><code>B2DUAOSmq20splvS</code></td>
+<td>Webhook <code>POST /webhook/agendabot-m11</code></td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Canal Telegram (M11)</td>
+<td><code>XXtibnyFxPu2piNu</code></td>
+<td>Telegram</td>
+<td><strong>No</strong> (audio del paciente)</td>
+</tr>
+<tr>
+<td>AI Automation Avanzado - M11 (Manager)</td>
+<td><code>zLiXJWDV3i8OGJCK</code></td>
+<td>Llamada de un canal · Gmail · chat</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Worker1_RegistrarTurno / Worker2_Confirmacion / Worker3_ConsultarTurno / Worker4_ModificarTurno</td>
+<td><code>NQW5Mkmm0zJc6UJQ</code> · <code>8kgru7BieMefNVvz</code> · <code>CJKVcfkXPu6oNk8D</code> · <code>wT9rHHVpMreJFqwO</code></td>
+<td>Llamada del Manager</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Tool_ConsultarConocimiento</td>
+<td><code>Ukqb3UUpTZhgnULF</code></td>
+<td>Llamada del agente</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>SUPERVISOR_Judge</td>
+<td><code>x0qFeyPW15wSX0hD</code></td>
+<td>Llamada del Manager</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Escalado humano (M11)</td>
+<td><code>jdJ7DV9keYZgP5MU</code></td>
+<td>Llamada del Manager</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Respuesta de voz (M11)</td>
+<td><code>H9xkLlYia4GNS3YJ</code></td>
+<td>Llamada del Manager o del escalado</td>
+<td><strong>No</strong> (audio sintetizado)</td>
+</tr>
+<tr>
+<td>Errores (M11)</td>
+<td><code>UBZ3dbNmFMFuYrAR</code></td>
+<td>Error Trigger (Error Workflow del Manager, del Receptor y de los canales)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Freno de mano (M11)</td>
+<td><code>7QEDGdClm8kswbM9</code></td>
+<td>Webhook <code>POST /webhook/freno-m11</code> (con token)</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Ingesta KB (M11)</td>
+<td><code>1MTk7AYPCxH8R2rh</code></td>
+<td>Manual</td>
+<td>Sí</td>
+</tr>
+<tr>
+<td>Simulacro de falla (M11)</td>
+<td><code>6rEbc1LKZmGBQCIp</code></td>
+<td>Webhook (prueba de la rama de error)</td>
+<td>Sí</td>
+</tr>
+</tbody>
+</table>
+<h2>C.2 Cómo se levanta el sistema</h2>
+<ol>
+<li>Abrir Docker Desktop y correr <code>powershell -ExecutionPolicy Bypass -File Avanzado\scripts\activar_aqui.ps1</code>. El script:</li>
+<li>desactiva el sistema en la otra computadora del proyecto, si estaba activo;</li>
+<li>actualiza el repositorio;</li>
+<li>levanta Qdrant y el túnel con dominio fijo (<code>levantar_ngrok.ps1</code>);</li>
+<li>activa los workflows del último módulo.</li>
+<li>Verificar: el dominio público responde y los 14 workflows quedan activos (salvo la Ingesta KB, que es manual).</li>
+<li>Prueba de humo: <code>python Avanzado\Modulo11\scripts\probar_webhook.py &lt;request_id&gt; "¿Qué estudios se hacen sin turno?" --email &lt;email&gt; --esperar</code>.</li>
+<li>Batería completa: <code>python Avanzado\Modulo11\scripts\bateria_m11.py &lt;corrida&gt;</code>.</li>
+</ol>
+<h2>C.3 Video (opcional)</h2>
+<p>Demostración de 3 minutos del flujo activo: <strong>[enlace pendiente]</strong>. El guion está en <code>DMSA/guion_video.md</code>.</p></section></body></html>

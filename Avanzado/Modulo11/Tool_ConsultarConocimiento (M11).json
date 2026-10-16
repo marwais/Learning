@@ -126,7 +126,7 @@
     0
    ],
    "parameters": {
-    "jsCode": "// Convierte los hits de Qdrant en un texto de fragmentos numerados con su fuente y score.\nconst p = $('Parámetros RAG').first().json;\nconst hits = $json.result || [];\nif (!hits.length) {\n  return [{ json: { resultado: `SIN_RESULTADOS: ningún fragmento superó el Minimum Score (${p.min_score}). Respondé \"No cuento con ese dato.\"` } }];\n}\nconst bloques = hits.map((h, i) => {\n  const md = (h.payload && h.payload.metadata) || {};\n  const texto = (h.payload && h.payload.content) || '';\n  return `[Fragmento ${i + 1}] fuente: ${md.source || '?'} | sección: ${md.section || '-'} | score: ${h.score.toFixed(3)}\\n${texto}`;\n});\nreturn [{ json: { resultado: bloques.join('\\n\\n---\\n\\n') } }];\n"
+    "jsCode": "// Convierte los hits de Qdrant en un texto de fragmentos numerados con su fuente y score.\nconst p = $('Parámetros RAG').first().json;\nconst hits = $json.result || [];\nif (!hits.length) {\n  return [{ json: { resultado: `SIN_RESULTADOS: ningún fragmento superó el Minimum Score (${p.min_score}). Respondé \"No sé\"` } }];\n}\nconst bloques = hits.map((h, i) => {\n  const md = (h.payload && h.payload.metadata) || {};\n  const texto = (h.payload && h.payload.content) || '';\n  return `[Fragmento ${i + 1}] fuente: ${md.source || '?'} | sección: ${md.section || '-'} | score: ${h.score.toFixed(3)}\\n${texto}`;\n});\nreturn [{ json: { resultado: bloques.join('\\n\\n---\\n\\n') } }];\n"
    }
   }
  ],
