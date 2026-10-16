@@ -17,6 +17,34 @@
 | AgendaBot · Ingesta KB | `1MTk7AYPCxH8R2rh` | Manual | Sí |
 | AgendaBot · Simulacro de falla | `6rEbc1LKZmGBQCIp` | Webhook (prueba de la rama de error) | Sí |
 
+### Los especialistas por dentro
+
+![AgendaBot · Receptor: valida, genera el traceId, bloquea duplicados y responde 202 antes de procesar](capturas/sub_receptor.png)
+
+![AgendaBot · Canal Telegram: nota de voz, transcripción, pedido pendiente cuando el email se dicta y pase al Manager](capturas/sub_canal_telegram.png)
+
+![AgendaBot · Juez (supervisor): veredicto con esquema JSON, registro en QA_Veredictos y salida segura si el veredicto es inválido](capturas/sub_juez.png)
+
+![AgendaBot · Herramienta RAG: embedding de la consulta y búsqueda en Qdrant con Top-K y puntaje mínimo](capturas/sub_rag.png)
+
+![AgendaBot · Worker 1 · Registrar turno](capturas/sub_worker1.png)
+
+![AgendaBot · Worker 2 · Confirmación](capturas/sub_worker2.png)
+
+![AgendaBot · Worker 3 · Consultar turnos](capturas/sub_worker3.png)
+
+![AgendaBot · Escalado humano: aviso con botones en Slack, recordatorio y respuesta al paciente por su canal](capturas/sub_escalado.png)
+
+![AgendaBot · Respuesta de voz: síntesis, envío y descarte del audio](capturas/sub_respuesta_voz.png)
+
+![AgendaBot · Errores: alerta al equipo y aviso de demora al paciente por su canal](capturas/sub_errores.png)
+
+![AgendaBot · Freno de mano: cambio de estado con token y aviso en Slack](capturas/sub_freno.png)
+
+![AgendaBot · Simulacro de falla: API externa caída a demanda, para probar la rama de error](capturas/sub_simulacro.png)
+
+![AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones](capturas/sub_ingesta_kb.png)
+
 ## C.2 Cómo se levanta el sistema
 
 El sistema corre en contenedores de Docker sobre un servidor (o una computadora) con salida a internet. Levantarlo consiste en:

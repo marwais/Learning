@@ -29,6 +29,7 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
   - **Modelos (configuración C)**: Router y Agente RAG en `claude-haiku-4-5-20251001`, Juez en `claude-sonnet-4-6`.
   - **Batería de 16 casos**: A, B y C dieron 16/16. C cuesta US$ 0,0166 por consulta y US$ 0,0092 por acción.
   - **Batería E** (confirmación con los nombres de producción, después de reconectar Sheets): 16/16, con el mismo costo.
+  - **Estado del Caso en Airtable** (`scripts/estado_caso_m11.py`): ahora se calcula según el resultado (antes siempre quedaba "En Progreso"). La ruta informativa ahora actualiza la memoria. El filtro de Gmail frena los rebotes y los correos propios. Las baterías F y G dieron 16/16.
 - **Componente B (DMSA)**: tiene un borrador completo, con 4 secciones y los anexos A a C. Sale en 28 páginas como `Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf`.
   - Ya no hace referencias a módulos, pre-entregas ni devoluciones (verificado sobre el texto del PDF).
   - El C.2 explica cómo se levanta el sistema y qué hacer si ya está publicado en otra máquina.
@@ -63,15 +64,18 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
 - **Restos de prueba**: quedó el contacto `prueba.m11@example.com` en HubSpot y quedaron borradores de prueba en Gmail.
 
 ## Pendientes (por prioridad)
-1. **Usuario**: sacar la mitad izquierda de la etapa 5, de "Buscar turnos de la persona" a "¿Es alta?". También las capturas de resultados: HubSpot, Agenda_Turnos, borrador de Gmail, Data Tables y sub-workflows. Todas van en `Avanzado/Modulo11/DMSA/capturas/`. Opcional: borrar las credenciales viejas.
-2. **Usuario**: revisar el DMSA y grabar el video. Después, Claude:
-   - incorpora las capturas y el link en la sección C.3;
-   - regenera el PDF con `python Avanzado/Modulo11/DMSA/build_pdf.py`;
-   - lo verifica con `pdftotext`;
-   - re-exporta los 15 workflows.
+1. **Usuario: completar las capturas que faltan.**
+   - Worker 4 · Modificar turno.
+   - Data Tables (`pedidos_procesados`, `escalados`, `control`).
+   - **Airtable `Memoria_Pacientes` de nuevo**, con las filas `bateria.g.*`, que ya muestran Cerrado, Pendiente y En Revisión. Sin la barra de pestañas `Memoria_M3…M9`.
 
-   Las exportaciones todavía tienen nombres de archivo viejos, como "AI Automation Avanzado - M11.json".
-3. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
+   En Airtable conviene borrar a mano las filas basura: `mailer-daemon@googlemail.com` y `mwquiero@gmail.com`. Claude no borra datos.
+2. **Claude:** incorporar esas capturas (la de Airtable en el Anexo B, Worker 4 y Data Tables en el Anexo C) y regenerar el PDF.
+3. **Usuario: revisar el DMSA y grabar el video.** Después, Claude:
+   - incorpora el link en la sección C.3;
+   - regenera el PDF y lo verifica con `pdftotext`;
+   - re-exporta los 15 workflows. Las exportaciones todavía tienen nombres de archivo viejos.
+4. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
 
 ## Recursos clave
 - **Ids**:

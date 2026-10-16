@@ -514,7 +514,7 @@
    "credentials": {
     "airtableTokenApi": {
      "id": "tlRnBKsgQgEbyhnG",
-     "name": "Airtable Memoria M3"
+     "name": "Airtable AgendaBot"
     }
    }
   },
@@ -672,7 +672,7 @@
    "credentials": {
     "airtableTokenApi": {
      "id": "tlRnBKsgQgEbyhnG",
-     "name": "Airtable Memoria M3"
+     "name": "Airtable AgendaBot"
     }
    }
   },
@@ -830,7 +830,7 @@
      "value": {
       "Session_ID": "={{ $('Consolidar datos').item.json.session_id }}",
       "Datos Clave": "={{ $('Consolidar datos').item.json.datos_clave }}",
-      "Estado del Caso": "={{ $('Consolidar datos').item.json.estado }}",
+      "Estado del Caso": "={{ (() => { const corrio = n => { try { return $(n).isExecuted } catch (e) { return false } }; if (corrio('Acción en revisión (aviso)') || corrio('Escalar por incomprensión (sub-workflow)')) return 'En Revisión'; if (corrio('Resolver accion') && $('Resolver accion').first().json.accion === 'faltan_datos') return 'Pendiente'; return 'Cerrado'; })() }}",
       "Fecha de Actualización": "={{ $now.toISO() }}",
       "Mensajes": "={{ $('Consolidar datos').item.json.mensajes }}",
       "Ultimo_traceId": "={{ $('Generar traceId').first().json.traceId }}"
@@ -915,7 +915,7 @@
    "credentials": {
     "airtableTokenApi": {
      "id": "tlRnBKsgQgEbyhnG",
-     "name": "Airtable Memoria M3"
+     "name": "Airtable AgendaBot"
     }
    }
   },
@@ -954,7 +954,7 @@
       "Session_ID": "={{ $json.session_id }}",
       "Resumen Consolidado": "={{ $json.resumen }}",
       "Datos Clave": "={{ $json.datos_clave }}",
-      "Estado del Caso": "={{ $json.estado }}",
+      "Estado del Caso": "={{ (() => { const corrio = n => { try { return $(n).isExecuted } catch (e) { return false } }; if (corrio('Acción en revisión (aviso)') || corrio('Escalar por incomprensión (sub-workflow)')) return 'En Revisión'; if (corrio('Resolver accion') && $('Resolver accion').first().json.accion === 'faltan_datos') return 'Pendiente'; return 'Cerrado'; })() }}",
       "Fecha de Actualización": "={{ $now.toISO() }}",
       "Mensajes": "={{ $json.mensajes }}",
       "Ultimo_traceId": "={{ $('Generar traceId').first().json.traceId }}"
@@ -1039,7 +1039,7 @@
    "credentials": {
     "airtableTokenApi": {
      "id": "tlRnBKsgQgEbyhnG",
-     "name": "Airtable Memoria M3"
+     "name": "Airtable AgendaBot"
     }
    }
   },
@@ -1162,6 +1162,51 @@
        "operator": {
         "type": "string",
         "operation": "contains"
+       }
+      },
+      {
+       "id": "4e02b5b4-9d3c-41f9-8d69-8fab74e3c937",
+       "leftValue": "={{ $json.From }}",
+       "rightValue": "mailer-daemon",
+       "operator": {
+        "type": "string",
+        "operation": "contains"
+       }
+      },
+      {
+       "id": "6ef3d939-4d9e-4878-b6e1-db7a079af17d",
+       "leftValue": "={{ $json.From }}",
+       "rightValue": "postmaster@",
+       "operator": {
+        "type": "string",
+        "operation": "contains"
+       }
+      },
+      {
+       "id": "e8f01c8c-5b2f-4390-9327-8789cc375063",
+       "leftValue": "={{ $json.Subject }}",
+       "rightValue": "Delivery Status Notification",
+       "operator": {
+        "type": "string",
+        "operation": "contains"
+       }
+      },
+      {
+       "id": "d128b4d3-db5b-4278-a703-32c66e127910",
+       "leftValue": "={{ $json.Subject }}",
+       "rightValue": "Mail Delivery",
+       "operator": {
+        "type": "string",
+        "operation": "contains"
+       }
+      },
+      {
+       "id": "b9f9c71a-e7b3-4b98-be09-f377e45af120",
+       "leftValue": "={{ $json.Subject }}",
+       "rightValue": "Clínica LoDeTincho — ",
+       "operator": {
+        "type": "string",
+        "operation": "startsWith"
        }
       }
      ]
@@ -4169,6 +4214,144 @@
     "width": 1428,
     "color": 7
    }
+  },
+  {
+   "id": "0262b1a5-7603-47e4-902f-7160d3867006",
+   "name": "Actualizar memoria (consulta)",
+   "type": "n8n-nodes-base.airtable",
+   "typeVersion": 2.2,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "onError": "continueRegularOutput",
+   "position": [
+    6668,
+    744
+   ],
+   "parameters": {
+    "operation": "upsert",
+    "base": {
+     "__rl": true,
+     "value": "appO1XQ6layHvQx6e",
+     "mode": "list",
+     "cachedResultName": "Memoria_Agente"
+    },
+    "table": {
+     "__rl": true,
+     "value": "tblaIZxUOLY1T8g40",
+     "mode": "list",
+     "cachedResultName": "Memoria_Pacientes"
+    },
+    "columns": {
+     "mappingMode": "defineBelow",
+     "matchingColumns": [
+      "Session_ID"
+     ],
+     "value": {
+      "Session_ID": "={{ $('Preparar contexto').first().json.session_id }}",
+      "Estado del Caso": "={{ String($('Aplicar validación').first().json.validacion || '').startsWith('ESCALADO') ? 'En Revisión' : 'Cerrado' }}",
+      "Fecha de Actualización": "={{ $now.toISO() }}",
+      "Mensajes": "={{ $('Preparar contexto').first().json.mensajes }}",
+      "Ultimo_traceId": "={{ $('Generar traceId').first().json.traceId }}"
+     },
+     "schema": [
+      {
+       "id": "Session_ID",
+       "displayName": "Session_ID",
+       "type": "string",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Fecha de Actualización",
+       "displayName": "Fecha de Actualización",
+       "type": "string",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Resumen Consolidado",
+       "displayName": "Resumen Consolidado",
+       "type": "string",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Estado del Caso",
+       "displayName": "Estado del Caso",
+       "type": "string",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Datos Clave",
+       "displayName": "Datos Clave",
+       "type": "string",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Mensajes",
+       "displayName": "Mensajes",
+       "type": "string",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "canBeUsedToMatch": true,
+       "removed": false
+      },
+      {
+       "id": "Ultimo_traceId",
+       "displayName": "Ultimo_traceId",
+       "required": false,
+       "defaultMatch": false,
+       "display": true,
+       "type": "string",
+       "canBeUsedToMatch": true,
+       "removed": false
+      }
+     ],
+     "attemptToConvertTypes": false,
+     "convertFieldsToString": false
+    },
+    "options": {}
+   },
+   "credentials": {
+    "airtableTokenApi": {
+     "id": "tlRnBKsgQgEbyhnG",
+     "name": "Airtable AgendaBot"
+    }
+   }
+  },
+  {
+   "id": "0c33377d-108d-4255-a4d4-1063e76e6867",
+   "name": "Retomar respuesta (consulta)",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    6788,
+    744
+   ],
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Aplicar validación').first().json) }}",
+    "options": {}
+   }
   }
  ],
  "connections": {
@@ -4751,7 +4934,7 @@
    "main": [
     [
      {
-      "node": "¿Email? (INFO)",
+      "node": "Actualizar memoria (consulta)",
       "type": "main",
       "index": 0
      }
@@ -5624,6 +5807,28 @@
     [
      {
       "node": "Aclarar: email por escrito (Telegram)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Actualizar memoria (consulta)": {
+   "main": [
+    [
+     {
+      "node": "Retomar respuesta (consulta)",
+      "type": "main",
+      "index": 0
+     }
+    ]
+   ]
+  },
+  "Retomar respuesta (consulta)": {
+   "main": [
+    [
+     {
+      "node": "¿Email? (INFO)",
       "type": "main",
       "index": 0
      }

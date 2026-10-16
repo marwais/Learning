@@ -9,6 +9,8 @@ table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9pt; b
 th, td { border: 1px solid #c8ccd2; padding: 4px 6px; vertical-align: top; text-align: left; }
 th { background: #eef2f6; }
 img { max-width: 100%; max-height: 100mm; width: auto; display: block; margin: 6px auto 2px; border: 1px solid #c8ccd2; break-inside: avoid; }
+figure { margin: 6px 0 10px; break-inside: avoid; }
+figcaption { text-align: center; font-size: 8.5pt; color: #4b5563; font-style: italic; margin-top: 2px; }
 pre { background: #f5f6f8; border: 1px solid #dde1e6; padding: 6px 8px; font-size: 8.3pt; white-space: pre-wrap; break-inside: avoid; }
 svg { display: block; margin: 8px auto; max-width: 100%; break-inside: avoid; }
 code { font-family: Consolas, monospace; font-size: 9pt; }
@@ -28,7 +30,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <div class="titulo"><h1>Proyecto Final Integrador<br>AgendaBot: Central de Turnos agéntica</h1>
 <p>Documentación Maestra del Sistema Agéntico (DMSA) — AI Automation Avanzado (Coderhouse), cohorte 2026</p>
 <p><b>Julio Martín Waisburd</b></p><p>16/10/2026</p></div>
-<nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 14</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 18</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 21</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 24</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows y operación</span><span class="dots"></span><span class="p">pág. 27</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
+<nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 14</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 18</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 21</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 24</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows y operación</span><span class="dots"></span><span class="p">pág. 29</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
 <h2>El problema de negocio</h2>
 <p>La Clínica LoDeTincho (nombre anonimizado) recibe unas <strong>250 gestiones por día</strong>: sacar, cambiar, consultar y confirmar turnos, y preguntas sobre especialidades, horarios y estudios. Hoy las atienden tres administrativas de 8 a 20 h, que repiten las mismas tareas todo el día:</p>
 <ul>
@@ -269,29 +271,29 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </table>
 <h2>2.2 El recorrido de un pedido en 10 etapas</h2>
 <p>El lienzo del Manager está ordenado de izquierda a derecha en <strong>10 etapas numeradas</strong>, cada una en un marco con su explicación.</p>
-<p><img alt="Lienzo general del Manager: las 10 etapas" src="capturas/manager_general.png" /></p>
+<figure><img alt="Lienzo general del Manager: las 10 etapas" src="capturas/manager_general.png" /><figcaption>Lienzo general del Manager: las 10 etapas</figcaption></figure>
 <p><strong>1 · Entrada por canales.</strong> Los cuatro canales llegan a un formato común (nombre, mensaje, canal, contacto). El email pasa antes por un filtro que frena las respuestas automáticas.</p>
-<p><img alt="Etapa 1" src="capturas/manager_etapa_01.png" /></p>
+<figure><img alt="Etapa 1" src="capturas/manager_etapa_01.png" /><figcaption>Etapa 1</figcaption></figure>
 <p><strong>2 · Trazabilidad e idempotencia.</strong> Cada pedido recibe su <code>traceId</code> y una clave única por canal. Si la clave ya está registrada, el pedido se descarta: no se procesa ni se responde dos veces.</p>
-<p><img alt="Etapa 2" src="capturas/manager_etapa_02.png" /></p>
+<figure><img alt="Etapa 2" src="capturas/manager_etapa_02.png" /><figcaption>Etapa 2</figcaption></figure>
 <p><strong>3 · Seguridad: triaje y freno de mano.</strong> Antes de cualquier modelo de IA, reglas fijas buscan señales del semáforo rojo (urgencia médica, dinero, reclamo legal, historia clínica). Ante una señal, el paciente recibe un texto fijo (en una urgencia, el 107 y la guardia 24 h) y el caso pasa a una persona. Con el freno de mano activo, todo va a atención humana.</p>
-<p><img alt="Etapa 3" src="capturas/manager_etapa_03.png" /></p>
+<figure><img alt="Etapa 3" src="capturas/manager_etapa_03.png" /><figcaption>Etapa 3</figcaption></figure>
 <p><strong>4 · Memoria y clasificación.</strong> Se recupera la memoria del paciente y el coordinador clasifica el pedido (crear, modificar o consultar un turno; información; fuera de alcance) y extrae los datos.</p>
-<p><img alt="Etapa 4" src="capturas/manager_etapa_04.png" /></p>
+<figure><img alt="Etapa 4" src="capturas/manager_etapa_04.png" /><figcaption>Etapa 4</figcaption></figure>
 <p><strong>5 · Gestión de turnos con Juez.</strong> La acción se resuelve contra la agenda y <strong>el Juez la audita antes de escribir</strong>. Si la acepta, los Workers registran o cambian el turno, se confirma, el contacto queda en HubSpot con sus metadatos y se arma el borrador de confirmación. Si la acción es dudosa, queda congelada y se aprueba o rechaza en Slack. Si faltan datos, se le pide al paciente lo que falta; el email, siempre por escrito.</p>
-<p><img alt="Etapa 5: vista general" src="capturas/manager_etapa_05.png" /></p>
-<p><img alt="Etapa 5: después del veredicto, Workers, confirmación, CRM y avisos" src="capturas/manager_etapa_05b.png" /></p>
+<figure><img alt="Etapa 5: resolución de la acción, auditoría del Juez y aprobación en Slack" src="capturas/manager_etapa_05a.png" /><figcaption>Etapa 5: resolución de la acción, auditoría del Juez y aprobación en Slack</figcaption></figure>
+<figure><img alt="Etapa 5: después del veredicto, Workers, confirmación, CRM y avisos" src="capturas/manager_etapa_05b.png" /><figcaption>Etapa 5: después del veredicto, Workers, confirmación, CRM y avisos</figcaption></figure>
 <p><strong>6 · Consulta de turnos.</strong> El Worker 3 lista los turnos futuros de la persona (solo lectura).</p>
-<p><img alt="Etapa 6" src="capturas/manager_etapa_06.png" /></p>
+<figure><img alt="Etapa 6" src="capturas/manager_etapa_06.png" /><figcaption>Etapa 6</figcaption></figure>
 <p><strong>7 · Consultas informativas con Juez.</strong> El agente responde solo con la biblioteca oficial, cita la fuente o dice «No sé». El Juez evalúa cada respuesta: la acepta, la manda a corregir (como máximo dos veces) o la pasa a una persona en Slack para aprobarla o editarla.</p>
-<p><img alt="Etapa 7: agente, Juez y correcciones" src="capturas/manager_etapa_07a.png" /></p>
-<p><img alt="Etapa 7: aprobación o edición humana y respuesta" src="capturas/manager_etapa_07b.png" /></p>
+<figure><img alt="Etapa 7: agente, Juez y correcciones" src="capturas/manager_etapa_07a.png" /><figcaption>Etapa 7: agente, Juez y correcciones</figcaption></figure>
+<figure><img alt="Etapa 7: aprobación o edición humana y respuesta" src="capturas/manager_etapa_07b.png" /><figcaption>Etapa 7: aprobación o edición humana y respuesta</figcaption></figure>
 <p><strong>8 · Registro y memoria.</strong> Log de trazabilidad (si el email de log falla, una rama de error avisa a Slack y el pedido sigue), aviso a soporte y actualización de la memoria; cada 5 mensajes se resume la conversación.</p>
-<p><img alt="Etapa 8" src="capturas/manager_etapa_08.png" /></p>
+<figure><img alt="Etapa 8" src="capturas/manager_etapa_08.png" /><figcaption>Etapa 8</figcaption></figure>
 <p><strong>9 · Respuesta y comprensión.</strong> Se arma la respuesta final. Si una misma persona tiene dos pedidos seguidos que el sistema no puede atender, el segundo pasa a una persona.</p>
-<p><img alt="Etapa 9" src="capturas/manager_etapa_09.png" /></p>
+<figure><img alt="Etapa 9" src="capturas/manager_etapa_09.png" /><figcaption>Etapa 9</figcaption></figure>
 <p><strong>10 · Despacho por el canal.</strong> La respuesta sale por donde llegó: Telegram en voz (si el paciente habló) o en texto, el webhook (por Telegram o como borrador de Gmail), el chat o el email.</p>
-<p><img alt="Etapa 10" src="capturas/manager_etapa_10.png" /></p>
+<figure><img alt="Etapa 10" src="capturas/manager_etapa_10.png" /><figcaption>Etapa 10</figcaption></figure>
 <h2>2.3 Asincronía e idempotencia</h2>
 <p>Un sistema externo (la web de turnos, una app o el CRM) manda <code>POST /webhook/agendabot</code> con <code>request_id</code>, <code>mensaje</code>, <code>nombre</code> y <code>email</code> o <code>tg_chat_id</code>. El <strong>Receptor responde enseguida</strong> y le pasa el pedido al Manager <strong>sin esperarlo</strong>; el análisis, el Juez y el registro ocurren en segundo plano, y el resultado sale por el canal del paciente.</p>
 <table>
@@ -340,7 +342,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li><strong>Contexto:</strong> el coordinador recibe el resumen y los datos clave; el agente de consultas, solo lo necesario para entender la pregunta.</li>
 <li><strong>Conteo:</strong> cada mensaje suma uno.</li>
 <li><strong>Resumen:</strong> al pasar los 5 mensajes, un modelo económico (Haiku 4.5) resume la conversación en JSON.</li>
-<li><strong>Actualización:</strong> <em>upsert</em> por <code>Session_ID</code>, sin duplicar filas.</li>
+<li><strong>Actualización:</strong> <em>upsert</em> por <code>Session_ID</code>, sin duplicar filas. El <strong>estado del caso</strong> refleja cómo terminó el último pedido: <em>Cerrado</em> (resuelto), <em>Pendiente</em> (faltan datos del paciente) o <em>En Revisión</em> (acción congelada sin aprobación humana, o derivada a una persona).</li>
 </ol>
 <p><strong>Memoria de sesión:</strong> las últimas interacciones de la conversación, separadas para el coordinador y para el agente de consultas. Así el agente no arrastra contexto que no le corresponde.</p>
 <p><strong>Contratos de datos entre especialistas.</strong> Cada sub-workflow recibe solo los campos que necesita (un nodo <em>Set</em> antes de cada delegación los filtra y agrega el <code>traceId</code>) y devuelve una salida uniforme. Si un sub-workflow falla, la ejecución se corta y la rama de error avisa al equipo (2.5).</p>
@@ -1487,6 +1489,11 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
+<h2>Evidencias en los sistemas conectados</h2>
+<figure><img alt="Agenda_Turnos: los turnos de la batería, con traceId y columna Asistencia (se muestran solo las filas de la batería)" src="capturas/resultado_agenda_turnos.png" /><figcaption>Agenda_Turnos: los turnos de la batería, con traceId y columna Asistencia (se muestran solo las filas de la batería)</figcaption></figure>
+<figure><img alt="Gmail: borradores generados por la batería; ninguno se envía sin revisión humana" src="capturas/resultado_gmail_borradores.png" /><figcaption>Gmail: borradores generados por la batería; ninguno se envía sin revisión humana</figcaption></figure>
+<figure><img alt="Gmail: log de trazabilidad por traceId" src="capturas/resultado_gmail_log.png" /><figcaption>Gmail: log de trazabilidad por traceId</figcaption></figure>
+<figure><img alt="HubSpot: llamadas de la integración (búsqueda y alta o actualización del contacto por email), todas con respuesta 200" src="capturas/resultado_hubspot.png" /><figcaption>HubSpot: llamadas de la integración (búsqueda y alta o actualización del contacto por email), todas con respuesta 200</figcaption></figure>
 <h2>Pruebas manuales por los canales reales (14 y 15/10/2026)</h2>
 <table>
 <thead>
@@ -1614,6 +1621,20 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
+<h3>Los especialistas por dentro</h3>
+<figure><img alt="AgendaBot · Receptor: valida, genera el traceId, bloquea duplicados y responde 202 antes de procesar" src="capturas/sub_receptor.png" /><figcaption>AgendaBot · Receptor: valida, genera el traceId, bloquea duplicados y responde 202 antes de procesar</figcaption></figure>
+<figure><img alt="AgendaBot · Canal Telegram: nota de voz, transcripción, pedido pendiente cuando el email se dicta y pase al Manager" src="capturas/sub_canal_telegram.png" /><figcaption>AgendaBot · Canal Telegram: nota de voz, transcripción, pedido pendiente cuando el email se dicta y pase al Manager</figcaption></figure>
+<figure><img alt="AgendaBot · Juez (supervisor): veredicto con esquema JSON, registro en QA_Veredictos y salida segura si el veredicto es inválido" src="capturas/sub_juez.png" /><figcaption>AgendaBot · Juez (supervisor): veredicto con esquema JSON, registro en QA_Veredictos y salida segura si el veredicto es inválido</figcaption></figure>
+<figure><img alt="AgendaBot · Herramienta RAG: embedding de la consulta y búsqueda en Qdrant con Top-K y puntaje mínimo" src="capturas/sub_rag.png" /><figcaption>AgendaBot · Herramienta RAG: embedding de la consulta y búsqueda en Qdrant con Top-K y puntaje mínimo</figcaption></figure>
+<figure><img alt="AgendaBot · Worker 1 · Registrar turno" src="capturas/sub_worker1.png" /><figcaption>AgendaBot · Worker 1 · Registrar turno</figcaption></figure>
+<figure><img alt="AgendaBot · Worker 2 · Confirmación" src="capturas/sub_worker2.png" /><figcaption>AgendaBot · Worker 2 · Confirmación</figcaption></figure>
+<figure><img alt="AgendaBot · Worker 3 · Consultar turnos" src="capturas/sub_worker3.png" /><figcaption>AgendaBot · Worker 3 · Consultar turnos</figcaption></figure>
+<figure><img alt="AgendaBot · Escalado humano: aviso con botones en Slack, recordatorio y respuesta al paciente por su canal" src="capturas/sub_escalado.png" /><figcaption>AgendaBot · Escalado humano: aviso con botones en Slack, recordatorio y respuesta al paciente por su canal</figcaption></figure>
+<figure><img alt="AgendaBot · Respuesta de voz: síntesis, envío y descarte del audio" src="capturas/sub_respuesta_voz.png" /><figcaption>AgendaBot · Respuesta de voz: síntesis, envío y descarte del audio</figcaption></figure>
+<figure><img alt="AgendaBot · Errores: alerta al equipo y aviso de demora al paciente por su canal" src="capturas/sub_errores.png" /><figcaption>AgendaBot · Errores: alerta al equipo y aviso de demora al paciente por su canal</figcaption></figure>
+<figure><img alt="AgendaBot · Freno de mano: cambio de estado con token y aviso en Slack" src="capturas/sub_freno.png" /><figcaption>AgendaBot · Freno de mano: cambio de estado con token y aviso en Slack</figcaption></figure>
+<figure><img alt="AgendaBot · Simulacro de falla: API externa caída a demanda, para probar la rama de error" src="capturas/sub_simulacro.png" /><figcaption>AgendaBot · Simulacro de falla: API externa caída a demanda, para probar la rama de error</figcaption></figure>
+<figure><img alt="AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones" src="capturas/sub_ingesta_kb.png" /><figcaption>AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones</figcaption></figure>
 <h2>C.2 Cómo se levanta el sistema</h2>
 <p>El sistema corre en contenedores de Docker sobre un servidor (o una computadora) con salida a internet. Levantarlo consiste en:</p>
 <ol>

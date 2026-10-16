@@ -27,6 +27,8 @@ table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9pt; b
 th, td { border: 1px solid #c8ccd2; padding: 4px 6px; vertical-align: top; text-align: left; }
 th { background: #eef2f6; }
 img { max-width: 100%; max-height: 100mm; width: auto; display: block; margin: 6px auto 2px; border: 1px solid #c8ccd2; break-inside: avoid; }
+figure { margin: 6px 0 10px; break-inside: avoid; }
+figcaption { text-align: center; font-size: 8.5pt; color: #4b5563; font-style: italic; margin-top: 2px; }
 pre { background: #f5f6f8; border: 1px solid #dde1e6; padding: 6px 8px; font-size: 8.3pt; white-space: pre-wrap; break-inside: avoid; }
 svg { display: block; margin: 8px auto; max-width: 100%; break-inside: avoid; }
 code { font-family: Consolas, monospace; font-size: 9pt; }
@@ -77,6 +79,9 @@ def main():
         for k, sv in enumerate(svgs):
             txt = txt.replace(sv, f"SVGPLACEHOLDER{k}")
         html = md.reset().convert(txt)
+        # Cada captura con su pie de figura (el texto alternativo), sin separar imagen y pie entre páginas.
+        html = re.sub(r'<p><img alt="([^"]*)" src="([^"]*)" /></p>',
+                      r'<figure><img alt="\1" src="\2" /><figcaption>\1</figcaption></figure>', html)
         for k, sv in enumerate(svgs):
             html = html.replace(f"<p>SVGPLACEHOLDER{k}</p>", sv).replace(f"SVGPLACEHOLDER{k}", sv)
         secciones.append(f'<section class="pieza" id="pieza-{i}">{html}</section>')

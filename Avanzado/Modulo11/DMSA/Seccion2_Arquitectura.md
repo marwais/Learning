@@ -99,7 +99,7 @@ El lienzo del Manager está ordenado de izquierda a derecha en **10 etapas numer
 
 **5 · Gestión de turnos con Juez.** La acción se resuelve contra la agenda y **el Juez la audita antes de escribir**. Si la acepta, los Workers registran o cambian el turno, se confirma, el contacto queda en HubSpot con sus metadatos y se arma el borrador de confirmación. Si la acción es dudosa, queda congelada y se aprueba o rechaza en Slack. Si faltan datos, se le pide al paciente lo que falta; el email, siempre por escrito.
 
-![Etapa 5: vista general](capturas/manager_etapa_05.png)
+![Etapa 5: resolución de la acción, auditoría del Juez y aprobación en Slack](capturas/manager_etapa_05a.png)
 
 ![Etapa 5: después del veredicto, Workers, confirmación, CRM y avisos](capturas/manager_etapa_05b.png)
 
@@ -152,7 +152,7 @@ Las capas que evitan duplicar registros y envíos:
 3. **Contexto:** el coordinador recibe el resumen y los datos clave; el agente de consultas, solo lo necesario para entender la pregunta.
 4. **Conteo:** cada mensaje suma uno.
 5. **Resumen:** al pasar los 5 mensajes, un modelo económico (Haiku 4.5) resume la conversación en JSON.
-6. **Actualización:** *upsert* por `Session_ID`, sin duplicar filas.
+6. **Actualización:** *upsert* por `Session_ID`, sin duplicar filas. El **estado del caso** refleja cómo terminó el último pedido: *Cerrado* (resuelto), *Pendiente* (faltan datos del paciente) o *En Revisión* (acción congelada sin aprobación humana, o derivada a una persona).
 
 **Memoria de sesión:** las últimas interacciones de la conversación, separadas para el coordinador y para el agente de consultas. Así el agente no arrastra contexto que no le corresponde.
 

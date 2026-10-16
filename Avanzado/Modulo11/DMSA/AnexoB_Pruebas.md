@@ -21,6 +21,16 @@ Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor
 | 15 | Historia clínica | Triaje rojo → persona | ✔ Triaje rojo → persona | — | 202 · 0.070 s | 2 s | 0.000000 | `trc-20261016024910-871-fkcq` |
 | 16 | Pedido duplicado | 200 "duplicado" | ✔ 200 "duplicado" | — | 200 · 0.059 s | — | 0.000000 | `trc-20261016024626-822-08y4` |
 
+## Evidencias en los sistemas conectados
+
+![Agenda_Turnos: los turnos de la batería, con traceId y columna Asistencia (se muestran solo las filas de la batería)](capturas/resultado_agenda_turnos.png)
+
+![Gmail: borradores generados por la batería; ninguno se envía sin revisión humana](capturas/resultado_gmail_borradores.png)
+
+![Gmail: log de trazabilidad por traceId](capturas/resultado_gmail_log.png)
+
+![HubSpot: llamadas de la integración (búsqueda y alta o actualización del contacto por email), todas con respuesta 200](capturas/resultado_hubspot.png)
+
 ## Pruebas manuales por los canales reales (14 y 15/10/2026)
 
 | Prueba | Resultado | `traceId` o ejecución |
