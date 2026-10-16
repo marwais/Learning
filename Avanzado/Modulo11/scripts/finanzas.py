@@ -3,7 +3,7 @@
 
 Combina lo MEDIDO en las pruebas del M11 (costo por pedido de la corrida C de la batería, con los tokens que registra
 n8n) con los volúmenes y supuestos del M9 (baseline manual). Todas las cifras se guardan sin redondear en
-Modulo11/evaluacion/finanzas_m11.json (devolución de la P8: fórmulas y valores reproducibles; P9: separar medido
+Modulo11/evaluacion/finanzas.json (devolución de la P8: fórmulas y valores reproducibles; P9: separar medido
 de proyectado).
 
 Fórmulas:
@@ -15,7 +15,7 @@ Fórmulas:
   beneficio                  = horas evitadas × valor de la hora administrativa
   retorno = (beneficio − costo total) / costo total · recupero = implementación / (beneficio − costo total)
 
-Uso:  python finanzas_m11.py
+Uso:  python finanzas.py
 """
 import json, os, sys
 sys.stdout.reconfigure(encoding="utf-8")
@@ -47,6 +47,9 @@ def main():
     tok_info = consultas * c["consulta_informativa"] * (1 + S["tasa_reintento_juez"])
     tok_gestion = gestiones * (c["accion_con_juez"] + c["mensaje_complementario"])
     tokens = tok_info + tok_gestion + resumen
+    a = medido["A (todo Sonnet 4.6)"]   # misma fórmula con los costos medidos de la corrida A, para comparar
+    tokens_todo_sonnet = (consultas * a["consulta_informativa"] * (1 + S["tasa_reintento_juez"])
+                          + gestiones * (a["accion_con_juez"] + a["mensaje_complementario"]) + resumen)
     otros = [(k, v, nota) for k, v, nota in M9["tco_usd"] if not k.startswith("Tokens")]
     otros.append(("Túnel público (ngrok, plan gratuito; en un VPS con dominio propio no hace falta)", 0.0, "medido M11"))
     tco_usd = tokens + sum(v for _, v, _ in otros)
@@ -66,17 +69,18 @@ def main():
         "volumenes_proyectados": {"consultas_informativas_mes": consultas, "gestiones_mes": gestiones,
                                   "reintentos_juez": S["tasa_reintento_juez"]},
         "tokens_mes_usd": {"consultas": tok_info, "gestiones": tok_gestion, "resumenes": resumen, "total": tokens,
-                           "M9_sin_juez_de_acciones": M9["escenarios"]["M9 actual: Sonnet + caché + resumen Haiku"]["total"]},
+                           "todo_sonnet_misma_formula": tokens_todo_sonnet,
+                           "peor_caso_consulta_3_intentos": 3 * c["consulta_informativa"]},
         "otros_servicios_usd": otros, "costo_total_usd_mes": tco_usd, "tipo_cambio": tc, "mantenimiento_pesos": mant,
         "costo_total_pesos_mes": tco_pesos, "baseline": M9["roi"], "escenarios": escenarios,
         "implementacion_pesos": M9["setup"], "costo_por_1000_consultas_usd": c["consulta_informativa"] * 1000,
         "costo_por_1000_acciones_usd": c["accion_con_juez"] * 1000,
     }
-    json.dump(out, open(os.path.join(MOD11, "evaluacion", "finanzas_m11.json"), "w", encoding="utf-8"),
+    json.dump(out, open(os.path.join(MOD11, "evaluacion", "finanzas.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print("Medido (C):", {k: round(v, 6) if isinstance(v, float) else v for k, v in c.items()})
     print(f"Tokens/mes US$ {tokens:.4f} (consultas {tok_info:.4f} + gestiones {tok_gestion:.4f} + resúmenes {resumen}) "
-          f"· M9 {out['tokens_mes_usd']['M9_sin_juez_de_acciones']}")
+          f"· todo Sonnet {tokens_todo_sonnet:.4f} · peor caso por consulta {3 * c['consulta_informativa']:.6f}")
     print(f"Costo total US$ {tco_usd:.4f}/mes = $ {tco_usd * tc:,.2f} + mantenimiento $ {mant:,} = $ {tco_pesos:,.2f}")
     for k, v in escenarios.items():
         print(f"  {k}: beneficio $ {v['beneficio']:,.2f} · neto $ {v['neto']:,.2f} · retorno {v['retorno']:.4f} · "

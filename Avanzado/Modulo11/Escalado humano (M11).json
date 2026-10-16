@@ -1,5 +1,5 @@
 {
- "name": "Escalado humano (M11)",
+ "name": "AgendaBot · Escalado humano",
  "nodes": [
   {
    "id": "106e5695-47e6-4c7e-b7bc-a55413eeaffc",
@@ -298,7 +298,7 @@
    "parameters": {
     "width": 1240,
     "height": 330,
-    "content": "## Escalado humano (M11): casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados_m11` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código.\n\n**Responder al paciente**: con *Tomo el caso*, Slack pide la respuesta (texto libre, 10 min). AgendaBot la envía por el canal del paciente (por Telegram, en audio si habló o en texto si escribió; por email, solo si hay respuesta escrita). Por defecto, en Telegram: \"Nos estaremos comunicando en breve para continuar.\""
+    "content": "## AgendaBot · Escalado humano: casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código.\n\n**Responder al paciente**: con *Tomo el caso*, Slack pide la respuesta (texto libre, 10 min). AgendaBot la envía por el canal del paciente (por Telegram, en audio si habló o en texto si escribió; por email, solo si hay respuesta escrita). Por defecto, en Telegram: \"Nos estaremos comunicando en breve para continuar.\""
    }
   },
   {
@@ -327,7 +327,7 @@
      "__rl": true,
      "value": "tblaIZxUOLY1T8g40",
      "mode": "list",
-     "cachedResultName": "Memoria_M11"
+     "cachedResultName": "Memoria_Pacientes"
     },
     "filterByFormula": "={{ '{Session_ID} = \"' + String($('Recibir caso').first().json.sessionId).replace(/\"/g,'') + '\"' }}",
     "options": {}
@@ -605,7 +605,7 @@
      "__rl": true,
      "value": "H9xkLlYia4GNS3YJ",
      "mode": "list",
-     "cachedResultName": "Respuesta de voz (M11)"
+     "cachedResultName": "AgendaBot · Respuesta de voz"
     },
     "workflowInputs": {
      "mappingMode": "defineBelow",

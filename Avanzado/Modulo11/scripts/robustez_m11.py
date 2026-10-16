@@ -161,7 +161,7 @@ def workflow_simulacro(err_id):
     nodes = [
         {"id": str(uuid.uuid4()), "name": "Webhook simulacro", "type": "n8n-nodes-base.webhook", "typeVersion": 2,
          "position": [0, 300], "webhookId": str(uuid.uuid4()),
-         "parameters": {"httpMethod": "POST", "path": "simulacro-falla-m11", "responseMode": "onReceived",
+         "parameters": {"httpMethod": "POST", "path": "simulacro-de-falla", "responseMode": "onReceived",
                         "options": {"responseCode": 202}}},
         {"id": str(uuid.uuid4()), "name": "API externa caída (simulada)", "type": "n8n-nodes-base.code",
          "typeVersion": 2, "position": [240, 300],
@@ -263,7 +263,7 @@ def main():
     print(f"Errores: {err['name']} ({err['id']}) — publicado")
     sim = crear_o_actualizar("simulacro", workflow_simulacro(err["id"]))
     republicar(sim["id"])
-    print(f"Simulacro: {sim['name']} ({sim['id']}) — activo en POST /webhook/simulacro-falla-m11")
+    print(f"Simulacro: {sim['name']} ({sim['id']}) — activo en POST /webhook/simulacro-de-falla")
     patch_manager(err["id"])
     for k in ("tool_rag", "worker1", "worker2", "worker3", "worker4", "supervisor"):
         patch_sub(k)

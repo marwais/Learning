@@ -1,5 +1,5 @@
 {
- "name": "Freno de mano (M11)",
+ "name": "AgendaBot · Freno de mano",
  "nodes": [
   {
    "id": "c4f54a39-a1c9-4a49-92ac-23e99ab02dcf",
@@ -13,15 +13,15 @@
    ],
    "parameters": {
     "httpMethod": "POST",
-    "path": "freno-m11",
+    "path": "freno-de-mano",
     "authentication": "headerAuth",
     "responseMode": "responseNode",
     "options": {}
    },
    "credentials": {
     "httpHeaderAuth": {
-     "id": "rb7HecAHkSeV22rA",
-     "name": "Freno de mano (M11)"
+     "id": "w473lQmqeQIKnnCd",
+     "name": "Freno de mano"
     }
    }
   },
@@ -177,7 +177,7 @@
    "parameters": {
     "width": 1060,
     "height": 260,
-    "content": "## Freno de mano (M11)\nPausa a AgendaBot: con `freno_de_mano = si` en la Data Table `control_m11`, el Manager deriva todos los pedidos a una persona (respuesta fija + escalado en Slack). Se activa con `POST /webhook/freno-m11` y el header `X-Freno-Token` (credencial de n8n; el valor no está en el workflow), body `{\"activo\": true, \"quien\": \"Coordinadora\"}`, o editando la tabla en n8n."
+    "content": "## AgendaBot · Freno de mano\nPausa a AgendaBot: con `freno_de_mano = si` en la Data Table `control`, el Manager deriva todos los pedidos a una persona (respuesta fija + escalado en Slack). Se activa con `POST /webhook/freno-de-mano` y el header `X-Freno-Token` (credencial de n8n; el valor no está en el workflow), body `{\"activo\": true, \"quien\": \"Coordinadora\"}`, o editando la tabla en n8n."
    }
   }
  ],

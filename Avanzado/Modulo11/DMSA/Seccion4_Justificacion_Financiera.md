@@ -1,6 +1,6 @@
 # 4. Justificación financiera
 
-Pregunta del comité: *¿esto realmente ahorra plata o es un gasto nuevo?* La respuesta compara el **costo real de operar el sistema**, medido en las pruebas, contra el **costo de la labor humana que libera**, proyectado sobre el baseline. Cada cifra va rotulada como **medida** o **proyectada**. El cálculo completo y reproducible está en `evaluacion/finanzas_m11.json`, generado por `scripts/finanzas_m11.py`.
+Pregunta del comité: *¿esto realmente ahorra plata o es un gasto nuevo?* La respuesta compara el **costo real de operar el sistema**, medido en las pruebas, contra el **costo de la labor humana que libera**, proyectado sobre el baseline. Cada cifra va rotulada como **medida** o **proyectada**. El cálculo completo y reproducible está en `evaluacion/finanzas.json`, generado por `scripts/finanzas.py`.
 
 ## 4.1 Baseline: el costo del proceso manual (proyección, supuestos declarados)
 
@@ -12,7 +12,7 @@ Pregunta del comité: *¿esto realmente ahorra plata o es un gasto nuevo?* La re
 | Confirmación o recordatorio | 1.540 | 1,0 | 25,7 | 100 % | 25,7 | $ 256.667 |
 | **Total** | | | **236,2** | | **183,3** | **$ 1.832.600** |
 
-*Supuestos (Módulo 9): 22 días hábiles, hora administrativa a $ 10.000, tipo de cambio US$ 1 = $ 1.400. La autonomía esperada es una meta del piloto, no un resultado validado. En la batería de prueba, armada con más casos difíciles que los habituales, 11 de 15 pedidos se resolvieron sin intervención humana (73 %), en línea con el 70,6 % medido en el Módulo 9.*
+*Supuestos: 22 días hábiles, hora administrativa a $ 10.000, tipo de cambio US$ 1 = $ 1.400. La autonomía esperada es una meta del piloto, no un resultado validado. En la batería de prueba, armada con más casos difíciles que los habituales, 11 de 15 pedidos se resolvieron sin intervención humana (73 %).*
 
 ## 4.2 El costo en inteligencia artificial: fórmula y valores medidos
 
@@ -50,7 +50,7 @@ La consigna pide optimizar el costo con modelos económicos. Se probaron tres co
 | B · Coordinador en Haiku 4.5 | 16 / 16 | US$ 0,0112 | 9,0 s |
 | **C · Coordinador y agente de consultas en Haiku 4.5; Juez en Sonnet 4.6** | **16 / 16** | **US$ 0,0068** | **7,5 s** |
 
-**Decisión: la configuración C.** El modelo económico hace el trabajo y el modelo fuerte lo audita. Con la misma tasa de acierto, la consulta informativa cuesta **la mitad** y el pedido promedio, **48 % menos**. La memoria se resume con Haiku 4.5 desde el Módulo 9. Además, el Juez revisa ahora también las acciones (es nuevo en el M11), y aun así el gasto mensual en IA baja respecto del Módulo 9 (US$ 68,90).
+**Decisión: la configuración C.** El modelo económico hace el trabajo y el modelo fuerte lo audita. Con la misma tasa de acierto, la consulta informativa cuesta **la mitad** y el pedido promedio, **48 % menos**. La memoria también se resume con Haiku 4.5. Con la misma fórmula de la Sección 4.4, el gasto mensual en IA sería de **US$ 105,66 con todo en Sonnet 4.6** y es de **US$ 59,91 con la configuración elegida** (43 % menos), aun con el Juez revisando también todas las acciones.
 
 ## 4.4 Costo total de operación contra labor evitada (proyección mensual)
 
@@ -84,6 +84,6 @@ La consigna pide optimizar el costo con modelos económicos. Se probaron tres co
 | Riesgo | Cómo se gestiona |
 |---|---|
 | **Saldo prepago de la API de IA agotado.** Ocurrió en las pruebas: el sistema lo alertó en castellano y lo que no depende de la IA siguió funcionando | Recarga automática con tope de gasto mensual y alerta de saldo bajo (en producción) |
-| **Picos de reintentos del Juez** ("fat loop") | Tope de 2 correcciones por respuesta; el peor caso medido en el Módulo 9 fue de US$ 0,07 por consulta |
+| **Picos de reintentos del Juez** ("fat loop") | Tope de 2 correcciones por respuesta: el peor caso (3 intentos) cuesta unas 3 veces una consulta, US$ 0,0496 |
 | **Cambios de los proveedores**: HubSpot avisó que la API que usa el nodo de n8n deja de estar disponible después de septiembre de 2027 | Lo cubre el mantenimiento mensual (8 h), que incluye adaptarse a los cambios de los proveedores |
 | **Supuestos del baseline** | La auditoría del proceso en el primer mes reemplaza los supuestos por datos medidos |

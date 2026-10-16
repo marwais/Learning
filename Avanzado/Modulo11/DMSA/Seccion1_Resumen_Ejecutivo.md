@@ -8,7 +8,7 @@ La Clínica LoDeTincho (nombre anonimizado) recibe unas **250 gestiones por día
 - En los picos, **6 minutos de espera**; fuera de horario, **1 de cada 5 contactos** queda sin respuesta hasta el día siguiente.
 - **5 % de los turnos** tiene datos incompletos o duplicados, y el error aparece cuando el paciente llega.
 
-*Baseline con supuestos declarados (relevamiento del Módulo 7 y análisis financiero del Módulo 9). Se valida con la auditoría del primer mes.*
+*Baseline con supuestos declarados (relevamiento del proceso de la Central de Turnos, detallado en la Sección 4.1). Se valida con la auditoría del primer mes.*
 
 ## La solución
 
@@ -27,11 +27,11 @@ La Clínica LoDeTincho (nombre anonimizado) recibe unas **250 gestiones por día
 | Tiempo de respuesta al sistema que pide | **0,08 s** promedio (el proceso sigue en segundo plano: 7,5 s) | Respuesta en segundos, a cualquier hora |
 | Casos rojos detectados y derivados | **9 de 9** | 100 % al equipo humano |
 | Pedidos duplicados bloqueados | **3 de 3** (más los reintentos del canal) | Ningún turno ni mensaje repetido |
-| Costo en inteligencia artificial | **US$ 0,0165** por consulta y **US$ 0,0092** por gestión de turno | **US$ 59,91** por mes |
+| Costo en inteligencia artificial | **US$ 0,0165** por consulta y **US$ 0,0092** por gestión de turno | **US$ 59,91** por mes (todo con el modelo potente: US$ 105,66) |
 | Horas de trabajo liberadas | — | **183 h/mes ($ 1.832.600)** |
 | Beneficio neto y recupero | — | **$ 1.493.521 por mes**; la implementación se recupera en **1,1 meses** |
 
-*Las proyecciones parten del baseline y de los volúmenes del Módulo 9. Las cifras medidas salen de las ejecuciones registradas, cada una con su código de seguimiento (`traceId`).*
+*Las proyecciones parten del baseline y de los volúmenes de la Sección 4.1. Las cifras medidas salen de las ejecuciones registradas, cada una con su código de seguimiento (`traceId`).*
 
 ## Riesgos y cómo se controlan
 

@@ -21,7 +21,7 @@ sys.path.insert(0, HERE)
 import _config as C  # noqa: E402
 import seguridad_p2_m11 as S  # noqa: E402
 
-VERSION = "AgendaBot M11 · juez-rubrica-v3.1"
+VERSION = "AgendaBot 1.0 · juez-rubrica-v3.1"
 ACC = "$('Recuperar acción aprobada')"
 
 

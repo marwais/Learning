@@ -1,5 +1,5 @@
 {
- "name": "Tool_ConsultarConocimiento (M11)",
+ "name": "AgendaBot · Herramienta RAG",
  "nodes": [
   {
    "id": "t1",
@@ -58,7 +58,7 @@
       {
        "id": "a4",
        "name": "coleccion",
-       "value": "kb_lodetincho_m5",
+       "value": "kb_lodetincho",
        "type": "string"
       }
      ]

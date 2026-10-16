@@ -73,9 +73,18 @@
 - [x] Saldo de Anthropic recargado por el usuario (15/10/2026); verificado con una consulta de punta a punta.
 - [ ] ~~**Saldo de la API de Anthropic agotado** (15/10/2026, 14:36): el Router devolvió "credit balance is too low". Sin crédito se paran Router, RAG y Juez; el triaje, el freno de mano y las alertas siguen andando. Lo carga el usuario en console.anthropic.com → Plans & Billing.~~
 - [x] **Lienzo legible del Manager** ([`scripts/lienzo_m11.py`](scripts/lienzo_m11.py)), por la devolución de la P8 y la Sección 2 del DMSA. Los 129 nodos quedaron en carriles de izquierda a derecha, sin superposiciones, y **10 marcos numerados** con una explicación cada uno: 1 Entrada · 2 Trazabilidad e idempotencia · 3 Seguridad · 4 Memoria y clasificación · 5 Gestión de turnos con Juez · 6 Consulta de turnos · 7 Consultas informativas con Juez · 8 Registro y memoria · 9 Respuesta y comprensión · 10 Despacho. Solo cambian posiciones y notas, no la lógica.
-- [x] **Batería de evaluación y modelos económicos** ([`scripts/bateria_m11.py`](scripts/bateria_m11.py), [`evaluacion/comparacion_modelos.md`](evaluacion/comparacion_modelos.md)). Se corrieron 16 casos con resultado esperado tres veces: A (todo Sonnet), B (Router en Haiku 4.5) y C (Router y Agente RAG en Haiku 4.5). Las tres dieron **16/16**. **Decisión: C**, con el Juez en Sonnet 4.6: el modelo económico trabaja y el fuerte audita. Cuesta US$ 0,0166 por consulta informativa (contra 0,0350 en A) y US$ 0,0092 por acción, con un proceso en segundo plano de 7,5 s de promedio y respuesta del Receptor en 0,08 s.
+- [x] **Batería de evaluación y modelos económicos** ([`scripts/bateria.py`](scripts/bateria.py), [`evaluacion/comparacion_modelos.md`](evaluacion/comparacion_modelos.md)). Se corrieron 16 casos con resultado esperado tres veces: A (todo Sonnet), B (Router en Haiku 4.5) y C (Router y Agente RAG en Haiku 4.5). Las tres dieron **16/16**. **Decisión: C**, con el Juez en Sonnet 4.6: el modelo económico trabaja y el fuerte audita. Cuesta US$ 0,0166 por consulta informativa (contra 0,0350 en A) y US$ 0,0092 por acción, con un proceso en segundo plano de 7,5 s de promedio y respuesta del Receptor en 0,08 s.
 - [x] Estructura del DMSA ([`DMSA/estructura.md`](DMSA/estructura.md)) y guion del video ([`DMSA/guion_video.md`](DMSA/guion_video.md)).
-- [ ] **Prioridad 3: redactar el DMSA.**
+- [x] **Nombres de producción, sin sufijos del curso** ([`scripts/renombrar_m11.py`](scripts/renombrar_m11.py), 16/10/2026):
+  - workflows "AgendaBot · …", webhooks `/webhook/agendabot` y `/webhook/freno-de-mano`;
+  - Data Tables `pedidos_procesados`, `escalados`, `control`, `sesiones` y `pendientes`;
+  - planillas `Agenda_Turnos` y `QA_Veredictos`, y Airtable `Memoria_Pacientes`;
+  - colección `kb_lodetincho` (copia con los mismos vectores; `kb_lodetincho_m5` queda de respaldo);
+  - credenciales nuevas "n8n API (alertas)" y "Freno de mano"; `FRENO_TOKEN` en el `.env`.
+
+  Los ids no cambiaron. Los archivos del repo conservan sus nombres.
+- [ ] Pendiente del usuario: reconectar **Google Sheets account** (venció el 16/10), renombrar en n8n la credencial "Airtable Memoria M3" a "Airtable AgendaBot", borrar (opcional) las credenciales viejas "n8n API local (M11 errores)" y "Freno de mano (M11)". Después, correr la batería E para confirmar 16/16 con los nombres nuevos. La corrida D falló en las gestiones de turnos por la credencial de Sheets.
+- [ ] **Prioridad 3: DMSA**: borrador completo; falta la revisión del usuario, la captura general nueva (cambió el nombre del Manager), la mitad izquierda de la etapa 5 y el video.
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 

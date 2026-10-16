@@ -20,8 +20,8 @@ Manager M11:
             → ¿Email? (caso rojo) → Responder caso rojo (email) → Responder al chat (despacho por el canal)
 Escalado humano (M11): registra el caso en escalados_m11 → Slack con botones "Tomo el caso" / "Falso positivo"
   (espera máx. 15 min) → registra la decisión → si nadie respondió, recordatorio en Slack.
-Freno de mano (M11): POST /webhook/freno-m11 (header X-Freno-Token; el valor está en Modulo5/scripts/.env como
-  FRENO_TOKEN_M11) con {"activo": true|false, "quien": "..."} → actualiza control_m11 → avisa en Slack.
+Freno de mano (M11): POST /webhook/freno-de-mano (header X-Freno-Token; el valor está en Modulo5/scripts/.env como
+  FRENO_TOKEN) con {"activo": true|false, "quien": "..."} → actualiza control_m11 → avisa en Slack.
 
 Uso:  python seguridad_p2_m11.py      # idempotente
 """
@@ -241,14 +241,14 @@ def credencial_freno():
     AUX["cred_freno"] = r["id"]
     json.dump(AUX, open(AUX_PATH, "w"), indent=1)
     with open(ENV, "a", encoding="utf-8") as f:  # .env está fuera de git
-        f.write(f"\nFRENO_TOKEN_M11={token}\n")
+        f.write(f"\nFRENO_TOKEN={token}\n")
     return r["id"]
 
 
 def freno(cred):
     nodes = [
         nodo("Webhook freno de mano", "n8n-nodes-base.webhook", 2, [0, 300],
-             {"httpMethod": "POST", "path": "freno-m11", "authentication": "headerAuth", "responseMode": "responseNode",
+             {"httpMethod": "POST", "path": "freno-de-mano", "authentication": "headerAuth", "responseMode": "responseNode",
               "options": {}},
              credentials={"httpHeaderAuth": {"id": cred, "name": "Freno de mano (M11)"}}, webhookId=str(uuid.uuid4())),
         set_campos("Nuevo estado", [220, 300],
@@ -267,7 +267,7 @@ def freno(cred):
         nota([-40, -20], 1060, 260,
              "## Freno de mano (M11)\nPausa a AgendaBot: con `freno_de_mano = si` en la Data Table `control_m11`, el "
              "Manager deriva todos los pedidos a una persona (respuesta fija + escalado en Slack). Se activa con "
-             "`POST /webhook/freno-m11` y el header `X-Freno-Token` (credencial de n8n; el valor no está en el workflow), "
+             "`POST /webhook/freno-de-mano` y el header `X-Freno-Token` (credencial de n8n; el valor no está en el workflow), "
              "body `{\"activo\": true, \"quien\": \"Coordinadora\"}`, o editando la tabla en n8n."),
     ]
     con = {}
@@ -277,7 +277,7 @@ def freno(cred):
     r = guardar("freno_de_mano", {"name": "Freno de mano (M11)", "nodes": nodes, "connections": con,
                                   "settings": {**BASE_SETTINGS, "errorWorkflow": IDS["errores"]}})
     republicar(r["id"])
-    print(f"Freno de mano: {r['id']} — publicado en POST /webhook/freno-m11")
+    print(f"Freno de mano: {r['id']} — publicado en POST /webhook/freno-de-mano")
 
 
 # ------------------------------------------------------------------ 3. Receptor sin nodos Code
@@ -324,7 +324,7 @@ def receptor():
                   "detalle: 'Este pedido ya se había recibido: no se procesa de nuevo.' }) }}", 200),
         nota([-40, -20], 2200, 240,
              "## Receptor (M11): petición asincrónica e idempotente\nUn sistema externo (web de turnos, app, CRM) manda "
-             "`POST /webhook/agendabot-m11` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor "
+             "`POST /webhook/agendabot` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor "
              "**responde al instante** (202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya "
              "está en la Data Table `pedidos_procesados_m11`) y le pasa el pedido al **Manager** sin esperarlo: el "
              "análisis, el Juez y el registro ocurren en segundo plano. Todo con nodos visuales, sin código."),

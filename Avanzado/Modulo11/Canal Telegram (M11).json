@@ -1,5 +1,5 @@
 {
- "name": "Canal Telegram (M11)",
+ "name": "AgendaBot · Canal Telegram",
  "nodes": [
   {
    "id": "6a371300-cdbc-443b-a79e-62d21e605d48",
@@ -282,7 +282,7 @@
     "width": 1960,
     "height": 760,
     "color": 4,
-    "content": "## Capa de voz (M11) — entrada"
+    "content": "## Capa de voz — entrada"
    }
   },
   {
@@ -299,7 +299,7 @@
      "__rl": true,
      "value": "zLiXJWDV3i8OGJCK",
      "mode": "list",
-     "cachedResultName": "AI Automation Avanzado - M11"
+     "cachedResultName": "AgendaBot · Manager"
     },
     "workflowInputs": {
      "mappingMode": "defineBelow",
@@ -545,7 +545,7 @@
    "parameters": {
     "width": 1140,
     "height": 200,
-    "content": "## Pedido pendiente (email dictado)\nSi la nota de voz dicta un email, se guarda la transcripción en la Data Table `pendientes_m11` y se le pide el email por texto. Cuando llega un texto con @ (dentro de 30 min), se une con el pedido guardado y recién ahí pasa al Manager: el pedido no se pierde y el email es el escrito. La transcripción (solo texto) se borra al usarse."
+    "content": "## Pedido pendiente (email dictado)\nSi la nota de voz dicta un email, se guarda la transcripción en la Data Table `pendientes` y se le pide el email por texto. Cuando llega un texto con @ (dentro de 30 min), se une con el pedido guardado y recién ahí pasa al Manager: el pedido no se pierde y el email es el escrito. La transcripción (solo texto) se borra al usarse."
    }
   },
   {
@@ -592,7 +592,7 @@
      "__rl": true,
      "value": "H9xkLlYia4GNS3YJ",
      "mode": "list",
-     "cachedResultName": "Respuesta de voz (M11)"
+     "cachedResultName": "AgendaBot · Respuesta de voz"
     },
     "workflowInputs": {
      "mappingMode": "defineBelow",

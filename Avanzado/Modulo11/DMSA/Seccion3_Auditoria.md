@@ -23,7 +23,7 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 - **Respuesta informativa:** con CORREGIR, el agente la rehace con la crítica del Juez, hasta 2 veces. Con RECHAZADO, o si se agotan los reintentos, pasa a una persona en Slack con los botones *Aprobar / Editar*.
 - **Acción:** no se corrige sola. Con CORREGIR o RECHAZADO **se congela la autonomía**: la acción queda en una cola de aprobación en Slack (*Aprobar / Rechazar*, espera máxima de 15 minutos). Si nadie aprueba, no se ejecuta.
 
-**Controles adicionales:** reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión de las instrucciones del Juez registrada con su huella (`juez-rubrica-v3.1`, sha256 `5d369ceb1dc7`) y un **log de auditoría en JSON** por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en `QA_Veredictos (11)`.
+**Controles adicionales:** reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión de las instrucciones del Juez registrada con su huella (`juez-rubrica-v3.1`, sha256 `5d369ceb1dc7`) y un **log de auditoría en JSON** por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en `QA_Veredictos`.
 
 ## 3.2 La frontera de la autonomía
 
@@ -34,7 +34,7 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 | Consultar los turnos propios, avisos de datos faltantes, confirmaciones (borrador de Gmail) | Respuestas informativas rechazadas o que no mejoran tras 2 correcciones |
 | | Dos pedidos seguidos que el sistema no puede atender, y todo mientras el freno de mano está activo |
 
-**Contingencia y reversión** (devolución de la P10):
+**Contingencia y reversión:**
 
 | Si pasa esto | El sistema hace | Cómo se revierte |
 |---|---|---|
@@ -75,7 +75,7 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 ```json
 { "traceId": "trc-20261015025615-592-o5wf", "parentExecutionId": "592", "executionId": "593",
   "agentNode": "Router + Resolver accion (acción propuesta)",
-  "systemPromptSnapshot": { "version": "juez-rubrica-v3.1 (M11: acciones + «No sé»)", "sha256": "5d369ceb1dc7" },
+  "systemPromptSnapshot": { "sha256": "5d369ceb1dc7" },
   "confidenceScore": 0.4, "decision": { "estado_veredicto": "CORREGIR", "ruta": "escalar (acción congelada)", "intento": 1 } }
 ```
 
@@ -108,6 +108,6 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 | Duplicados bloqueados | **3 / 3** | Mismo `traceId` devuelto, sin volver a procesar |
 | Respuesta del Receptor | **0,083 s** promedio | Proceso completo en segundo plano: 7,5 s promedio (configuración elegida) |
 
-**Cómo leer estas cifras:** son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en `QA_Veredictos (11)`, filtrando por `traceId`. En el análisis del Módulo 9, la resolución autónoma medida fue del **70,6 %**; el resto se corrigió o pasó a una persona antes de llegar al paciente.
+**Cómo leer estas cifras:** son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en `QA_Veredictos`, filtrando por `traceId`.
 
 **Mejoras detectadas en la auditoría:** el enmascarado de datos personales del log es algo excesivo (confunde algunos códigos numéricos de turno con teléfonos). Se ajustará sin dejar de proteger los datos.

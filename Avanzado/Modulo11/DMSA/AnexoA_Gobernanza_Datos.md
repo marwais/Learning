@@ -9,39 +9,39 @@
 | `WEBHOOK_URL` | Contenedor de n8n | Dirección pública del sistema (dominio fijo del túnel): webhooks, Telegram y botones de Slack |
 | `N8N_EDITOR_BASE_URL` | Contenedor de n8n | Dirección local del editor (`http://localhost:5678`): retorno de las autorizaciones OAuth de Google |
 | `N8N_API_KEY` | `.env` | Scripts de despliegue, pruebas y exportación por la API de n8n |
-| `N8N_BASE`, `QDRANT_URL`, `QDRANT_COLLECTION`, `EMBED_DIM` | `.env` | Direcciones de n8n y de la base de conocimiento (colección `kb_lodetincho_m5`, 1.024 dimensiones) |
+| `N8N_BASE`, `QDRANT_URL`, `QDRANT_COLLECTION`, `EMBED_DIM` | `.env` | Direcciones de n8n y de la base de conocimiento (colección `kb_lodetincho`, 1.024 dimensiones) |
 | `LLAMA_CLOUD_API_KEY` | `.env` | Procesamiento de los documentos oficiales con LlamaParse (ingesta) |
 | `NGROK_AUTHTOKEN`, `NGROK_DOMAIN` | `.env` | Túnel público con dominio fijo |
-| `FRENO_TOKEN_M11` | `.env` | Token del encabezado `X-Freno-Token` para activar o desactivar el freno de mano |
+| `FRENO_TOKEN` | `.env` | Token del encabezado `X-Freno-Token` para activar o desactivar el freno de mano |
 
 ## A.2 Credenciales de n8n (solo nombres)
 
 | Credencial | Tipo | Usada por |
 |---|---|---|
 | Anthropic account | API de Anthropic (Claude) | Manager (coordinador, agente, resumen) y Juez |
-| OpenAI account | API de OpenAI (Whisper) | Canal Telegram |
-| ElevenLabs account | API de ElevenLabs | Respuesta de voz |
+| OpenAI account | API de OpenAI (Whisper) | AgendaBot · Canal Telegram |
+| ElevenLabs account | API de ElevenLabs | AgendaBot · Respuesta de voz |
 | Cohere n8n | API de Cohere (embeddings) | Herramienta RAG e Ingesta KB |
-| Qdrant local | API de Qdrant | Ingesta KB |
+| Qdrant local | API de Qdrant | AgendaBot · Ingesta KB |
 | Google Sheets account / Gmail account | OAuth 2 de Google | Agenda, veredictos, borradores, respuestas y avisos |
-| Airtable Memoria M3 | Token de Airtable | Memoria del paciente |
+| Airtable AgendaBot | Token de Airtable | Memoria del paciente |
 | HubSpot AgendaBot (App Token) | App privada de HubSpot | Contactos (solo lectura y escritura de contactos) |
 | Slack account | OAuth 2 de Slack | Avisos, aprobaciones y escalados |
 | Telegram account | Bot de Telegram | Canal Telegram, respuestas y avisos |
-| n8n API local (M11 errores) | Encabezado | Errores: lee la ejecución fallida |
-| Freno de mano (M11) | Encabezado | Protege el webhook del freno de mano |
+| n8n API (alertas) | Encabezado | Errores: lee la ejecución fallida |
+| Freno de mano | Encabezado | Protege el webhook del freno de mano |
 
 ## A.3 Estructuras de datos
 
 | Tabla | Dónde | Campos | Clave |
 |---|---|---|---|
-| `Agenda_Turnos (11)` | Google Sheets | ID, Fecha, Hora, Nombre, Motivo, Estado, Email, `traceId`, Asistencia | ID = `T-` + clave del pedido |
-| `Memoria_M11` | Airtable | Session_ID, Fecha de Actualización, Resumen Consolidado, Estado del Caso, Datos Clave, Mensajes, Ultimo_traceId | Session_ID |
-| `QA_Veredictos (11)` | Google Sheets | fecha, origen, caso, intento, pregunta y respuesta (enmascaradas), exactitud_factual, estado_veredicto, crítica, ruta, `traceId`, versión del prompt, log JSON | `traceId` + intento |
-| `pedidos_procesados_m11` | Data Table de n8n | clave, `traceId`, canal | clave |
-| `escalados_m11` | Data Table de n8n | `traceId`, categoría, canal, sesión, mensaje, estado, decisión | `traceId` |
-| `control_m11` | Data Table de n8n | clave (`freno_de_mano`), valor (`si`/`no`), actualizado_por | clave |
-| `sesiones_m11` / `pendientes_m11` | Data Tables de n8n | Fallas de comprensión y pedidos que esperan el email por escrito | sesión |
+| `Agenda_Turnos` | Google Sheets | ID, Fecha, Hora, Nombre, Motivo, Estado, Email, `traceId`, Asistencia | ID = `T-` + clave del pedido |
+| `Memoria_Pacientes` | Airtable | Session_ID, Fecha de Actualización, Resumen Consolidado, Estado del Caso, Datos Clave, Mensajes, Ultimo_traceId | Session_ID |
+| `QA_Veredictos` | Google Sheets | fecha, origen, caso, intento, pregunta y respuesta (enmascaradas), exactitud_factual, estado_veredicto, crítica, ruta, `traceId`, versión del prompt, log JSON | `traceId` + intento |
+| `pedidos_procesados` | Data Table de n8n | clave, `traceId`, canal | clave |
+| `escalados` | Data Table de n8n | `traceId`, categoría, canal, sesión, mensaje, estado, decisión | `traceId` |
+| `control` | Data Table de n8n | clave (`freno_de_mano`), valor (`si`/`no`), actualizado_por | clave |
+| `sesiones` / `pendientes` | Data Tables de n8n | Fallas de comprensión y pedidos que esperan el email por escrito | sesión |
 | Contacto | HubSpot | email, nombre, `agendabot_origen`, `agendabot_trace_id`, `agendabot_canal`, `agendabot_ultima_interaccion`, `agendabot_turno`, `agendabot_veredicto_juez`, `agendabot_aprobado_por`, `agendabot_version` | email |
 | Biblioteca oficial | Qdrant | contenido del fragmento y metadatos: fuente, sección (ruta de títulos), archivo | id del fragmento |
 
@@ -49,9 +49,9 @@
 
 | Conexión | Parámetro |
 |---|---|
-| Petición de pedidos | `POST {WEBHOOK_URL}/webhook/agendabot-m11` · cuerpo JSON: `request_id`, `mensaje`, `nombre`, `email` y/o `tg_chat_id` (o el encabezado `Idempotency-Key`) |
-| Freno de mano | `POST {WEBHOOK_URL}/webhook/freno-m11` · encabezado `X-Freno-Token` · cuerpo `{"activo": true/false, "quien": "…"}` |
-| Base de conocimiento | Qdrant `/collections/kb_lodetincho_m5/points/search` · Top-K 5 · puntaje mínimo 0,60 |
+| Petición de pedidos | `POST {WEBHOOK_URL}/webhook/agendabot` · cuerpo JSON: `request_id`, `mensaje`, `nombre`, `email` y/o `tg_chat_id` (o el encabezado `Idempotency-Key`) |
+| Freno de mano | `POST {WEBHOOK_URL}/webhook/freno-de-mano` · encabezado `X-Freno-Token` · cuerpo `{"activo": true/false, "quien": "…"}` |
+| Base de conocimiento | Qdrant `/collections/kb_lodetincho/points/search` · Top-K 5 · puntaje mínimo 0,60 |
 | Modelos | Coordinador y agente: `claude-haiku-4-5`; Juez: `claude-sonnet-4-6`; voz: `eleven_multilingual_v2` (es); transcripción: Whisper (es) |
 
 ## A.5 Proveedores: desarrollo hoy, requisito para producción y alternativa empresarial
@@ -72,7 +72,7 @@
 
 ## A.6 Privacidad
 
-- **Audios** (devolución de la P6): la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en *Respuesta de voz*. **Ninguno de los dos guarda ejecuciones** (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.
+- **Audios:** la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en *Respuesta de voz*. **Ninguno de los dos guarda ejecuciones** (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.
 - **Log de auditoría:** el nombre, el email, el DNI y el teléfono se enmascaran antes de guardarse (`[NOMBRE]`, `[EMAIL]`, `[DNI]`, `[TEL]`).
 - **Biblioteca anonimizada:** la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.
 - **Mínimo privilegio:** cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).

@@ -2,7 +2,7 @@
 """Proyecto Final (M11) — Prioridad 1, paso 1: petición asincrónica por webhook.
 
 Manager M11:
-  - POST /webhook/agendabot-m11 -> "Entrada webhook" (valida: request_id, mensaje y un canal de respuesta)
+  - POST /webhook/agendabot -> "Entrada webhook" (valida: request_id, mensaje y un canal de respuesta)
     -> si falta algo, responde 400 al instante; si no, entra al flujo común por "Normalizar entrada".
   - Orden nuevo al inicio: Normalizar entrada -> Generar traceId -> Control de idempotencia (marca los
     repetidos y recuerda su traceId) -> ¿Vino por webhook? -> "Responder recibido (202)" con el traceId
@@ -121,7 +121,7 @@ def main():
         eq = {"type": "string", "operation": "equals"}
         nuevos = [
             nodo("Webhook (petición asincrónica)", "n8n-nodes-base.webhook", 2, [-1760, -150],
-                 {"httpMethod": "POST", "path": "agendabot-m11", "responseMode": "responseNode", "options": {}},
+                 {"httpMethod": "POST", "path": "agendabot", "responseMode": "responseNode", "options": {}},
                  webhookId=str(uuid.uuid4())),
             nodo("Entrada webhook", "n8n-nodes-base.code", 2, [-1540, -150], {"jsCode": ENTRADA_WEBHOOK}),
             cond_if(si_tg, "¿Petición válida?", [-1320, -150], "={{ $json.valido }}",
@@ -204,7 +204,7 @@ def main():
     except Exception:
         pass
     C.n8n("POST", f"/workflows/{IDS['manager']}/activate")
-    print(f"Manager: {r['name']} — {len(r['nodes'])} nodos, publicado. POST /webhook/agendabot-m11")
+    print(f"Manager: {r['name']} — {len(r['nodes'])} nodos, publicado. POST /webhook/agendabot")
     w = C.n8n("GET", f"/workflows/{IDS['manager']}")
     w = {k: w[k] for k in ("name", "nodes", "connections", "settings") if k in w}
     json.dump(w, open(os.path.join(MOD11, "AI Automation Avanzado - M11.json"), "w", encoding="utf-8"),

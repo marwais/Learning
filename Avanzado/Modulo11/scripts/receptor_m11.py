@@ -6,7 +6,7 @@ idempotencia del webhook vive en el Manager (que tarda ~20 s), un reintento que 
 la clave y se procesa dos veces. El Receptor termina en menos de un segundo, así que su memoria queda
 guardada antes de que llegue cualquier reintento.
 
-Receptor (M11): Webhook POST /webhook/agendabot-m11 -> Entrada webhook (valida) -> ¿Petición válida?
+Receptor (M11): Webhook POST /webhook/agendabot -> Entrada webhook (valida) -> ¿Petición válida?
   -> 400 | Generar traceId -> Control de idempotencia -> Responder (202 recibido / 200 duplicado)
   -> ¿Pedido nuevo? -> "Procesar en segundo plano (Manager)" (Execute Workflow sin esperar).
 Manager M11: se quitan los nodos del webhook que instaló webhook_m11.py y se agrega el disparador
@@ -86,7 +86,7 @@ def receptor(manager_id, if_base):
     n, c = W.nodo, W.cond_if
     nodes = [
         n("Webhook (petición asincrónica)", "n8n-nodes-base.webhook", 2, [0, 300],
-          {"httpMethod": "POST", "path": "agendabot-m11", "responseMode": "responseNode", "options": {}},
+          {"httpMethod": "POST", "path": "agendabot", "responseMode": "responseNode", "options": {}},
           webhookId=str(uuid.uuid4())),
         n("Entrada webhook", "n8n-nodes-base.code", 2, [220, 300], {"jsCode": W.ENTRADA_WEBHOOK}),
         c(if_base, "¿Petición válida?", [440, 300], "={{ $json.valido }}",
@@ -112,7 +112,7 @@ def receptor(manager_id, if_base):
         n("Nota", "n8n-nodes-base.stickyNote", 1, [-40, -20],
           {"width": 1760, "height": 240, "content":
            "## Receptor (M11): petición asincrónica e idempotente\n"
-           "Un sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot-m11` con "
+           "Un sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot` con "
            "`request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor **responde al instante** "
            "(202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya se recibió) y le "
            "pasa el pedido al **Manager** sin esperarlo: el análisis, el Juez y el registro ocurren en segundo "
@@ -181,7 +181,7 @@ def main():
     C.n8n("PUT", f"/workflows/{r['id']}", {"name": w2["name"], "nodes": w2["nodes"], "connections": w2["connections"],
                                            "settings": {**body["settings"], "errorWorkflow": IDS["errores"]}})
     republicar(r["id"])
-    print(f"Receptor: {r['name']} ({r['id']}) — publicado en POST /webhook/agendabot-m11")
+    print(f"Receptor: {r['name']} ({r['id']}) — publicado en POST /webhook/agendabot")
     for wid, archivo in [(IDS["manager"], "AI Automation Avanzado - M11.json"), (r["id"], "Receptor (M11).json")]:
         x = C.n8n("GET", f"/workflows/{wid}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings") if k in x}

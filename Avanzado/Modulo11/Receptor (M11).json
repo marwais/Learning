@@ -1,5 +1,5 @@
 {
- "name": "Receptor (M11)",
+ "name": "AgendaBot · Receptor",
  "nodes": [
   {
    "id": "87496ef0-4571-48ae-b645-c1fa3db5e741",
@@ -13,7 +13,7 @@
    ],
    "parameters": {
     "httpMethod": "POST",
-    "path": "agendabot-m11",
+    "path": "agendabot",
     "responseMode": "responseNode",
     "options": {}
    }
@@ -334,7 +334,7 @@
      "__rl": true,
      "value": "zLiXJWDV3i8OGJCK",
      "mode": "list",
-     "cachedResultName": "AI Automation Avanzado - M11"
+     "cachedResultName": "AgendaBot · Manager"
     },
     "workflowInputs": {
      "mappingMode": "defineBelow",
@@ -378,7 +378,7 @@
    "parameters": {
     "width": 2200,
     "height": 240,
-    "content": "## Receptor (M11): petición asincrónica e idempotente\nUn sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot-m11` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor **responde al instante** (202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya está en la Data Table `pedidos_procesados_m11`) y le pasa el pedido al **Manager** sin esperarlo: el análisis, el Juez y el registro ocurren en segundo plano. Todo con nodos visuales, sin código."
+    "content": "## AgendaBot · Receptor: petición asincrónica e idempotente\nUn sistema externo (web de turnos, app, CRM) manda `POST /webhook/agendabot` con `request_id`, `mensaje`, `nombre` y `email` y/o `tg_chat_id`. El Receptor **responde al instante** (202 con el traceId; 400 si falta un dato; 200 \"duplicado\" si el request_id ya está en la Data Table `pedidos_procesados`) y le pasa el pedido al **Manager** sin esperarlo: el análisis, el Juez y el registro ocurren en segundo plano. Todo con nodos visuales, sin código."
    }
   }
  ],

@@ -1,8 +1,8 @@
 # Anexo B. Pruebas de punta a punta
 
-Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el `traceId` (devolución de la P8). Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: `evaluacion/bateria_A.json`, `_B.json` y `_C.json`.
+Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el `traceId`. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: `evaluacion/bateria_A.json`, `_B.json` y `_C.json`.
 
-| # | Caso | Ruta esperada | Ruta obtenida | Juez | Receptor | Proceso | US$ | `traceId` |
+| # | Caso | Ruta esperada | Ruta obtenida | Juez | AgendaBot · Receptor | Proceso | US$ | `traceId` |
 |---|---|---|---|---|---:|---:|---:|---|
 | 1 | Consulta informativa | Respuesta aceptada por el Juez | ✔ Respuesta aceptada por el Juez | ACEPTADO 4/5 | 202 · 0.082 s | 9 s | 0.018347 | `trc-20261016024626-822-08y4` |
 | 2 | Consulta informal (sinónimos) | Respuesta aceptada por el Juez | ✔ Respuesta aceptada por el Juez | ACEPTADO 5/5 | 202 · 0.131 s | 11 s | 0.017607 | `trc-20261016024638-826-3ei7` |
@@ -28,6 +28,6 @@ Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor
 | Nota de voz por Telegram con el email dictado | El email se pide por escrito (respuesta en audio y aclaración en texto); al escribirlo se une con el pedido guardado y se registra el turno | Ejecuciones 669 y 673 |
 | Nota de voz con email transcripto sin @ | El Juez congeló el alta (CORREGIR 2/5); nada escrito | `trc-20261015025615-592-o5wf` |
 | Urgencia por nota de voz | Respuesta inmediata con el 107 y la guardia; caso en Slack con los botones *Tomo el caso / Falso positivo* | `trc-20261015164506-679-j7tk` |
-| Freno de mano | Token falso → 403; activado → todo a atención humana; desactivado → vuelve a atender | 15/10/2026 |
+| AgendaBot · Freno de mano | Token falso → 403; activado → todo a atención humana; desactivado → vuelve a atender | 15/10/2026 |
 | Simulacro de falla y fallas reales (403 de Sheets, Gmail vencido, saldo agotado) | Alerta en castellano en Slack con el `traceId`, el paciente y su mensaje | Ejecuciones 498, 515, 683, 686 |
 | Alta con contacto en HubSpot | Contacto con origen AgendaBot, código de seguimiento, turno, veredicto del Juez y aprobado por | `trc-20261015094543-607-vmtl` |

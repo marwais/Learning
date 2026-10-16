@@ -1,5 +1,5 @@
 {
- "name": "Respuesta de voz (M11)",
+ "name": "AgendaBot · Respuesta de voz",
  "nodes": [
   {
    "id": "76da0738-07d9-4fb1-a983-a5b5c64d27f8",
@@ -108,7 +108,7 @@
    "parameters": {
     "width": 920,
     "height": 240,
-    "content": "## Respuesta de voz (M11): privacidad de los audios\nSintetiza la respuesta (máx. 200 caracteres) con ElevenLabs, la manda como nota de voz y **descarta el binario**: devuelve solo metadatos. Este workflow **no guarda ninguna ejecución** (ni con éxito ni con error), así que el audio solo existe en memoria durante el envío. Lo mismo hace el Canal Telegram con la nota de voz del paciente (devolución de la P6).\n\n**Voz uniforme**: estabilidad 0,80 y similitud 0,90 (con 0,55 la misma voz sonaba distinta entre frases cortas y largas)."
+    "content": "## AgendaBot · Respuesta de voz: privacidad de los audios\nSintetiza la respuesta (máx. 200 caracteres) con ElevenLabs, la manda como nota de voz y **descarta el binario**: devuelve solo metadatos. Este workflow **no guarda ninguna ejecución** (ni con éxito ni con error), así que el audio solo existe en memoria durante el envío. Lo mismo hace el Canal Telegram con la nota de voz del paciente (devolución de la P6).\n\n**Voz uniforme**: estabilidad 0,80 y similitud 0,90 (con 0,55 la misma voz sonaba distinta entre frases cortas y largas)."
    }
   }
  ],

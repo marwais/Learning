@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Cliente de prueba del Receptor (M11): manda un pedido por POST /webhook/agendabot-m11 (UTF-8) y mide la respuesta.
+"""Cliente de prueba del Receptor (M11): manda un pedido por POST /webhook/agendabot (UTF-8) y mide la respuesta.
 
 Uso:  python probar_webhook.py <request_id> "<mensaje>" [--email x@y] [--nombre "N"] [--tg 123] [--esperar]
       --esperar: espera a que termine la ejecución del Manager con ese traceId y muestra su recorrido.
@@ -10,7 +10,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "Modulo5", "scripts"))
 import _config as C  # noqa: E402
 
-URL = C.N8N_BASE + "/webhook/agendabot-m11"
+URL = C.N8N_BASE + "/webhook/agendabot"
 IDS = json.load(open(os.path.join(HERE, "..", "_ids_m11.json")))
 
 

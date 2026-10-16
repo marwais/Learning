@@ -1,5 +1,5 @@
 {
- "name": "Errores (M11)",
+ "name": "AgendaBot · Errores",
  "nodes": [
   {
    "id": "c7c81a98-221d-473d-a88d-b4fe4dcc75ea",
@@ -44,8 +44,8 @@
    },
    "credentials": {
     "httpHeaderAuth": {
-     "id": "m8UwVgownpxlwsRa",
-     "name": "n8n API local (M11 errores)"
+     "id": "CEocZF5fyxCmS6QK",
+     "name": "n8n API (alertas)"
     }
    }
   },
@@ -172,7 +172,7 @@
    "parameters": {
     "width": 1000,
     "height": 220,
-    "content": "## Errores (M11): rama de error de grado industrial\nSe dispara cuando falla una ejecución del Manager M11 (o del simulacro). Lee la ejecución fallida por la API de n8n para recuperar el **traceId** y el canal del paciente, **alerta al equipo humano en Slack** (#soporte) y le avisa al paciente que hay demoras: por Telegram si escribió por ahí, o por email (texto fijo) si escribió por email o por el webhook. Credencial: encabezado `X-N8N-API-KEY` guardado en las credenciales de n8n (el valor no está en el workflow)."
+    "content": "## AgendaBot · Errores: rama de error de grado industrial\nSe dispara cuando falla una ejecución del Manager, del Receptor o de un canal (o del simulacro). Lee la ejecución fallida por la API de n8n para recuperar el **traceId** y el canal del paciente, **alerta al equipo humano en Slack** (#soporte) y le avisa al paciente que hay demoras: por Telegram si escribió por ahí, o por email (texto fijo) si escribió por email o por el webhook. Credencial: encabezado `X-N8N-API-KEY` guardado en las credenciales de n8n (el valor no está en el workflow)."
    }
   },
   {

@@ -36,7 +36,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li>En los picos, <strong>6 minutos de espera</strong>; fuera de horario, <strong>1 de cada 5 contactos</strong> queda sin respuesta hasta el día siguiente.</li>
 <li><strong>5 % de los turnos</strong> tiene datos incompletos o duplicados, y el error aparece cuando el paciente llega.</li>
 </ul>
-<p><em>Baseline con supuestos declarados (relevamiento del Módulo 7 y análisis financiero del Módulo 9). Se valida con la auditoría del primer mes.</em></p>
+<p><em>Baseline con supuestos declarados (relevamiento del proceso de la Central de Turnos, detallado en la Sección 4.1). Se valida con la auditoría del primer mes.</em></p>
 <h2>La solución</h2>
 <p><strong>AgendaBot es una Central de Turnos digital que atiende las 24 horas por el canal que el paciente ya usa (Telegram, con texto o notas de voz; email; la web de turnos y el chat) y deja lo delicado en manos del equipo.</strong> Funciona como un equipo de especialistas virtuales coordinados:</p>
 <ul>
@@ -78,7 +78,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <tr>
 <td>Costo en inteligencia artificial</td>
 <td><strong>US$ 0,0165</strong> por consulta y <strong>US$ 0,0092</strong> por gestión de turno</td>
-<td><strong>US$ 59,91</strong> por mes</td>
+<td><strong>US$ 59,91</strong> por mes (todo con el modelo potente: US$ 105,66)</td>
 </tr>
 <tr>
 <td>Horas de trabajo liberadas</td>
@@ -92,7 +92,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
-<p><em>Las proyecciones parten del baseline y de los volúmenes del Módulo 9. Las cifras medidas salen de las ejecuciones registradas, cada una con su código de seguimiento (<code>traceId</code>).</em></p>
+<p><em>Las proyecciones parten del baseline y de los volúmenes de la Sección 4.1. Las cifras medidas salen de las ejecuciones registradas, cada una con su código de seguimiento (<code>traceId</code>).</em></p>
 <h2>Riesgos y cómo se controlan</h2>
 <table>
 <thead>
@@ -222,15 +222,15 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </thead>
 <tbody>
 <tr>
-<td><strong>Receptor (M11)</strong></td>
+<td><strong>Receptor</strong></td>
 <td>Recibe pedidos por webhook, valida, responde al instante y le pasa el pedido al Manager sin esperarlo</td>
 </tr>
 <tr>
-<td><strong>Canal Telegram (M11)</strong></td>
+<td><strong>Canal Telegram</strong></td>
 <td>Recibe texto o notas de voz, transcribe (Whisper), descarta el audio, maneja el email dictado y pasa el pedido al Manager</td>
 </tr>
 <tr>
-<td><strong>AI Automation Avanzado - M11</strong> (Manager)</td>
+<td><strong>Manager</strong> (coordinador)</td>
 <td>Coordina el recorrido en 10 etapas (2.2)</td>
 </tr>
 <tr>
@@ -238,11 +238,11 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td>Registrar, confirmar, consultar y modificar turnos en la agenda</td>
 </tr>
 <tr>
-<td><strong>Tool_ConsultarConocimiento</strong></td>
+<td><strong>Herramienta RAG</strong></td>
 <td>Búsqueda en la biblioteca oficial con Top-K y puntaje mínimo</td>
 </tr>
 <tr>
-<td><strong>SUPERVISOR_Judge</strong></td>
+<td><strong>Juez (supervisor)</strong></td>
 <td>Auditoría con rúbrica JSON de respuestas y acciones</td>
 </tr>
 <tr>
@@ -279,11 +279,13 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <p><strong>4 · Memoria y clasificación.</strong> Se recupera la memoria del paciente y el coordinador clasifica el pedido (crear, modificar o consultar un turno; información; fuera de alcance) y extrae los datos.</p>
 <p><img alt="Etapa 4" src="capturas/manager_etapa_04.png" /></p>
 <p><strong>5 · Gestión de turnos con Juez.</strong> La acción se resuelve contra la agenda y <strong>el Juez la audita antes de escribir</strong>. Si la acepta, los Workers registran o cambian el turno, se confirma, el contacto queda en HubSpot con sus metadatos y se arma el borrador de confirmación. Si la acción es dudosa, queda congelada y se aprueba o rechaza en Slack. Si faltan datos, se le pide al paciente lo que falta; el email, siempre por escrito.</p>
-<p><img alt="Etapa 5" src="capturas/manager_etapa_05.png" /></p>
+<p><img alt="Etapa 5: vista general" src="capturas/manager_etapa_05.png" /></p>
+<p><img alt="Etapa 5: después del veredicto, Workers, confirmación, CRM y avisos" src="capturas/manager_etapa_05b.png" /></p>
 <p><strong>6 · Consulta de turnos.</strong> El Worker 3 lista los turnos futuros de la persona (solo lectura).</p>
 <p><img alt="Etapa 6" src="capturas/manager_etapa_06.png" /></p>
 <p><strong>7 · Consultas informativas con Juez.</strong> El agente responde solo con la biblioteca oficial, cita la fuente o dice «No sé». El Juez evalúa cada respuesta: la acepta, la manda a corregir (como máximo dos veces) o la pasa a una persona en Slack para aprobarla o editarla.</p>
-<p><img alt="Etapa 7" src="capturas/manager_etapa_07.png" /></p>
+<p><img alt="Etapa 7: agente, Juez y correcciones" src="capturas/manager_etapa_07a.png" /></p>
+<p><img alt="Etapa 7: aprobación o edición humana y respuesta" src="capturas/manager_etapa_07b.png" /></p>
 <p><strong>8 · Registro y memoria.</strong> Log de trazabilidad (si el email de log falla, una rama de error avisa a Slack y el pedido sigue), aviso a soporte y actualización de la memoria; cada 5 mensajes se resume la conversación.</p>
 <p><img alt="Etapa 8" src="capturas/manager_etapa_08.png" /></p>
 <p><strong>9 · Respuesta y comprensión.</strong> Se arma la respuesta final. Si una misma persona tiene dos pedidos seguidos que el sistema no puede atender, el segundo pasa a una persona.</p>
@@ -291,7 +293,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <p><strong>10 · Despacho por el canal.</strong> La respuesta sale por donde llegó: Telegram en voz (si el paciente habló) o en texto, el webhook (por Telegram o como borrador de Gmail), el chat o el email.</p>
 <p><img alt="Etapa 10" src="capturas/manager_etapa_10.png" /></p>
 <h2>2.3 Asincronía e idempotencia</h2>
-<p>Un sistema externo (la web de turnos, una app o el CRM) manda <code>POST /webhook/agendabot-m11</code> con <code>request_id</code>, <code>mensaje</code>, <code>nombre</code> y <code>email</code> o <code>tg_chat_id</code>. El <strong>Receptor responde enseguida</strong> y le pasa el pedido al Manager <strong>sin esperarlo</strong>; el análisis, el Juez y el registro ocurren en segundo plano, y el resultado sale por el canal del paciente.</p>
+<p>Un sistema externo (la web de turnos, una app o el CRM) manda <code>POST /webhook/agendabot</code> con <code>request_id</code>, <code>mensaje</code>, <code>nombre</code> y <code>email</code> o <code>tg_chat_id</code>. El <strong>Receptor responde enseguida</strong> y le pasa el pedido al Manager <strong>sin esperarlo</strong>; el análisis, el Juez y el registro ocurren en segundo plano, y el resultado sale por el canal del paciente.</p>
 <table>
 <thead>
 <tr>
@@ -325,13 +327,13 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </table>
 <p>Las capas que evitan duplicar registros y envíos:</p>
 <ol>
-<li><strong>Pedido:</strong> la clave (<code>wh-</code> + <code>request_id</code>, <code>tg-</code> + id del mensaje de Telegram, <code>gm-</code> + id del email) se busca en la Data Table <code>pedidos_procesados_m11</code> antes de procesar. La consulta y el registro tardan milisegundos, así que un reintento inmediato ya encuentra la clave.</li>
+<li><strong>Pedido:</strong> la clave (<code>wh-</code> + <code>request_id</code>, <code>tg-</code> + id del mensaje de Telegram, <code>gm-</code> + id del email) se busca en la Data Table <code>pedidos_procesados</code> antes de procesar. La consulta y el registro tardan milisegundos, así que un reintento inmediato ya encuentra la clave.</li>
 <li><strong>Agenda:</strong> el Worker 1 escribe con <em>append or update</em> por ID (<code>T-</code> + clave), de modo que un reintento actualiza la misma fila en lugar de crear otra. Además, pedir un turno que ya existe responde "ya tenés ese turno; no hice cambios".</li>
 <li><strong>CRM:</strong> el contacto se escribe con <em>upsert</em> por email.</li>
 <li><strong>Envíos:</strong> un pedido repetido nunca llega a la etapa de despacho, así que no se manda dos veces la misma respuesta.</li>
 </ol>
 <h2>2.4 Memoria persistente y acople contextual</h2>
-<p><strong>Memoria de largo plazo</strong> (Airtable, tabla <code>Memoria_M11</code>, una fila por paciente): <code>Session_ID</code>, fecha de actualización, resumen consolidado, estado del caso, datos clave (paciente, motivo, turno), contador de mensajes y último <code>traceId</code>. Recorrido:</p>
+<p><strong>Memoria de largo plazo</strong> (Airtable, tabla <code>Memoria_Pacientes</code>, una fila por paciente): <code>Session_ID</code>, fecha de actualización, resumen consolidado, estado del caso, datos clave (paciente, motivo, turno), contador de mensajes y último <code>traceId</code>. Recorrido:</p>
 <ol>
 <li><strong>Lectura:</strong> se busca la fila del paciente por <code>Session_ID</code> (su email o su chat de Telegram).</li>
 <li><strong>Paciente nuevo:</strong> se crea la fila con <em>upsert</em>, sin campos vacíos que se inyecten en el prompt.</li>
@@ -353,7 +355,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </thead>
 <tbody>
 <tr>
-<td>Receptor</td>
+<td>AgendaBot · Receptor</td>
 <td><code>request_id</code>, <code>mensaje</code> (texto), <code>email</code> o <code>tg_chat_id</code>; opcional <code>nombre</code></td>
 <td>202 <code>{estado,</code>traceId<code>, request_id, detalle}</code> · 200 "duplicado" · 400 <code>{estado, faltan[]}</code></td>
 <td>Sistema externo y Manager</td>
@@ -395,13 +397,13 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td>Manager (sigue, corrige o congela)</td>
 </tr>
 <tr>
-<td>Escalado humano</td>
+<td>AgendaBot · Escalado humano</td>
 <td><code>traceId</code>, <code>categoria</code>, <code>canal</code>, <code>sessionId</code>, <code>mensaje</code>, <code>respuesta_fija</code>, contacto</td>
-<td>Registro en <code>escalados_m11</code> y decisión de la persona</td>
+<td>Registro en <code>escalados</code> y decisión de la persona</td>
 <td>Equipo en Slack → paciente</td>
 </tr>
 <tr>
-<td>Respuesta de voz</td>
+<td>AgendaBot · Respuesta de voz</td>
 <td><code>texto_voz</code> (máx. 200 caracteres), <code>tg_chat_id</code></td>
 <td><code>{enviado, audio_destruido: true}</code></td>
 <td>Paciente (Telegram)</td>
@@ -411,10 +413,10 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <h2>2.5 Robustez: qué pasa cuando algo falla</h2>
 <ul>
 <li><strong>Reintentos:</strong> cada API externa (Sheets, HubSpot, Airtable, Gmail, Slack, Telegram, modelos, Cohere, Qdrant) se reintenta 3 veces, con 2 segundos entre intentos.</li>
-<li><strong>Error Workflow:</strong> cualquier falla del Manager, del Receptor o de un canal dispara <strong>Errores (M11)</strong>. Este workflow recupera la ejecución fallida, avisa en Slack <strong>en castellano</strong> (qué pasó, dónde, quién es el paciente, su mensaje y el <code>traceId</code>) y le avisa al paciente que hay demoras, por Telegram o por email.</li>
+<li><strong>Error Workflow:</strong> cualquier falla del Manager, del Receptor o de un canal dispara el workflow <strong>Errores</strong>. Este workflow recupera la ejecución fallida, avisa en Slack <strong>en castellano</strong> (qué pasó, dónde, quién es el paciente, su mensaje y el <code>traceId</code>) y le avisa al paciente que hay demoras, por Telegram o por email.</li>
 <li><strong>Rama de error visible:</strong> si falla el email de log, una rama avisa a Slack y el pedido sigue su curso.</li>
 <li><strong>Falla segura:</strong> una acción congelada que nadie aprueba en 15 minutos <strong>no se ejecuta</strong>. El paciente recibe "tu pedido quedó en revisión".</li>
-<li><strong>Simulacro:</strong> el workflow <em>Simulacro de falla (M11)</em> permite probar la alerta en cualquier momento.</li>
+<li><strong>Simulacro:</strong> el workflow <em>Simulacro de falla</em> permite probar la alerta en cualquier momento.</li>
 </ul>
 <p><strong>Fallas reales durante las pruebas y cómo respondió el sistema:</strong></p>
 <table>
@@ -459,13 +461,13 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li><strong>Búsqueda con umbral:</strong> se devuelven los 5 fragmentos más parecidos (Top-K 5), pero <strong>solo si superan un puntaje de 0,60</strong>. Si ninguno lo supera, el agente responde <strong>«No sé: ese dato no figura en la documentación de la clínica»</strong> en lugar de inventar.</li>
 <li><strong>Citas con metadatos reales:</strong> cada respuesta cierra con <code>[Fuente: documento — sección]</code>, tomada del fragmento recuperado.</li>
 </ul>
-<p><strong>Equivalencia con el nodo nativo</strong> (devolución de la P5):</p>
+<p><strong>Equivalencia con el nodo nativo de n8n:</strong></p>
 <table>
 <thead>
 <tr>
 <th></th>
 <th><em>Vector Store Retrieve Tool</em> nativo de n8n</th>
-<th>Herramienta implementada (<code>Tool_ConsultarConocimiento</code>)</th>
+<th>Herramienta implementada (<em>AgendaBot · Herramienta RAG</em>)</th>
 </tr>
 </thead>
 <tbody>
@@ -487,7 +489,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <tr>
 <td>Conexión al índice</td>
 <td>Qdrant</td>
-<td>Qdrant (<code>kb_lodetincho_m5</code>), por su API de búsqueda</td>
+<td>Qdrant (<code>kb_lodetincho</code>), por su API de búsqueda</td>
 </tr>
 <tr>
 <td>Salida</td>
@@ -545,7 +547,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <p><strong>Umbral y rutas.</strong> Se acepta solo con <strong>exactitud 4 o 5</strong> y sin riesgo; un ACEPTADO con nota menor a 4 se convierte en CORREGIR.
 - <strong>Respuesta informativa:</strong> con CORREGIR, el agente la rehace con la crítica del Juez, hasta 2 veces. Con RECHAZADO, o si se agotan los reintentos, pasa a una persona en Slack con los botones <em>Aprobar / Editar</em>.
 - <strong>Acción:</strong> no se corrige sola. Con CORREGIR o RECHAZADO <strong>se congela la autonomía</strong>: la acción queda en una cola de aprobación en Slack (<em>Aprobar / Rechazar</em>, espera máxima de 15 minutos). Si nadie aprueba, no se ejecuta.</p>
-<p><strong>Controles adicionales:</strong> reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión de las instrucciones del Juez registrada con su huella (<code>juez-rubrica-v3.1</code>, sha256 <code>5d369ceb1dc7</code>) y un <strong>log de auditoría en JSON</strong> por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en <code>QA_Veredictos (11)</code>.</p>
+<p><strong>Controles adicionales:</strong> reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión de las instrucciones del Juez registrada con su huella (<code>juez-rubrica-v3.1</code>, sha256 <code>5d369ceb1dc7</code>) y un <strong>log de auditoría en JSON</strong> por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en <code>QA_Veredictos</code>.</p>
 <h2>3.2 La frontera de la autonomía</h2>
 <table>
 <thead>
@@ -573,7 +575,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
-<p><strong>Contingencia y reversión</strong> (devolución de la P10):</p>
+<p><strong>Contingencia y reversión:</strong></p>
 <table>
 <thead>
 <tr>
@@ -637,7 +639,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </ul>
 <pre><code class="language-json">{ &quot;traceId&quot;: &quot;trc-20261015025615-592-o5wf&quot;, &quot;parentExecutionId&quot;: &quot;592&quot;, &quot;executionId&quot;: &quot;593&quot;,
   &quot;agentNode&quot;: &quot;Router + Resolver accion (acción propuesta)&quot;,
-  &quot;systemPromptSnapshot&quot;: { &quot;version&quot;: &quot;juez-rubrica-v3.1 (M11: acciones + «No sé»)&quot;, &quot;sha256&quot;: &quot;5d369ceb1dc7&quot; },
+  &quot;systemPromptSnapshot&quot;: { &quot;sha256&quot;: &quot;5d369ceb1dc7&quot; },
   &quot;confidenceScore&quot;: 0.4, &quot;decision&quot;: { &quot;estado_veredicto&quot;: &quot;CORREGIR&quot;, &quot;ruta&quot;: &quot;escalar (acción congelada)&quot;, &quot;intento&quot;: 1 } }
 </code></pre>
 <ul>
@@ -703,9 +705,9 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
-<p><strong>Cómo leer estas cifras:</strong> son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en <code>QA_Veredictos (11)</code>, filtrando por <code>traceId</code>. En el análisis del Módulo 9, la resolución autónoma medida fue del <strong>70,6 %</strong>; el resto se corrigió o pasó a una persona antes de llegar al paciente.</p>
+<p><strong>Cómo leer estas cifras:</strong> son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en <code>QA_Veredictos</code>, filtrando por <code>traceId</code>.</p>
 <p><strong>Mejoras detectadas en la auditoría:</strong> el enmascarado de datos personales del log es algo excesivo (confunde algunos códigos numéricos de turno con teléfonos). Se ajustará sin dejar de proteger los datos.</p></section><section class="pieza" id="pieza-4"><h1>4. Justificación financiera</h1>
-<p>Pregunta del comité: <em>¿esto realmente ahorra plata o es un gasto nuevo?</em> La respuesta compara el <strong>costo real de operar el sistema</strong>, medido en las pruebas, contra el <strong>costo de la labor humana que libera</strong>, proyectado sobre el baseline. Cada cifra va rotulada como <strong>medida</strong> o <strong>proyectada</strong>. El cálculo completo y reproducible está en <code>evaluacion/finanzas_m11.json</code>, generado por <code>scripts/finanzas_m11.py</code>.</p>
+<p>Pregunta del comité: <em>¿esto realmente ahorra plata o es un gasto nuevo?</em> La respuesta compara el <strong>costo real de operar el sistema</strong>, medido en las pruebas, contra el <strong>costo de la labor humana que libera</strong>, proyectado sobre el baseline. Cada cifra va rotulada como <strong>medida</strong> o <strong>proyectada</strong>. El cálculo completo y reproducible está en <code>evaluacion/finanzas.json</code>, generado por <code>scripts/finanzas.py</code>.</p>
 <h2>4.1 Baseline: el costo del proceso manual (proyección, supuestos declarados)</h2>
 <table>
 <thead>
@@ -767,7 +769,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
-<p><em>Supuestos (Módulo 9): 22 días hábiles, hora administrativa a $ 10.000, tipo de cambio US$ 1 = $ 1.400. La autonomía esperada es una meta del piloto, no un resultado validado. En la batería de prueba, armada con más casos difíciles que los habituales, 11 de 15 pedidos se resolvieron sin intervención humana (73 %), en línea con el 70,6 % medido en el Módulo 9.</em></p>
+<p><em>Supuestos: 22 días hábiles, hora administrativa a $ 10.000, tipo de cambio US$ 1 = $ 1.400. La autonomía esperada es una meta del piloto, no un resultado validado. En la batería de prueba, armada con más casos difíciles que los habituales, 11 de 15 pedidos se resolvieron sin intervención humana (73 %).</em></p>
 <h2>4.2 El costo en inteligencia artificial: fórmula y valores medidos</h2>
 <p>Los proveedores de IA cobran por <em>tokens</em>: fragmentos de texto de unas tres cuartas partes de una palabra, que se cuentan al entrar (lo que lee el modelo) y al salir (lo que escribe).</p>
 <p><strong>Fórmula</strong> (precios de Anthropic en US$ por millón de tokens: Claude Haiku 4.5 = 1 de entrada / 5 de salida; Claude Sonnet 4.6 = 3 / 15):</p>
@@ -869,7 +871,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 </tbody>
 </table>
-<p><strong>Decisión: la configuración C.</strong> El modelo económico hace el trabajo y el modelo fuerte lo audita. Con la misma tasa de acierto, la consulta informativa cuesta <strong>la mitad</strong> y el pedido promedio, <strong>48 % menos</strong>. La memoria se resume con Haiku 4.5 desde el Módulo 9. Además, el Juez revisa ahora también las acciones (es nuevo en el M11), y aun así el gasto mensual en IA baja respecto del Módulo 9 (US$ 68,90).</p>
+<p><strong>Decisión: la configuración C.</strong> El modelo económico hace el trabajo y el modelo fuerte lo audita. Con la misma tasa de acierto, la consulta informativa cuesta <strong>la mitad</strong> y el pedido promedio, <strong>48 % menos</strong>. La memoria también se resume con Haiku 4.5. Con la misma fórmula de la Sección 4.4, el gasto mensual en IA sería de <strong>US$ 105,66 con todo en Sonnet 4.6</strong> y es de <strong>US$ 59,91 con la configuración elegida</strong> (43 % menos), aun con el Juez revisando también todas las acciones.</p>
 <h2>4.4 Costo total de operación contra labor evitada (proyección mensual)</h2>
 <p><strong>Tokens por mes</strong> = consultas × costo por consulta × (1 + 15 % de reintentos del Juez) + gestiones × (acción + 1 mensaje complementario) + resúmenes de memoria
 = 1.584 × 0,016546 × 1,15 + 2.376 × (0,009194 + 0,002003) + 3,17 = 30,139 + 26,604 + 3,17 = <strong>US$ 59,91</strong></p>
@@ -979,7 +981,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tr>
 <tr>
 <td><strong>Picos de reintentos del Juez</strong> ("fat loop")</td>
-<td>Tope de 2 correcciones por respuesta; el peor caso medido en el Módulo 9 fue de US$ 0,07 por consulta</td>
+<td>Tope de 2 correcciones por respuesta: el peor caso (3 intentos) cuesta unas 3 veces una consulta, US$ 0,0496</td>
 </tr>
 <tr>
 <td><strong>Cambios de los proveedores</strong>: HubSpot avisó que la API que usa el nodo de n8n deja de estar disponible después de septiembre de 2027</td>
@@ -1020,7 +1022,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <tr>
 <td><code>N8N_BASE</code>, <code>QDRANT_URL</code>, <code>QDRANT_COLLECTION</code>, <code>EMBED_DIM</code></td>
 <td><code>.env</code></td>
-<td>Direcciones de n8n y de la base de conocimiento (colección <code>kb_lodetincho_m5</code>, 1.024 dimensiones)</td>
+<td>Direcciones de n8n y de la base de conocimiento (colección <code>kb_lodetincho</code>, 1.024 dimensiones)</td>
 </tr>
 <tr>
 <td><code>LLAMA_CLOUD_API_KEY</code></td>
@@ -1033,7 +1035,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td>Túnel público con dominio fijo</td>
 </tr>
 <tr>
-<td><code>FRENO_TOKEN_M11</code></td>
+<td><code>FRENO_TOKEN</code></td>
 <td><code>.env</code></td>
 <td>Token del encabezado <code>X-Freno-Token</code> para activar o desactivar el freno de mano</td>
 </tr>
@@ -1057,12 +1059,12 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <tr>
 <td>OpenAI account</td>
 <td>API de OpenAI (Whisper)</td>
-<td>Canal Telegram</td>
+<td>AgendaBot · Canal Telegram</td>
 </tr>
 <tr>
 <td>ElevenLabs account</td>
 <td>API de ElevenLabs</td>
-<td>Respuesta de voz</td>
+<td>AgendaBot · Respuesta de voz</td>
 </tr>
 <tr>
 <td>Cohere n8n</td>
@@ -1072,7 +1074,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <tr>
 <td>Qdrant local</td>
 <td>API de Qdrant</td>
-<td>Ingesta KB</td>
+<td>AgendaBot · Ingesta KB</td>
 </tr>
 <tr>
 <td>Google Sheets account / Gmail account</td>
@@ -1080,7 +1082,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td>Agenda, veredictos, borradores, respuestas y avisos</td>
 </tr>
 <tr>
-<td>Airtable Memoria M3</td>
+<td>Airtable AgendaBot</td>
 <td>Token de Airtable</td>
 <td>Memoria del paciente</td>
 </tr>
@@ -1100,12 +1102,12 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td>Canal Telegram, respuestas y avisos</td>
 </tr>
 <tr>
-<td>n8n API local (M11 errores)</td>
+<td>n8n API (alertas)</td>
 <td>Encabezado</td>
 <td>Errores: lee la ejecución fallida</td>
 </tr>
 <tr>
-<td>Freno de mano (M11)</td>
+<td>Freno de mano</td>
 <td>Encabezado</td>
 <td>Protege el webhook del freno de mano</td>
 </tr>
@@ -1123,43 +1125,43 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </thead>
 <tbody>
 <tr>
-<td><code>Agenda_Turnos (11)</code></td>
+<td><code>Agenda_Turnos</code></td>
 <td>Google Sheets</td>
 <td>ID, Fecha, Hora, Nombre, Motivo, Estado, Email, <code>traceId</code>, Asistencia</td>
 <td>ID = <code>T-</code> + clave del pedido</td>
 </tr>
 <tr>
-<td><code>Memoria_M11</code></td>
+<td><code>Memoria_Pacientes</code></td>
 <td>Airtable</td>
 <td>Session_ID, Fecha de Actualización, Resumen Consolidado, Estado del Caso, Datos Clave, Mensajes, Ultimo_traceId</td>
 <td>Session_ID</td>
 </tr>
 <tr>
-<td><code>QA_Veredictos (11)</code></td>
+<td><code>QA_Veredictos</code></td>
 <td>Google Sheets</td>
 <td>fecha, origen, caso, intento, pregunta y respuesta (enmascaradas), exactitud_factual, estado_veredicto, crítica, ruta, <code>traceId</code>, versión del prompt, log JSON</td>
 <td><code>traceId</code> + intento</td>
 </tr>
 <tr>
-<td><code>pedidos_procesados_m11</code></td>
+<td><code>pedidos_procesados</code></td>
 <td>Data Table de n8n</td>
 <td>clave, <code>traceId</code>, canal</td>
 <td>clave</td>
 </tr>
 <tr>
-<td><code>escalados_m11</code></td>
+<td><code>escalados</code></td>
 <td>Data Table de n8n</td>
 <td><code>traceId</code>, categoría, canal, sesión, mensaje, estado, decisión</td>
 <td><code>traceId</code></td>
 </tr>
 <tr>
-<td><code>control_m11</code></td>
+<td><code>control</code></td>
 <td>Data Table de n8n</td>
 <td>clave (<code>freno_de_mano</code>), valor (<code>si</code>/<code>no</code>), actualizado_por</td>
 <td>clave</td>
 </tr>
 <tr>
-<td><code>sesiones_m11</code> / <code>pendientes_m11</code></td>
+<td><code>sesiones</code> / <code>pendientes</code></td>
 <td>Data Tables de n8n</td>
 <td>Fallas de comprensión y pedidos que esperan el email por escrito</td>
 <td>sesión</td>
@@ -1189,15 +1191,15 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <tbody>
 <tr>
 <td>Petición de pedidos</td>
-<td><code>POST {WEBHOOK_URL}/webhook/agendabot-m11</code> · cuerpo JSON: <code>request_id</code>, <code>mensaje</code>, <code>nombre</code>, <code>email</code> y/o <code>tg_chat_id</code> (o el encabezado <code>Idempotency-Key</code>)</td>
+<td><code>POST {WEBHOOK_URL}/webhook/agendabot</code> · cuerpo JSON: <code>request_id</code>, <code>mensaje</code>, <code>nombre</code>, <code>email</code> y/o <code>tg_chat_id</code> (o el encabezado <code>Idempotency-Key</code>)</td>
 </tr>
 <tr>
 <td>Freno de mano</td>
-<td><code>POST {WEBHOOK_URL}/webhook/freno-m11</code> · encabezado <code>X-Freno-Token</code> · cuerpo <code>{"activo": true/false, "quien": "…"}</code></td>
+<td><code>POST {WEBHOOK_URL}/webhook/freno-de-mano</code> · encabezado <code>X-Freno-Token</code> · cuerpo <code>{"activo": true/false, "quien": "…"}</code></td>
 </tr>
 <tr>
 <td>Base de conocimiento</td>
-<td>Qdrant <code>/collections/kb_lodetincho_m5/points/search</code> · Top-K 5 · puntaje mínimo 0,60</td>
+<td>Qdrant <code>/collections/kb_lodetincho/points/search</code> · Top-K 5 · puntaje mínimo 0,60</td>
 </tr>
 <tr>
 <td>Modelos</td>
@@ -1286,12 +1288,12 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </table>
 <h2>A.6 Privacidad</h2>
 <ul>
-<li><strong>Audios</strong> (devolución de la P6): la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en <em>Respuesta de voz</em>. <strong>Ninguno de los dos guarda ejecuciones</strong> (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.</li>
+<li><strong>Audios:</strong> la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en <em>Respuesta de voz</em>. <strong>Ninguno de los dos guarda ejecuciones</strong> (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.</li>
 <li><strong>Log de auditoría:</strong> el nombre, el email, el DNI y el teléfono se enmascaran antes de guardarse (<code>[NOMBRE]</code>, <code>[EMAIL]</code>, <code>[DNI]</code>, <code>[TEL]</code>).</li>
 <li><strong>Biblioteca anonimizada:</strong> la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.</li>
 <li><strong>Mínimo privilegio:</strong> cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).</li>
 </ul></section><section class="pieza" id="pieza-6"><h1>Anexo B. Pruebas de punta a punta</h1>
-<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code> (devolución de la P8). Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: <code>evaluacion/bateria_A.json</code>, <code>_B.json</code> y <code>_C.json</code>.</p>
+<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code>. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Datos completos: <code>evaluacion/bateria_A.json</code>, <code>_B.json</code> y <code>_C.json</code>.</p>
 <table>
 <thead>
 <tr>
@@ -1300,7 +1302,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <th>Ruta esperada</th>
 <th>Ruta obtenida</th>
 <th>Juez</th>
-<th style="text-align: right;">Receptor</th>
+<th style="text-align: right;">AgendaBot · Receptor</th>
 <th style="text-align: right;">Proceso</th>
 <th style="text-align: right;">US$</th>
 <th><code>traceId</code></th>
@@ -1511,7 +1513,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td><code>trc-20261015164506-679-j7tk</code></td>
 </tr>
 <tr>
-<td>Freno de mano</td>
+<td>AgendaBot · Freno de mano</td>
 <td>Token falso → 403; activado → todo a atención humana; desactivado → vuelve a atender</td>
 <td>15/10/2026</td>
 </tr>
@@ -1539,73 +1541,73 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </thead>
 <tbody>
 <tr>
-<td>Receptor (M11)</td>
+<td>AgendaBot · Receptor</td>
 <td><code>B2DUAOSmq20splvS</code></td>
-<td>Webhook <code>POST /webhook/agendabot-m11</code></td>
+<td>Webhook <code>POST /webhook/agendabot</code></td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Canal Telegram (M11)</td>
+<td>AgendaBot · Canal Telegram</td>
 <td><code>XXtibnyFxPu2piNu</code></td>
 <td>Telegram</td>
 <td><strong>No</strong> (audio del paciente)</td>
 </tr>
 <tr>
-<td>AI Automation Avanzado - M11 (Manager)</td>
+<td>AgendaBot · Manager</td>
 <td><code>zLiXJWDV3i8OGJCK</code></td>
 <td>Llamada de un canal · Gmail · chat</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Worker1_RegistrarTurno / Worker2_Confirmacion / Worker3_ConsultarTurno / Worker4_ModificarTurno</td>
+<td>AgendaBot · Worker 1 a 4 (registrar, confirmar, consultar, modificar)</td>
 <td><code>NQW5Mkmm0zJc6UJQ</code> · <code>8kgru7BieMefNVvz</code> · <code>CJKVcfkXPu6oNk8D</code> · <code>wT9rHHVpMreJFqwO</code></td>
 <td>Llamada del Manager</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Tool_ConsultarConocimiento</td>
+<td>AgendaBot · Herramienta RAG</td>
 <td><code>Ukqb3UUpTZhgnULF</code></td>
 <td>Llamada del agente</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>SUPERVISOR_Judge</td>
+<td>AgendaBot · Juez (supervisor)</td>
 <td><code>x0qFeyPW15wSX0hD</code></td>
 <td>Llamada del Manager</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Escalado humano (M11)</td>
+<td>AgendaBot · Escalado humano</td>
 <td><code>jdJ7DV9keYZgP5MU</code></td>
 <td>Llamada del Manager</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Respuesta de voz (M11)</td>
+<td>AgendaBot · Respuesta de voz</td>
 <td><code>H9xkLlYia4GNS3YJ</code></td>
 <td>Llamada del Manager o del escalado</td>
 <td><strong>No</strong> (audio sintetizado)</td>
 </tr>
 <tr>
-<td>Errores (M11)</td>
+<td>AgendaBot · Errores</td>
 <td><code>UBZ3dbNmFMFuYrAR</code></td>
 <td>Error Trigger (Error Workflow del Manager, del Receptor y de los canales)</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Freno de mano (M11)</td>
+<td>AgendaBot · Freno de mano</td>
 <td><code>7QEDGdClm8kswbM9</code></td>
-<td>Webhook <code>POST /webhook/freno-m11</code> (con token)</td>
+<td>Webhook <code>POST /webhook/freno-de-mano</code> (con token)</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Ingesta KB (M11)</td>
+<td>AgendaBot · Ingesta KB</td>
 <td><code>1MTk7AYPCxH8R2rh</code></td>
 <td>Manual</td>
 <td>Sí</td>
 </tr>
 <tr>
-<td>Simulacro de falla (M11)</td>
+<td>AgendaBot · Simulacro de falla</td>
 <td><code>6rEbc1LKZmGBQCIp</code></td>
 <td>Webhook (prueba de la rama de error)</td>
 <td>Sí</td>
@@ -1613,15 +1615,24 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tbody>
 </table>
 <h2>C.2 Cómo se levanta el sistema</h2>
+<p>El sistema corre en contenedores de Docker sobre un servidor (o una computadora) con salida a internet. Levantarlo consiste en:</p>
 <ol>
-<li>Abrir Docker Desktop y correr <code>powershell -ExecutionPolicy Bypass -File Avanzado\scripts\activar_aqui.ps1</code>. El script:</li>
-<li>desactiva el sistema en la otra computadora del proyecto, si estaba activo;</li>
-<li>actualiza el repositorio;</li>
-<li>levanta Qdrant y el túnel con dominio fijo (<code>levantar_ngrok.ps1</code>);</li>
-<li>activa los workflows del último módulo.</li>
-<li>Verificar: el dominio público responde y los 14 workflows quedan activos (salvo la Ingesta KB, que es manual).</li>
-<li>Prueba de humo: <code>python Avanzado\Modulo11\scripts\probar_webhook.py &lt;request_id&gt; "¿Qué estudios se hacen sin turno?" --email &lt;email&gt; --esperar</code>.</li>
-<li>Batería completa: <code>python Avanzado\Modulo11\scripts\bateria_m11.py &lt;corrida&gt;</code>.</li>
+<li><strong>Configuración.</strong> El archivo <code>.env</code> (fuera del control de versiones) tiene las variables del Anexo A.1, y el almacén de credenciales de n8n, las credenciales del Anexo A.2. Las autorizaciones OAuth (Google, Slack) se renuevan desde el editor de n8n en <code>http://localhost:5678</code>.</li>
+<li><strong>Servicios.</strong> Se levantan tres contenedores:</li>
+<li><strong>Qdrant</strong>, la biblioteca oficial, en el puerto 6333;</li>
+<li><strong>n8n</strong>, con <code>WEBHOOK_URL</code> igual al dominio público y <code>N8N_EDITOR_BASE_URL</code> igual a la dirección local;</li>
+<li>el <strong>agente del túnel (ngrok)</strong>, que publica n8n en el dominio fijo por el puerto 443.</li>
 </ol>
-<h2>C.3 Video (opcional)</h2>
-<p>Demostración de 3 minutos del flujo activo: <strong>[enlace pendiente]</strong>. El guion está en <code>DMSA/guion_video.md</code>.</p></section></body></html>
+<p>Todo lo hace el script <code>levantar_ngrok.ps1</code>, que recrea n8n solo si cambia la dirección pública. Los datos de n8n quedan en un volumen persistente.
+3. <strong>Activación.</strong> Se publican los workflows: primero los especialistas (Workers, herramienta RAG, Juez, Escalado humano, Respuesta de voz, Errores) y al final los que tienen disparadores externos (Receptor, Canal Telegram, Freno de mano y el Manager). Al activarse, el Canal Telegram registra su dirección en Telegram y el Manager empieza a leer la casilla de Gmail.
+4. <strong>Verificación.</strong>
+   - <code>GET {WEBHOOK_URL}/healthz</code> responde 200 desde afuera;
+   - los workflows figuran como activos;
+   - una petición al Receptor devuelve 202 con un <code>traceId</code>, y la misma petición repetida devuelve "duplicado";
+   - un mensaje de prueba por Telegram recibe respuesta;
+   - el simulacro de falla genera la alerta en Slack;
+   - en las Data Tables, <code>control</code> tiene <code>freno_de_mano = no</code>.
+5. <strong>Pruebas automáticas.</strong> <code>scripts/probar_webhook.py</code> (prueba de humo) y <code>scripts/bateria.py</code> (los 16 casos del Anexo B).</p>
+<p><strong>Si el servicio ya está publicado en otra instancia</strong> (otro servidor o una versión anterior), primero hay que <strong>desactivarla</strong>: apagar sus workflows con disparadores externos y su túnel. El bot de Telegram, la casilla de Gmail y el dominio público admiten <strong>una sola instancia activa</strong>; con dos, los mensajes se repartirían o se procesarían dos veces. Recién después se levanta la nueva y se verifica con el paso 4. Si se trata de la misma instancia, alcanza con volver a ejecutar los pasos 2 a 4: son idempotentes y no duplican nada.</p>
+<h2>C.3 Video</h2>
+<p>Demostración de 3 minutos del flujo activo: <strong>[enlace pendiente]</strong>.</p></section></body></html>

@@ -1,5 +1,5 @@
 {
- "name": "Simulacro de falla (M11)",
+ "name": "AgendaBot · Simulacro de falla",
  "nodes": [
   {
    "id": "163f7ac8-ac65-439c-af7b-33b3443ce945",
@@ -13,7 +13,7 @@
    ],
    "parameters": {
     "httpMethod": "POST",
-    "path": "simulacro-falla-m11",
+    "path": "simulacro-de-falla",
     "responseMode": "onReceived",
     "options": {
      "responseCode": 202

@@ -7,8 +7,8 @@ acción congelada, datos faltantes, caso rojo, duplicado…), veredictos del Jue
 por modelo (Manager + Juez) y costo en US$ con la fórmula exacta (P8): (entrada × precio_entrada + salida ×
 precio_salida) / 1.000.000.
 
-Uso:  python bateria_m11.py A            # corre la batería y guarda Modulo11/evaluacion/bateria_A.json
-      python bateria_m11.py --resumen A B  # compara corridas
+Uso:  python bateria.py A            # corre la batería y guarda Modulo11/evaluacion/bateria_A.json
+      python bateria.py --resumen A B  # compara corridas
 """
 import json, os, sys, time, urllib.request, urllib.error
 sys.stdout.reconfigure(encoding="utf-8")
@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "..", "Modulo5", "scripts"))
 import _config as C  # noqa: E402
 
 IDS = json.load(open(os.path.join(MOD11, "_ids_m11.json")))
-URL = C.N8N_BASE + "/webhook/agendabot-m11"
+URL = C.N8N_BASE + "/webhook/agendabot"
 PRECIOS = {"sonnet": (3.0, 15.0), "haiku": (1.0, 5.0)}  # US$ por millón de tokens (entrada, salida)
 
 # (n, descripción, mensaje, intención esperada, ruta esperada, persona: None = propia del caso, o número de otro caso)

@@ -1,5 +1,5 @@
 {
- "name": "Ingesta KB (M11)",
+ "name": "AgendaBot · Ingesta KB",
  "nodes": [
   {
    "id": "8e8cd4a4-789f-4ae3-9672-7c51505660fd",
@@ -25,7 +25,7 @@
    ],
    "parameters": {
     "method": "DELETE",
-    "url": "http://host.docker.internal:6333/collections/kb_lodetincho_m5",
+    "url": "http://host.docker.internal:6333/collections/kb_lodetincho",
     "options": {}
    }
   },
@@ -40,7 +40,7 @@
    ],
    "parameters": {
     "method": "PUT",
-    "url": "http://host.docker.internal:6333/collections/kb_lodetincho_m5",
+    "url": "http://host.docker.internal:6333/collections/kb_lodetincho",
     "sendBody": true,
     "specifyBody": "json",
     "jsonBody": "{\"vectors\": {\"size\": 1024, \"distance\": \"Cosine\"}}",
@@ -87,7 +87,7 @@
     "qdrantCollection": {
      "__rl": true,
      "mode": "id",
-     "value": "kb_lodetincho_m5"
+     "value": "kb_lodetincho"
     },
     "options": {}
    },
@@ -176,7 +176,7 @@
    "parameters": {
     "width": 1300,
     "height": 240,
-    "content": "## Ingesta KB (M11): carga de la base de conocimiento\nSe corre a mano cuando cambian los documentos oficiales: lee el markdown que generó LlamaParse, lo divide por secciones (con la ruta de títulos como metadato para las citas), calcula los embeddings con Cohere y reemplaza la colección `kb_lodetincho_m5` en Qdrant. La consulta en producción la hace `Tool_ConsultarConocimiento (M11)` (Top-K 5, Min Score 0,60)."
+    "content": "## AgendaBot · Ingesta KB: carga de la base de conocimiento\nSe corre a mano cuando cambian los documentos oficiales: lee el markdown que generó LlamaParse, lo divide por secciones (con la ruta de títulos como metadato para las citas), calcula los embeddings con Cohere y reemplaza la colección `kb_lodetincho` en Qdrant. La consulta en producción la hace `AgendaBot · Herramienta RAG` (Top-K 5, Min Score 0,60)."
    }
   }
  ],

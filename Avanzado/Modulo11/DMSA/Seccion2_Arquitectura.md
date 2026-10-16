@@ -63,12 +63,12 @@ AgendaBot no es un único flujo: son **14 workflows independientes** de n8n (ver
 
 | Workflow | Función |
 |---|---|
-| **Receptor (M11)** | Recibe pedidos por webhook, valida, responde al instante y le pasa el pedido al Manager sin esperarlo |
-| **Canal Telegram (M11)** | Recibe texto o notas de voz, transcribe (Whisper), descarta el audio, maneja el email dictado y pasa el pedido al Manager |
-| **AI Automation Avanzado - M11** (Manager) | Coordina el recorrido en 10 etapas (2.2) |
+| **Receptor** | Recibe pedidos por webhook, valida, responde al instante y le pasa el pedido al Manager sin esperarlo |
+| **Canal Telegram** | Recibe texto o notas de voz, transcribe (Whisper), descarta el audio, maneja el email dictado y pasa el pedido al Manager |
+| **Manager** (coordinador) | Coordina el recorrido en 10 etapas (2.2) |
 | **Worker 1 a 4** | Registrar, confirmar, consultar y modificar turnos en la agenda |
-| **Tool_ConsultarConocimiento** | Búsqueda en la biblioteca oficial con Top-K y puntaje mínimo |
-| **SUPERVISOR_Judge** | Auditoría con rúbrica JSON de respuestas y acciones |
+| **Herramienta RAG** | Búsqueda en la biblioteca oficial con Top-K y puntaje mínimo |
+| **Juez (supervisor)** | Auditoría con rúbrica JSON de respuestas y acciones |
 | **Escalado humano** | Registra el caso, avisa en Slack con botones y permite responderle al paciente |
 | **Respuesta de voz** | Sintetiza y envía la nota de voz; no guarda ejecuciones |
 | **Errores** | Alerta al equipo ante cualquier falla, con el `traceId` y los datos del paciente |
@@ -99,7 +99,9 @@ El lienzo del Manager está ordenado de izquierda a derecha en **10 etapas numer
 
 **5 · Gestión de turnos con Juez.** La acción se resuelve contra la agenda y **el Juez la audita antes de escribir**. Si la acepta, los Workers registran o cambian el turno, se confirma, el contacto queda en HubSpot con sus metadatos y se arma el borrador de confirmación. Si la acción es dudosa, queda congelada y se aprueba o rechaza en Slack. Si faltan datos, se le pide al paciente lo que falta; el email, siempre por escrito.
 
-![Etapa 5](capturas/manager_etapa_05.png)
+![Etapa 5: vista general](capturas/manager_etapa_05.png)
+
+![Etapa 5: después del veredicto, Workers, confirmación, CRM y avisos](capturas/manager_etapa_05b.png)
 
 **6 · Consulta de turnos.** El Worker 3 lista los turnos futuros de la persona (solo lectura).
 
@@ -107,7 +109,9 @@ El lienzo del Manager está ordenado de izquierda a derecha en **10 etapas numer
 
 **7 · Consultas informativas con Juez.** El agente responde solo con la biblioteca oficial, cita la fuente o dice «No sé». El Juez evalúa cada respuesta: la acepta, la manda a corregir (como máximo dos veces) o la pasa a una persona en Slack para aprobarla o editarla.
 
-![Etapa 7](capturas/manager_etapa_07.png)
+![Etapa 7: agente, Juez y correcciones](capturas/manager_etapa_07a.png)
+
+![Etapa 7: aprobación o edición humana y respuesta](capturas/manager_etapa_07b.png)
 
 **8 · Registro y memoria.** Log de trazabilidad (si el email de log falla, una rama de error avisa a Slack y el pedido sigue), aviso a soporte y actualización de la memoria; cada 5 mensajes se resume la conversación.
 
@@ -123,7 +127,7 @@ El lienzo del Manager está ordenado de izquierda a derecha en **10 etapas numer
 
 ## 2.3 Asincronía e idempotencia
 
-Un sistema externo (la web de turnos, una app o el CRM) manda `POST /webhook/agendabot-m11` con `request_id`, `mensaje`, `nombre` y `email` o `tg_chat_id`. El **Receptor responde enseguida** y le pasa el pedido al Manager **sin esperarlo**; el análisis, el Juez y el registro ocurren en segundo plano, y el resultado sale por el canal del paciente.
+Un sistema externo (la web de turnos, una app o el CRM) manda `POST /webhook/agendabot` con `request_id`, `mensaje`, `nombre` y `email` o `tg_chat_id`. El **Receptor responde enseguida** y le pasa el pedido al Manager **sin esperarlo**; el análisis, el Juez y el registro ocurren en segundo plano, y el resultado sale por el canal del paciente.
 
 | Situación (medido el 16/10/2026, corrida C) | Respuesta del Receptor | `traceId` |
 |---|---|---|
@@ -134,14 +138,14 @@ Un sistema externo (la web de turnos, una app o el CRM) manda `POST /webhook/age
 
 Las capas que evitan duplicar registros y envíos:
 
-1. **Pedido:** la clave (`wh-` + `request_id`, `tg-` + id del mensaje de Telegram, `gm-` + id del email) se busca en la Data Table `pedidos_procesados_m11` antes de procesar. La consulta y el registro tardan milisegundos, así que un reintento inmediato ya encuentra la clave.
+1. **Pedido:** la clave (`wh-` + `request_id`, `tg-` + id del mensaje de Telegram, `gm-` + id del email) se busca en la Data Table `pedidos_procesados` antes de procesar. La consulta y el registro tardan milisegundos, así que un reintento inmediato ya encuentra la clave.
 2. **Agenda:** el Worker 1 escribe con *append or update* por ID (`T-` + clave), de modo que un reintento actualiza la misma fila en lugar de crear otra. Además, pedir un turno que ya existe responde "ya tenés ese turno; no hice cambios".
 3. **CRM:** el contacto se escribe con *upsert* por email.
 4. **Envíos:** un pedido repetido nunca llega a la etapa de despacho, así que no se manda dos veces la misma respuesta.
 
 ## 2.4 Memoria persistente y acople contextual
 
-**Memoria de largo plazo** (Airtable, tabla `Memoria_M11`, una fila por paciente): `Session_ID`, fecha de actualización, resumen consolidado, estado del caso, datos clave (paciente, motivo, turno), contador de mensajes y último `traceId`. Recorrido:
+**Memoria de largo plazo** (Airtable, tabla `Memoria_Pacientes`, una fila por paciente): `Session_ID`, fecha de actualización, resumen consolidado, estado del caso, datos clave (paciente, motivo, turno), contador de mensajes y último `traceId`. Recorrido:
 
 1. **Lectura:** se busca la fila del paciente por `Session_ID` (su email o su chat de Telegram).
 2. **Paciente nuevo:** se crea la fila con *upsert*, sin campos vacíos que se inyecten en el prompt.
@@ -156,23 +160,23 @@ Las capas que evitan duplicar registros y envíos:
 
 | Sub-workflow | Recibe (obligatorio) | Devuelve | Destinatario |
 |---|---|---|---|
-| Receptor | `request_id`, `mensaje` (texto), `email` o `tg_chat_id`; opcional `nombre` | 202 `{estado, `traceId`, request_id, detalle}` · 200 "duplicado" · 400 `{estado, faltan[]}` | Sistema externo y Manager |
+| AgendaBot · Receptor | `request_id`, `mensaje` (texto), `email` o `tg_chat_id`; opcional `nombre` | 202 `{estado, `traceId`, request_id, detalle}` · 200 "duplicado" · 400 `{estado, faltan[]}` | Sistema externo y Manager |
 | Worker 1 (alta) | `traceId`, `idemKey`, `nombre`, `motivo`, `fecha` (dd/mm/aaaa), `hora` (hh:mm), `email` | `{`traceId`, status: "success", data: {id, nombre, fecha, hora, motivo, estado, email}}` | Manager → Worker 2 |
 | Worker 4 (cambio) | `traceId`, `id` del turno, nueva `fecha` y/o `hora` | Igual que el Worker 1, con estado "Reprogramado" | Manager → Worker 2 |
 | Worker 2 (confirmación) | Datos del turno confirmado | `{data: {mensaje}}` | Manager → paciente |
 | Worker 3 (consulta) | `traceId`, `nombre` | `{data: {mensaje}}` con la lista de turnos futuros | Manager → paciente |
 | Herramienta RAG | `consulta` (texto) | Fragmentos con fuente, sección y puntaje, o `SIN_RESULTADOS` | Agente de consultas |
 | Juez | `tipo_caso` (RESPUESTA o ACCION), `pregunta`, `respuesta`, fragmentos o acción propuesta, agenda y fecha | `{exactitud_factual: 1..5, estado_veredicto: ACEPTADO / CORREGIR / RECHAZADO, critica, ruta}` | Manager (sigue, corrige o congela) |
-| Escalado humano | `traceId`, `categoria`, `canal`, `sessionId`, `mensaje`, `respuesta_fija`, contacto | Registro en `escalados_m11` y decisión de la persona | Equipo en Slack → paciente |
-| Respuesta de voz | `texto_voz` (máx. 200 caracteres), `tg_chat_id` | `{enviado, audio_destruido: true}` | Paciente (Telegram) |
+| AgendaBot · Escalado humano | `traceId`, `categoria`, `canal`, `sessionId`, `mensaje`, `respuesta_fija`, contacto | Registro en `escalados` y decisión de la persona | Equipo en Slack → paciente |
+| AgendaBot · Respuesta de voz | `texto_voz` (máx. 200 caracteres), `tg_chat_id` | `{enviado, audio_destruido: true}` | Paciente (Telegram) |
 
 ## 2.5 Robustez: qué pasa cuando algo falla
 
 - **Reintentos:** cada API externa (Sheets, HubSpot, Airtable, Gmail, Slack, Telegram, modelos, Cohere, Qdrant) se reintenta 3 veces, con 2 segundos entre intentos.
-- **Error Workflow:** cualquier falla del Manager, del Receptor o de un canal dispara **Errores (M11)**. Este workflow recupera la ejecución fallida, avisa en Slack **en castellano** (qué pasó, dónde, quién es el paciente, su mensaje y el `traceId`) y le avisa al paciente que hay demoras, por Telegram o por email.
+- **Error Workflow:** cualquier falla del Manager, del Receptor o de un canal dispara el workflow **Errores**. Este workflow recupera la ejecución fallida, avisa en Slack **en castellano** (qué pasó, dónde, quién es el paciente, su mensaje y el `traceId`) y le avisa al paciente que hay demoras, por Telegram o por email.
 - **Rama de error visible:** si falla el email de log, una rama avisa a Slack y el pedido sigue su curso.
 - **Falla segura:** una acción congelada que nadie aprueba en 15 minutos **no se ejecuta**. El paciente recibe "tu pedido quedó en revisión".
-- **Simulacro:** el workflow *Simulacro de falla (M11)* permite probar la alerta en cualquier momento.
+- **Simulacro:** el workflow *Simulacro de falla* permite probar la alerta en cualquier momento.
 
 **Fallas reales durante las pruebas y cómo respondió el sistema:**
 
@@ -190,12 +194,12 @@ Las capas que evitan duplicar registros y envíos:
 - **Búsqueda con umbral:** se devuelven los 5 fragmentos más parecidos (Top-K 5), pero **solo si superan un puntaje de 0,60**. Si ninguno lo supera, el agente responde **«No sé: ese dato no figura en la documentación de la clínica»** en lugar de inventar.
 - **Citas con metadatos reales:** cada respuesta cierra con `[Fuente: documento — sección]`, tomada del fragmento recuperado.
 
-**Equivalencia con el nodo nativo** (devolución de la P5):
+**Equivalencia con el nodo nativo de n8n:**
 
-| | *Vector Store Retrieve Tool* nativo de n8n | Herramienta implementada (`Tool_ConsultarConocimiento`) |
+| | *Vector Store Retrieve Tool* nativo de n8n | Herramienta implementada (*AgendaBot · Herramienta RAG*) |
 |---|---|---|
 | Nombre y descripción para el agente | Sí | Sí ("consultar_conocimiento") |
 | Top-K | Sí | Sí (5) |
 | Puntaje mínimo | **No disponible** | **Sí (0,60)**: por esto se implementó como sub-workflow |
-| Conexión al índice | Qdrant | Qdrant (`kb_lodetincho_m5`), por su API de búsqueda |
+| Conexión al índice | Qdrant | Qdrant (`kb_lodetincho`), por su API de búsqueda |
 | Salida | Fragmentos | Fragmentos con fuente, sección y puntaje, o `SIN_RESULTADOS` |

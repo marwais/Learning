@@ -1,5 +1,5 @@
 {
- "name": "SUPERVISOR_Judge (M11)",
+ "name": "AgendaBot · Juez (supervisor)",
  "nodes": [
   {
    "id": "1809c648-5b3e-4762-b746-d9a3d1a379f3",
@@ -388,7 +388,7 @@
     "width": 1500,
     "height": 720,
     "color": 6,
-    "content": "## SUPERVISOR_Judge (M11) — AI-as-a-Judge"
+    "content": "## AgendaBot · Juez (supervisor) — AI-as-a-Judge"
    }
   },
   {
@@ -401,7 +401,7 @@
     100
    ],
    "parameters": {
-    "jsCode": "// Log de auditoría máquina-procesable (JSON) del Juez, con enmascarado de PII antes de guardarlo.\nconst v = $json;\n// Nombres del paciente: los que extrajo el sistema y los que el paciente dice (\"soy…\", \"me llamo…\", \"mi nombre es…\").\nconst datosClave = String((v.contexto_airtable || {}).datos_clave || '');\nconst delMemoria = datosClave.match(/Paciente:\\s*([^|]+)/);\nconst nombres = [(v.accion_propuesta || {}).nombre, delMemoria ? delMemoria[1] : '']\n  .map(x => String(x || '').trim()).filter(x => x.length > 2);\nconst esc = x => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst enmascarar = s => nombres.reduce((t, nm) => t.replace(new RegExp(esc(nm), 'gi'), '[NOMBRE]'), String(s || ''))\n  .replace(/\\b(soy|me llamo|mi nombre es)\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?/g, '$1 [NOMBRE]')\n  .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g, '[EMAIL]')\n  .replace(/\\b\\d{1,2}\\.\\d{3}\\.\\d{3}\\b|\\b\\d{7,8}\\b/g, '[DNI]')\n  .replace(/\\+?\\d[\\d\\s-]{8,}\\d/g, '[TEL]');\nconst log = {\n  timestamp: new Date().toISOString(),\n  traceId: v.traceId || 'sin-traceId',\n  parentExecutionId: String(v.execution_id || ''),\n  executionId: String($execution.id),\n  environment: 'desarrollo (n8n local)',\n  nodeName: 'SUPERVISOR_Judge (M11) › Juez (LLM con JSON Schema)',\n  agentNode: v.tipo_caso === 'ACCION' ? 'Router + Resolver accion (acción propuesta)' : 'Agente RAG (Consultas)',\n  toolOutput: enmascarar(v.fragmentos).slice(0, 1500),\n  systemPromptSnapshot: { version: 'juez-rubrica-v3.1 (M11: acciones + «No sé»)', sha256: '5d369ceb1dc7' },\n  confidenceScore: Math.round((Number(v.exactitud_factual) || 1) / 5 * 100) / 100,\n  decision: { estado_veredicto: v.estado_veredicto, ruta: v.ruta, intento: v.intento || 1 },\n};\nreturn [{ json: { ...v, ...log, pregunta: enmascarar(v.pregunta), respuesta: enmascarar(v.respuesta),\n  systemPromptSnapshot: log.systemPromptSnapshot.version + ' · sha256:' + log.systemPromptSnapshot.sha256,\n  log_json: JSON.stringify(log) } }];"
+    "jsCode": "// Log de auditoría máquina-procesable (JSON) del Juez, con enmascarado de PII antes de guardarlo.\nconst v = $json;\n// Nombres del paciente: los que extrajo el sistema y los que el paciente dice (\"soy…\", \"me llamo…\", \"mi nombre es…\").\nconst datosClave = String((v.contexto_airtable || {}).datos_clave || '');\nconst delMemoria = datosClave.match(/Paciente:\\s*([^|]+)/);\nconst nombres = [(v.accion_propuesta || {}).nombre, delMemoria ? delMemoria[1] : '']\n  .map(x => String(x || '').trim()).filter(x => x.length > 2);\nconst esc = x => x.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst enmascarar = s => nombres.reduce((t, nm) => t.replace(new RegExp(esc(nm), 'gi'), '[NOMBRE]'), String(s || ''))\n  .replace(/\\b(soy|me llamo|mi nombre es)\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?/g, '$1 [NOMBRE]')\n  .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g, '[EMAIL]')\n  .replace(/\\b\\d{1,2}\\.\\d{3}\\.\\d{3}\\b|\\b\\d{7,8}\\b/g, '[DNI]')\n  .replace(/\\+?\\d[\\d\\s-]{8,}\\d/g, '[TEL]');\nconst log = {\n  timestamp: new Date().toISOString(),\n  traceId: v.traceId || 'sin-traceId',\n  parentExecutionId: String(v.execution_id || ''),\n  executionId: String($execution.id),\n  environment: 'desarrollo (n8n local)',\n  nodeName: 'AgendaBot · Juez (supervisor) › Juez (LLM con JSON Schema)',\n  agentNode: v.tipo_caso === 'ACCION' ? 'Router + Resolver accion (acción propuesta)' : 'Agente RAG (Consultas)',\n  toolOutput: enmascarar(v.fragmentos).slice(0, 1500),\n  systemPromptSnapshot: { version: 'juez-rubrica-v3.1 (acciones + «No sé»)', sha256: '5d369ceb1dc7' },\n  confidenceScore: Math.round((Number(v.exactitud_factual) || 1) / 5 * 100) / 100,\n  decision: { estado_veredicto: v.estado_veredicto, ruta: v.ruta, intento: v.intento || 1 },\n};\nreturn [{ json: { ...v, ...log, pregunta: enmascarar(v.pregunta), respuesta: enmascarar(v.respuesta),\n  systemPromptSnapshot: log.systemPromptSnapshot.version + ' · sha256:' + log.systemPromptSnapshot.sha256,\n  log_json: JSON.stringify(log) } }];"
    }
   }
  ],
