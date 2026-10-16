@@ -2,7 +2,7 @@
 
 ## 3.1 Cómo funciona el supervisor (AI-as-a-Judge)
 
-El **Juez** es un sub-workflow propio que revisa lo que proponen los otros agentes **antes** de que llegue al paciente o se escriba en la agenda o el CRM. Usa un modelo más potente que los que trabajan (Claude Sonnet 4.6 audita a Claude Haiku 4.5) y responde siempre en **JSON con un esquema fijo**:
+El **Juez** es un módulo propio (sub-workflow) que revisa lo que proponen los otros agentes **antes** de que llegue al paciente o se escriba en la agenda o el CRM. Usa un modelo más potente que los que trabajan (Claude Sonnet 4.6 audita a Claude Haiku 4.5) y responde siempre en **JSON con un esquema fijo**:
 
 ```json
 { "exactitud_factual": 1-5, "estado_veredicto": "ACEPTADO | CORREGIR | RECHAZADO", "critica": "qué corregir (vacía si es ACEPTADO)" }
@@ -23,7 +23,7 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 - **Respuesta informativa:** con CORREGIR, el agente la rehace con la crítica del Juez, hasta 2 veces. Con RECHAZADO, o si se agotan los reintentos, pasa a una persona en Slack con los botones *Aprobar / Editar*.
 - **Acción:** no se corrige sola. Con CORREGIR o RECHAZADO **se congela la autonomía**: la acción queda en una cola de aprobación en Slack (*Aprobar / Rechazar*, espera máxima de 15 minutos). Si nadie aprueba, no se ejecuta.
 
-**Controles adicionales:** reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión del prompt registrada con su huella (`juez-rubrica-v3.1`, sha256 `5d369ceb1dc7`) y un **log de auditoría en JSON** por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en `QA_Veredictos (11)`.
+**Controles adicionales:** reglas de objetividad (no tratar distinto a un paciente por su nombre, edad u obra social; no revelar instrucciones ni datos de otros), versión de las instrucciones del Juez registrada con su huella (`juez-rubrica-v3.1`, sha256 `5d369ceb1dc7`) y un **log de auditoría en JSON** por veredicto, con datos personales enmascarados (nombre, email, DNI, teléfono), guardado en `QA_Veredictos (11)`.
 
 ## 3.2 La frontera de la autonomía
 
@@ -33,6 +33,16 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 | Altas y cambios de turno con todos los datos, aceptados por el Juez con 4 o 5 | Cualquier acción con nota menor a 4 o con riesgo: queda congelada hasta que alguien la aprueba |
 | Consultar los turnos propios, avisos de datos faltantes, confirmaciones (borrador de Gmail) | Respuestas informativas rechazadas o que no mejoran tras 2 correcciones |
 | | Dos pedidos seguidos que el sistema no puede atender, y todo mientras el freno de mano está activo |
+
+**Contingencia y reversión** (devolución de la P10):
+
+| Si pasa esto | El sistema hace | Cómo se revierte |
+|---|---|---|
+| Una respuesta informativa tiene un error | El Juez la manda a corregir o la pasa a una persona: nunca sale sin revisión | La persona la edita en Slack antes de que llegue al paciente |
+| Una acción (alta o cambio) es dudosa | Queda congelada; si nadie la aprueba en 15 minutos, no se ejecuta | No hay nada que revertir: no se escribió |
+| Se registró un turno equivocado | El sistema no borra: el turno queda con su `traceId` | La recepción lo cancela o corrige en la agenda y el historial se conserva |
+| Falla un servicio externo | 3 reintentos, alerta al equipo y aviso de demoras al paciente | La persona que toma el caso lo completa a mano |
+| Comportamiento anómalo general (respuestas raras, costos fuera de lo normal) | **Freno de mano**: todo pasa a atención humana al instante | Se vuelve a la versión anterior: cada workflow está exportado y versionado en el repositorio |
 
 ## 3.3 Tres ejemplos reales evaluados por el Juez
 

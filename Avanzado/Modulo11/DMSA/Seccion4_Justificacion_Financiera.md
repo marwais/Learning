@@ -16,6 +16,8 @@ Pregunta del comité: *¿esto realmente ahorra plata o es un gasto nuevo?* La re
 
 ## 4.2 El costo en inteligencia artificial: fórmula y valores medidos
 
+Los proveedores de IA cobran por *tokens*: fragmentos de texto de unas tres cuartas partes de una palabra, que se cuentan al entrar (lo que lee el modelo) y al salir (lo que escribe).
+
 **Fórmula** (precios de Anthropic en US$ por millón de tokens: Claude Haiku 4.5 = 1 de entrada / 5 de salida; Claude Sonnet 4.6 = 3 / 15):
 
 > costo de una llamada = (tokens de entrada × precio de entrada + tokens de salida × precio de salida) / 1.000.000

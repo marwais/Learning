@@ -50,5 +50,5 @@ La Clínica LoDeTincho (nombre anonimizado) recibe unas **250 gestiones por día
 | Resultado validado despachado por un canal externo | Sección 2.2 (etapa 10): Telegram (voz o texto), borradores de Gmail y Slack |
 | Arquitectura modular Manager-Worker | Sección 2.1: 14 workflows independientes y un Manager que delega |
 | RAG que cita fuentes con metadatos reales y responde «No sé» | Sección 2.6 y ejemplos de la Sección 3.3 |
-| Reintentos y fallas sin duplicar registros ni envíos | Secciones 2.3 y 2.5: claves de idempotencia, *upsert*, ramas de error y alertas |
+| Reintentos y fallas sin duplicar registros ni envíos | Secciones 2.3 y 2.5: control de pedidos repetidos, escritura que actualiza en lugar de duplicar, ramas de error y alertas |
 | Sin claves ni tokens expuestos | Anexo A: solo nombres de variables y credenciales |

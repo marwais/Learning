@@ -4,53 +4,60 @@
 
 AgendaBot no es un único flujo: son **14 workflows independientes** de n8n (versión comunitaria, en Docker). Un **Manager** coordina y delega cada tarea en un especialista: el patrón *Manager-Worker*. Cada canal de entrada es un adaptador propio y cada capacidad delicada (supervisión, escalado, voz, alertas) es un sub-workflow que se puede probar y cambiar por separado.
 
-<svg viewBox="0 0 780 470" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
-  <defs><marker id="fl" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4b5563"/></marker></defs>
-  <text x="80" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">CANALES</text>
-  <g font-size="10.5">
-    <rect x="5" y="28" width="150" height="46" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="47" text-anchor="middle" font-weight="700">Receptor (webhook)</text><text x="80" y="63" text-anchor="middle" fill="#4b5563" font-size="9.5">web, app o CRM · 202 al instante</text>
-    <rect x="5" y="82" width="150" height="46" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="101" text-anchor="middle" font-weight="700">Canal Telegram</text><text x="80" y="117" text-anchor="middle" fill="#4b5563">texto o voz (Whisper)</text>
-    <rect x="5" y="136" width="150" height="40" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="160" text-anchor="middle" font-weight="700">Email (Gmail)</text>
-    <rect x="5" y="184" width="150" height="40" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="80" y="208" text-anchor="middle" font-weight="700">Chat</text>
-  </g>
-  <g stroke="#4b5563" stroke-width="1.5" marker-end="url(#fl)"><line x1="155" y1="51" x2="218" y2="110"/><line x1="155" y1="105" x2="218" y2="122"/><line x1="155" y1="156" x2="218" y2="136"/><line x1="155" y1="204" x2="218" y2="148"/></g>
-  <rect x="220" y="28" width="250" height="250" rx="12" fill="#0b3d5c"/>
-  <text x="345" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">MANAGER (coordinador)</text>
-  <g font-size="10.5" fill="#dbe7f0">
-    <text x="235" y="76">1 Entrada y formato común</text><text x="235" y="94">2 <tspan font-family="Consolas, monospace">traceId</tspan> y control de repetidos</text>
-    <text x="235" y="112">3 Triaje de señales rojas y freno de mano</text><text x="235" y="130">4 Memoria del paciente y clasificación</text>
-    <text x="235" y="148">5 Gestión de turnos (con Juez)</text><text x="235" y="166">6 Consulta de turnos</text>
-    <text x="235" y="184">7 Consultas informativas (con Juez)</text><text x="235" y="202">8 Registro, log y memoria</text>
-    <text x="235" y="220">9 Respuesta y control de comprensión</text><text x="235" y="238">10 Despacho por el canal de origen</text>
-  </g>
-  <text x="345" y="266" text-anchor="middle" font-size="10" fill="#9fc0d6">Error Workflow: Errores (M11)</text>
-  <text x="620" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">ESPECIALISTAS (sub-workflows)</text>
-  <g font-size="10.5">
-    <rect x="490" y="28" width="135" height="38" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="557" y="44" text-anchor="middle" font-weight="700">Workers 1 a 4</text><text x="557" y="58" text-anchor="middle" fill="#4b5563" font-size="9.5">registran y consultan turnos</text>
-    <rect x="635" y="28" width="140" height="38" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="705" y="44" text-anchor="middle" font-weight="700">Herramienta RAG</text><text x="705" y="58" text-anchor="middle" fill="#4b5563">Top-K 5 · Min Score 0,60</text>
-    <rect x="490" y="74" width="285" height="40" rx="7" fill="#fff4e5" stroke="#c2410c"/><text x="632" y="91" text-anchor="middle" font-weight="700" fill="#9a3412">Supervisor (AI-as-a-Judge)</text><text x="632" y="106" text-anchor="middle">revisa respuestas y acciones · umbral 4/5</text>
-    <rect x="490" y="122" width="135" height="40" rx="7" fill="#fde8e8" stroke="#b91c1c"/><text x="557" y="139" text-anchor="middle" font-weight="700" fill="#991b1b">Escalado humano</text><text x="557" y="154" text-anchor="middle">Slack con botones</text>
-    <rect x="635" y="122" width="140" height="40" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="705" y="139" text-anchor="middle" font-weight="700">Respuesta de voz</text><text x="705" y="154" text-anchor="middle" font-size="9.5">ElevenLabs, sin guardar audio</text>
-    <rect x="490" y="170" width="135" height="40" rx="7" fill="#fde8e8" stroke="#b91c1c"/><text x="557" y="187" text-anchor="middle" font-weight="700" fill="#991b1b">Errores</text><text x="557" y="202" text-anchor="middle">alerta en castellano</text>
-    <rect x="635" y="170" width="140" height="40" rx="7" fill="#fff" stroke="#0b3d5c"/><text x="705" y="187" text-anchor="middle" font-weight="700">Freno de mano</text><text x="705" y="202" text-anchor="middle">pausa con token</text>
-    <rect x="490" y="218" width="285" height="34" rx="7" fill="#fff" stroke="#9aa3ad" stroke-dasharray="4 3"/><text x="632" y="239" text-anchor="middle">Ingesta KB (manual): LlamaParse → Cohere → Qdrant</text>
-  </g>
-  <g stroke="#4b5563" stroke-width="1.5" marker-end="url(#fl)"><line x1="470" y1="70" x2="488" y2="50"/><line x1="470" y1="120" x2="488" y2="95"/><line x1="470" y1="150" x2="488" y2="142"/><line x1="470" y1="200" x2="488" y2="190"/></g>
-  <text x="390" y="304" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">HERRAMIENTAS Y DATOS</text>
+<svg viewBox="0 0 780 490" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <marker id="fin" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#374151"/></marker>
+    <marker id="ini" markerWidth="8" markerHeight="8" refX="1" refY="4" orient="auto"><path d="M8,0 L0,4 L8,8 z" fill="#374151"/></marker>
+  </defs>
+  <text x="8" y="12" font-size="10" font-weight="700" fill="#0b3d5c">1 · EL PACIENTE ESCRIBE POR SU CANAL</text>
   <g font-size="10.5" text-anchor="middle">
-    <rect x="5" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="66" y="332">Agenda de turnos</text><text x="66" y="348" fill="#4b5563">Google Sheets</text>
-    <rect x="135" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="196" y="332">Memoria del paciente</text><text x="196" y="348" fill="#4b5563">Airtable</text>
-    <rect x="265" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="326" y="332">CRM</text><text x="326" y="348" fill="#4b5563">HubSpot (metadatos)</text>
-    <rect x="395" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="456" y="332">Biblioteca oficial</text><text x="456" y="348" fill="#4b5563">Qdrant (195 fragmentos)</text>
-    <rect x="525" y="314" width="122" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="586" y="332">Data Tables (n8n)</text><text x="586" y="348" fill="#4b5563">repetidos · escalados</text>
-    <rect x="655" y="314" width="120" height="44" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="715" y="332">Slack · Gmail</text><text x="715" y="348" fill="#4b5563">Telegram</text>
+    <rect x="10" y="18" width="160" height="42" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="90" y="35" font-weight="700">Web, app o CRM</text><text x="90" y="51" fill="#4b5563" font-size="9.5">Receptor: responde al instante</text>
+    <rect x="185" y="18" width="160" height="42" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="265" y="35" font-weight="700">Telegram</text><text x="265" y="51" fill="#4b5563" font-size="9.5">texto o nota de voz</text>
+    <rect x="360" y="18" width="160" height="42" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="440" y="35" font-weight="700">Email</text><text x="440" y="51" fill="#4b5563" font-size="9.5">Gmail</text>
+    <rect x="535" y="18" width="160" height="42" rx="8" fill="#eef2f6" stroke="#0b3d5c"/><text x="615" y="35" font-weight="700">Chat</text><text x="615" y="51" fill="#4b5563" font-size="9.5">web de la clínica</text>
   </g>
-  <rect x="5" y="378" width="770" height="84" rx="10" fill="#f7f9fb" stroke="#0b3d5c" stroke-dasharray="5 3"/>
-  <text x="390" y="398" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">Correlación del <tspan font-family="Consolas, monospace">traceId</tspan> (código de seguimiento)</text>
+  <g stroke="#374151" stroke-width="1.6" marker-end="url(#fin)"><line x1="90" y1="60" x2="90" y2="92"/><line x1="265" y1="60" x2="265" y2="92"/><line x1="440" y1="60" x2="440" y2="92"/><line x1="615" y1="60" x2="615" y2="92"/></g>
+  <path d="M735,95 L735,39 L699,39" fill="none" stroke="#15803d" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#fin)"/>
+  <text x="748" y="160" font-size="9.5" fill="#15803d" transform="rotate(-90 748 160)">respuesta por el mismo canal</text>
+  <rect x="10" y="95" width="715" height="78" rx="12" fill="#0b3d5c"/>
+  <text x="367" y="115" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">2 · COORDINADOR (Manager): recorre las 10 etapas y delega</text>
+  <text x="367" y="137" text-anchor="middle" font-size="10.5" fill="#dbe7f0">1 Entrada · 2 Código de seguimiento y repetidos · 3 Triaje rojo y freno de mano · 4 Memoria y clasificación · 5 Turnos</text>
+  <text x="367" y="155" text-anchor="middle" font-size="10.5" fill="#dbe7f0">6 Consulta de turnos · 7 Consultas informativas · 8 Registro y memoria · 9 Respuesta · 10 Despacho</text>
+  <g font-size="9.5" fill="#0b3d5c"><text x="52" y="292" font-weight="700">3 · ESPECIALISTAS</text><text x="52" y="305" font-weight="700">Y SUS HERRAMIENTAS</text><text x="52" y="320">↕ el coordinador pide</text><text x="52" y="333">y recibe el resultado</text></g>
+  <g font-size="10" text-anchor="middle">
+    <rect x="10" y="205" width="150" height="62" rx="8" fill="#eef7f1" stroke="#15803d"/><text x="85" y="221" font-weight="700" fill="#166534">Datos del coordinador</text><text x="85" y="236">Memoria (Airtable)</text><text x="85" y="250">CRM (HubSpot) · Gmail</text><text x="85" y="263" fill="#4b5563" font-size="9">pedidos repetidos</text>
+    <rect x="172" y="205" width="88" height="62" rx="8" fill="#fff" stroke="#0b3d5c"/><text x="216" y="230" font-weight="700">Workers 1 a 4</text><text x="216" y="246" fill="#4b5563" font-size="9">registran y</text><text x="216" y="258" fill="#4b5563" font-size="9">consultan turnos</text>
+    <rect x="270" y="205" width="88" height="62" rx="8" fill="#fff" stroke="#0b3d5c"/><text x="314" y="230" font-weight="700">Búsqueda</text><text x="314" y="246" fill="#4b5563" font-size="9">en la biblioteca</text><text x="314" y="258" fill="#4b5563" font-size="9">(5 mejores, ≥ 0,60)</text>
+    <rect x="368" y="205" width="88" height="62" rx="8" fill="#fff4e5" stroke="#c2410c"/><text x="412" y="230" font-weight="700" fill="#9a3412">Juez</text><text x="412" y="246" font-size="9">revisa respuestas</text><text x="412" y="258" font-size="9">y acciones (≥ 4/5)</text>
+    <rect x="466" y="205" width="88" height="62" rx="8" fill="#fde8e8" stroke="#b91c1c"/><text x="510" y="230" font-weight="700" fill="#991b1b">Escalado</text><text x="510" y="246" font-size="9">a una persona</text><text x="510" y="258" font-size="9">con botones</text>
+    <rect x="564" y="205" width="88" height="62" rx="8" fill="#fff" stroke="#0b3d5c"/><text x="608" y="230" font-weight="700">Voz</text><text x="608" y="246" fill="#4b5563" font-size="9">respuesta hablada</text><text x="608" y="258" fill="#4b5563" font-size="9">sin guardar audio</text>
+    <rect x="662" y="205" width="88" height="62" rx="8" fill="#fde8e8" stroke="#b91c1c"/><text x="706" y="230" font-weight="700" fill="#991b1b">Errores y freno</text><text x="706" y="246" font-size="9">alertas y</text><text x="706" y="258" font-size="9">pausa general</text>
+  </g>
+  <g stroke="#374151" stroke-width="1.6" marker-end="url(#fin)" marker-start="url(#ini)">
+    <line x1="85" y1="176" x2="85" y2="202"/><line x1="216" y1="176" x2="216" y2="202"/><line x1="314" y1="176" x2="314" y2="202"/>
+    <line x1="412" y1="176" x2="412" y2="202"/><line x1="510" y1="176" x2="510" y2="202"/><line x1="608" y1="176" x2="608" y2="202"/><line x1="706" y1="176" x2="706" y2="202"/>
+  </g>
+  <g stroke="#374151" stroke-width="1.6" marker-end="url(#fin)">
+    <line x1="216" y1="267" x2="216" y2="303"/><line x1="314" y1="267" x2="314" y2="303"/><line x1="412" y1="267" x2="412" y2="303"/>
+    <line x1="510" y1="267" x2="510" y2="303"/><line x1="608" y1="267" x2="608" y2="303"/><line x1="706" y1="267" x2="706" y2="303"/>
+  </g>
+  <text x="418" y="287" font-size="9" fill="#9a3412">registra cada veredicto</text>
+  <g font-size="9.5" text-anchor="middle">
+    <rect x="172" y="306" width="88" height="40" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="216" y="322">Agenda</text><text x="216" y="336" fill="#4b5563">Google Sheets</text>
+    <rect x="270" y="306" width="88" height="40" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="314" y="322">Biblioteca oficial</text><text x="314" y="336" fill="#4b5563">Qdrant</text>
+    <rect x="368" y="306" width="88" height="40" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="412" y="322">Veredictos</text><text x="412" y="336" fill="#4b5563">log de auditoría</text>
+    <rect x="466" y="306" width="88" height="40" rx="7" fill="#fde8e8" stroke="#b91c1c"/><text x="510" y="322">Equipo humano</text><text x="510" y="336" fill="#4b5563">en Slack</text>
+    <rect x="564" y="306" width="88" height="40" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="608" y="322">Telegram</text><text x="608" y="336" fill="#4b5563">ElevenLabs</text>
+    <rect x="662" y="306" width="88" height="40" rx="7" fill="#eef7f1" stroke="#15803d"/><text x="706" y="322">Slack · email</text><text x="706" y="336" fill="#4b5563">Telegram</text>
+  </g>
+  <path d="M510,346 L510,364 L40,364 L40,269" fill="none" stroke="#b91c1c" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#fin)"/>
+  <text x="275" y="378" text-anchor="middle" font-size="9.5" fill="#991b1b">la persona aprueba, edita, rechaza o responde: su decisión vuelve al coordinador</text>
+  <rect x="10" y="390" width="740" height="92" rx="10" fill="#f7f9fb" stroke="#0b3d5c" stroke-dasharray="5 3"/>
+  <text x="380" y="410" text-anchor="middle" font-size="12" font-weight="700" fill="#0b3d5c">4 · Correlación del <tspan font-family="Consolas, monospace">traceId</tspan> (código de seguimiento)</text>
   <g font-size="10.5" text-anchor="middle">
-    <text x="390" y="418">Lo crea el Receptor (o el Manager) → viaja a cada Worker, a la herramienta RAG, al Juez y al escalado</text>
-    <text x="390" y="436">→ queda en la agenda, en el contacto de HubSpot, en QA_Veredictos (11), en escalados_m11, en el log de auditoría y en cada alerta</text>
-    <text x="390" y="454" fill="#4b5563">Con un solo código se reconstruye qué pidió el paciente, qué decidió el Juez, quién aprobó y qué se escribió.</text>
+    <text x="380" y="430">Lo crea el Receptor (o el coordinador) → viaja a cada Worker, a la búsqueda, al Juez y al escalado</text>
+    <text x="380" y="448">→ queda en la agenda, en el contacto de HubSpot, en los veredictos, en los escalados, en el log de auditoría y en cada alerta</text>
+    <text x="380" y="466" fill="#4b5563">Con un solo código se reconstruye qué pidió el paciente, qué decidió el Juez, quién aprobó y qué se escribió.</text>
   </g>
 </svg>
 
