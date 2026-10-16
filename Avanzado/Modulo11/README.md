@@ -73,7 +73,9 @@
 - [x] Saldo de Anthropic recargado por el usuario (15/10/2026); verificado con una consulta de punta a punta.
 - [ ] ~~**Saldo de la API de Anthropic agotado** (15/10/2026, 14:36): el Router devolvió "credit balance is too low". Sin crédito se paran Router, RAG y Juez; el triaje, el freno de mano y las alertas siguen andando. Lo carga el usuario en console.anthropic.com → Plans & Billing.~~
 - [x] **Lienzo legible del Manager** ([`scripts/lienzo_m11.py`](scripts/lienzo_m11.py)), por la devolución de la P8 y la Sección 2 del DMSA. Los 129 nodos quedaron en carriles de izquierda a derecha, sin superposiciones, y **10 marcos numerados** con una explicación cada uno: 1 Entrada · 2 Trazabilidad e idempotencia · 3 Seguridad · 4 Memoria y clasificación · 5 Gestión de turnos con Juez · 6 Consulta de turnos · 7 Consultas informativas con Juez · 8 Registro y memoria · 9 Respuesta y comprensión · 10 Despacho. Solo cambian posiciones y notas, no la lógica.
-- [ ] **Prioridad 3: evidencias y DMSA.**
+- [x] **Batería de evaluación y modelos económicos** ([`scripts/bateria_m11.py`](scripts/bateria_m11.py), [`evaluacion/comparacion_modelos.md`](evaluacion/comparacion_modelos.md)). Se corrieron 16 casos con resultado esperado tres veces: A (todo Sonnet), B (Router en Haiku 4.5) y C (Router y Agente RAG en Haiku 4.5). Las tres dieron **16/16**. **Decisión: C**, con el Juez en Sonnet 4.6: el modelo económico trabaja y el fuerte audita. Cuesta US$ 0,0166 por consulta informativa (contra 0,0350 en A) y US$ 0,0092 por acción, con un proceso en segundo plano de 7,5 s de promedio y respuesta del Receptor en 0,08 s.
+- [x] Estructura del DMSA ([`DMSA/estructura.md`](DMSA/estructura.md)) y guion del video ([`DMSA/guion_video.md`](DMSA/guion_video.md)).
+- [ ] **Prioridad 3: redactar el DMSA.**
 
 **Pruebas** (14–15/10/2026) con [`scripts/probar_webhook.py`](scripts/probar_webhook.py) y [`scripts/ver_ejecucion.py`](scripts/ver_ejecucion.py):
 
