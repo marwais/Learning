@@ -33,6 +33,12 @@ Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor
 
 ![Airtable · Memoria_Pacientes: una fila por paciente con el estado del caso según el resultado (Cerrado, Pendiente por datos faltantes, En Revisión por acción congelada), contador de mensajes y último traceId](capturas/resultado_airtable_memoria.png)
 
+![Data Tables de n8n: el estado operativo del sistema (idempotencia, escalados, sesiones, pedidos pendientes y freno de mano)](capturas/resultado_datatables_lista.png)
+
+![Data Table escalados: cada caso rojo de la batería, con su categoría, canal, traceId y la decisión registrada (se muestran solo las filas de la batería)](capturas/resultado_datatable_escalados.png)
+
+![Data Table control: el freno de mano desactivado](capturas/resultado_datatable_control.png)
+
 ## Pruebas manuales por los canales reales (14 y 15/10/2026)
 
 | Prueba | Resultado | `traceId` o ejecución |
