@@ -64,17 +64,14 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
 - **Restos de prueba**: quedó el contacto `prueba.m11@example.com` en HubSpot y quedaron borradores de prueba en Gmail.
 
 ## Pendientes (por prioridad)
-1. **Usuario: completar las capturas que faltan.**
-   - Worker 4 · Modificar turno.
-   - Data Tables (`pedidos_procesados`, `escalados`, `control`).
-   - **Airtable `Memoria_Pacientes` de nuevo**, con las filas `bateria.g.*`, que ya muestran Cerrado, Pendiente y En Revisión. Sin la barra de pestañas `Memoria_M3…M9`.
-
-   En Airtable conviene borrar a mano las filas basura: `mailer-daemon@googlemail.com` y `mwquiero@gmail.com`. Claude no borra datos.
-2. **Claude:** incorporar esas capturas (la de Airtable en el Anexo B, Worker 4 y Data Tables en el Anexo C) y regenerar el PDF.
-3. **Usuario: revisar el DMSA y grabar el video.** Después, Claude:
+1. **Usuario: revisar el DMSA** (35 páginas), con atención a la diagramación de los Anexos B y C. Claude no pudo ver las páginas: en esta PC no hay con qué convertir el PDF a imagen.
+2. **Usuario: grabar el video.** Después, Claude:
    - incorpora el link en la sección C.3;
    - regenera el PDF y lo verifica con `pdftotext`;
    - re-exporta los 15 workflows. Las exportaciones todavía tienen nombres de archivo viejos.
+3. **Opcional:**
+   - recapturar la Data Table `control`, que hoy dice "Prueba Claude" en `actualizado_por`. Antes hay que activar y desactivar el freno por su webhook (propuesta, sin confirmar);
+   - borrar a mano en Airtable las filas `mailer-daemon@googlemail.com` y `mwquiero@gmail.com`.
 4. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
 
 ## Recursos clave
