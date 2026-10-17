@@ -35,6 +35,8 @@ Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor
 
 ![Data Tables de n8n: el estado operativo del sistema (idempotencia, escalados, sesiones, pedidos pendientes y freno de mano)](capturas/resultado_datatables_lista.png)
 
+![Data Table pedidos_procesados: la batería envió 16 pedidos y quedaron 15 filas, porque el pedido 16 repetía la clave del 01 y se respondió como duplicado sin volver a procesarse](capturas/resultado_datatable_pedidos.png)
+
 ![Data Table escalados: cada caso rojo de la batería, con su categoría, canal, traceId y la decisión registrada (se muestran solo las filas de la batería)](capturas/resultado_datatable_escalados.png)
 
 ![Data Table control: el freno de mano desactivado](capturas/resultado_datatable_control.png)
