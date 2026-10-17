@@ -33,6 +33,8 @@
 
 ![AgendaBot · Worker 3 · Consultar turnos](capturas/sub_worker3.png)
 
+![AgendaBot · Worker 4 · Modificar turno](capturas/sub_worker4.png)
+
 ![AgendaBot · Escalado humano: aviso con botones en Slack, recordatorio y respuesta al paciente por su canal](capturas/sub_escalado.png)
 
 ![AgendaBot · Respuesta de voz: síntesis, envío y descarte del audio](capturas/sub_respuesta_voz.png)
