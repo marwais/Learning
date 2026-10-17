@@ -29,7 +29,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </style></head><body><section class="portada">
 <div class="titulo"><h1>Proyecto Final Integrador<br>AgendaBot: Central de Turnos agéntica</h1>
 <p>Documentación Maestra del Sistema Agéntico (DMSA) — AI Automation Avanzado (Coderhouse), cohorte 2026</p>
-<p><b>Julio Martín Waisburd</b></p><p>16/10/2026</p></div>
+<p><b>Julio Martín Waisburd</b></p><p>17/10/2026</p></div>
 <nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 14</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 18</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 21</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 24</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows y operación</span><span class="dots"></span><span class="p">pág. 30</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
 <h2>El problema de negocio</h2>
 <p>La Clínica LoDeTincho (nombre anonimizado) recibe unas <strong>250 gestiones por día</strong>: sacar, cambiar, consultar y confirmar turnos, y preguntas sobre especialidades, horarios y estudios. Hoy las atienden tres administrativas de 8 a 20 h, que repiten las mismas tareas todo el día:</p>
@@ -1650,7 +1650,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li><strong>n8n</strong>, con <code>WEBHOOK_URL</code> igual al dominio público y <code>N8N_EDITOR_BASE_URL</code> igual a la dirección local;</li>
 <li>el <strong>agente del túnel (ngrok)</strong>, que publica n8n en el dominio fijo por el puerto 443.</li>
 </ol>
-<p>Todo lo hace el script <code>levantar_ngrok.ps1</code>, que recrea n8n solo si cambia la dirección pública. Los datos de n8n quedan en un volumen persistente.
+<p>Los datos de n8n quedan en un volumen persistente.
 3. <strong>Activación.</strong> Se publican los workflows: primero los especialistas (Workers, herramienta RAG, Juez, Escalado humano, Respuesta de voz, Errores) y al final los que tienen disparadores externos (Receptor, Canal Telegram, Freno de mano y el Manager). Al activarse, el Canal Telegram registra su dirección en Telegram y el Manager empieza a leer la casilla de Gmail.
 4. <strong>Verificación.</strong>
    - <code>GET {WEBHOOK_URL}/healthz</code> responde 200 desde afuera;
@@ -1660,6 +1660,5 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
    - el simulacro de falla genera la alerta en Slack;
    - en las Data Tables, <code>control</code> tiene <code>freno_de_mano = no</code>.
 5. <strong>Pruebas automáticas.</strong> <code>scripts/probar_webhook.py</code> (prueba de humo) y <code>scripts/bateria.py</code> (los 16 casos del Anexo B).</p>
-<p><strong>Si el servicio ya está publicado en otra instancia</strong> (otro servidor o una versión anterior), primero hay que <strong>desactivarla</strong>: apagar sus workflows con disparadores externos y su túnel. El bot de Telegram, la casilla de Gmail y el dominio público admiten <strong>una sola instancia activa</strong>; con dos, los mensajes se repartirían o se procesarían dos veces. Recién después se levanta la nueva y se verifica con el paso 4. Si se trata de la misma instancia, alcanza con volver a ejecutar los pasos 2 a 4: son idempotentes y no duplican nada.</p>
 <h2>C.3 Video</h2>
 <p>Demostración de 3 minutos del flujo activo: <strong>[enlace pendiente]</strong>.</p></section></body></html>

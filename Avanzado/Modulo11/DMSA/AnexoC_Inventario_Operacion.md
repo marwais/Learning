@@ -57,7 +57,7 @@ El sistema corre en contenedores de Docker sobre un servidor (o una computadora)
    - **n8n**, con `WEBHOOK_URL` igual al dominio público y `N8N_EDITOR_BASE_URL` igual a la dirección local;
    - el **agente del túnel (ngrok)**, que publica n8n en el dominio fijo por el puerto 443.
 
-   Todo lo hace el script `levantar_ngrok.ps1`, que recrea n8n solo si cambia la dirección pública. Los datos de n8n quedan en un volumen persistente.
+   Los datos de n8n quedan en un volumen persistente.
 3. **Activación.** Se publican los workflows: primero los especialistas (Workers, herramienta RAG, Juez, Escalado humano, Respuesta de voz, Errores) y al final los que tienen disparadores externos (Receptor, Canal Telegram, Freno de mano y el Manager). Al activarse, el Canal Telegram registra su dirección en Telegram y el Manager empieza a leer la casilla de Gmail.
 4. **Verificación.**
    - `GET {WEBHOOK_URL}/healthz` responde 200 desde afuera;
@@ -67,8 +67,6 @@ El sistema corre en contenedores de Docker sobre un servidor (o una computadora)
    - el simulacro de falla genera la alerta en Slack;
    - en las Data Tables, `control` tiene `freno_de_mano = no`.
 5. **Pruebas automáticas.** `scripts/probar_webhook.py` (prueba de humo) y `scripts/bateria.py` (los 16 casos del Anexo B).
-
-**Si el servicio ya está publicado en otra instancia** (otro servidor o una versión anterior), primero hay que **desactivarla**: apagar sus workflows con disparadores externos y su túnel. El bot de Telegram, la casilla de Gmail y el dominio público admiten **una sola instancia activa**; con dos, los mensajes se repartirían o se procesarían dos veces. Recién después se levanta la nueva y se verifica con el paso 4. Si se trata de la misma instancia, alcanza con volver a ejecutar los pasos 2 a 4: son idempotentes y no duplican nada.
 
 ## C.3 Video
 
