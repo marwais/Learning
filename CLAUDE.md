@@ -1,11 +1,10 @@
 # Learning — curso "AI Automation Avanzado" (Coderhouse)
 
 Proyecto integrador **AgendaBot**: el coordinador de agenda de la Clínica LoDeTincho, hecho con n8n.
-El proyecto crece módulo a módulo y no se rehace.
-- M1 a M10 entregados.
-- **M11 = Proyecto Final**, vence el **13/11/2026 a las 20:59**.
+El proyecto creció módulo a módulo sin rehacerse.
+- **Curso terminado (20/10/2026)**: M1 a M10 entregados y el M11 (Proyecto Final) dado por completado por el usuario.
 
-El estado y los pendientes están en el contexto vivo:
+El estado final y lo que queda (solo opcionales) está en:
 
 @docs/contexto.md
 
@@ -18,6 +17,7 @@ El estado y los pendientes están en el contexto vivo:
   - `maquinas.json`: datos de las dos PCs.
 - `Avanzado/Modulo11/`:
   - `scripts/`: construcción y pruebas.
+  - `workflows/`: exportación JSON de los 15 workflows ("AgendaBot · …").
   - `evaluacion/`: batería y finanzas.
   - `DMSA/`: el documento final y `build_pdf.py`.
   - `_ids_m11.json`: ids de los workflows.
@@ -49,7 +49,7 @@ El estado y los pendientes están en el contexto vivo:
   2. modificar los nodos y las conexiones;
   3. PUT con `settings` filtrados;
   4. republicar;
-  5. exportar el JSON.
+  5. exportar el JSON a `Modulo11/workflows/`.
 
   Las fábricas de nodos están en `Modulo11/scripts/seguridad_p2_m11.py` (`si`, `dt`, `set_json`, `set_campos`, `slack_post`, `exec_wf`, `conectar`, `republicar`).
 - **No-Code híbrido** (decisión del usuario): los nodos Code heredados no se migran. Todo lo nuevo se hace con nodos visuales (IF, Set, Switch, Data Table, Slack, etc.).
