@@ -41,10 +41,10 @@ SETTINGS_OK = {"executionOrder", "saveDataSuccessExecution", "saveDataErrorExecu
 
 # clave (igual en _ids_m9 y _ids_m11) en orden de dependencia: primero lo que otros llaman
 ORDEN = ["tool_rag", "worker1", "worker2", "worker3", "worker4", "supervisor", "manager"]
-ARCHIVOS = {"tool_rag": "Tool_ConsultarConocimiento (M11).json", "worker1": "Worker1_RegistrarTurno (M11).json",
-            "worker2": "Worker2_Confirmacion (M11).json", "worker3": "Worker3_ConsultarTurno (M11).json",
-            "worker4": "Worker4_ModificarTurno (M11).json", "supervisor": "SUPERVISOR_Judge (M11).json",
-            "manager": "AI Automation Avanzado - M11.json"}
+ARCHIVOS = {"tool_rag": "workflows/AgendaBot · Herramienta RAG.json", "worker1": "workflows/AgendaBot · Worker 1 · Registrar turno.json",
+            "worker2": "workflows/AgendaBot · Worker 2 · Confirmación.json", "worker3": "workflows/AgendaBot · Worker 3 · Consultar turnos.json",
+            "worker4": "workflows/AgendaBot · Worker 4 · Modificar turno.json", "supervisor": "workflows/AgendaBot · Juez (supervisor).json",
+            "manager": "workflows/AgendaBot · Manager.json"}
 
 
 def remap(texto, ids_wf):

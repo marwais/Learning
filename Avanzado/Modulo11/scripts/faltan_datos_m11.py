@@ -83,7 +83,7 @@ def manager():
     S.republicar(IDS["manager"])
     x = C.n8n("GET", f"/workflows/{IDS['manager']}")
     x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
-    json.dump(x, open(os.path.join(MOD11, "AI Automation Avanzado - M11.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(x, open(os.path.join(MOD11, "workflows/AgendaBot · Manager.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"Manager: mensaje de datos faltantes + pedido del email por escrito — {len(x['nodes'])} nodos, publicado")
 
 
@@ -99,7 +99,7 @@ def canal():
     S.republicar(IDS["canal_telegram"])
     x = C.n8n("GET", f"/workflows/{IDS['canal_telegram']}")
     x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
-    json.dump(x, open(os.path.join(MOD11, "Canal Telegram (M11).json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(x, open(os.path.join(MOD11, "workflows/AgendaBot · Canal Telegram.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("Canal Telegram: el texto que completa el pedido se agrega como datos del paciente; publicado")
 
 

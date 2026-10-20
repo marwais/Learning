@@ -243,12 +243,12 @@ def patch_sub(clave):
 
 
 def exportar():
-    archivos = {"manager": "AI Automation Avanzado - M11.json", "supervisor": "SUPERVISOR_Judge (M11).json",
-                "tool_rag": "Tool_ConsultarConocimiento (M11).json", "worker1": "Worker1_RegistrarTurno (M11).json",
-                "worker2": "Worker2_Confirmacion (M11).json", "worker3": "Worker3_ConsultarTurno (M11).json",
-                "worker4": "Worker4_ModificarTurno (M11).json"}
-    todos = [(IDS[k], v) for k, v in archivos.items()] + [(IDS["errores"], "Errores (M11).json"),
-                                                         (IDS["simulacro"], "Simulacro de falla (M11).json")]
+    archivos = {"manager": "workflows/AgendaBot · Manager.json", "supervisor": "workflows/AgendaBot · Juez (supervisor).json",
+                "tool_rag": "workflows/AgendaBot · Herramienta RAG.json", "worker1": "workflows/AgendaBot · Worker 1 · Registrar turno.json",
+                "worker2": "workflows/AgendaBot · Worker 2 · Confirmación.json", "worker3": "workflows/AgendaBot · Worker 3 · Consultar turnos.json",
+                "worker4": "workflows/AgendaBot · Worker 4 · Modificar turno.json"}
+    todos = [(IDS[k], v) for k, v in archivos.items()] + [(IDS["errores"], "workflows/AgendaBot · Errores.json"),
+                                                         (IDS["simulacro"], "workflows/AgendaBot · Simulacro de falla.json")]
     for wid, archivo in todos:
         w = C.n8n("GET", f"/workflows/{wid}")
         w = {k: w[k] for k in ("name", "nodes", "connections", "settings") if k in w}

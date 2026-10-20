@@ -147,8 +147,8 @@ def escalado(manager_w):
 
 
 def exportar():
-    for clave, archivo in [("manager", "AI Automation Avanzado - M11.json"), ("canal_telegram", "Canal Telegram (M11).json"),
-                           ("errores", "Errores (M11).json"), ("escalado_humano", "Escalado humano (M11).json")]:
+    for clave, archivo in [("manager", "workflows/AgendaBot · Manager.json"), ("canal_telegram", "workflows/AgendaBot · Canal Telegram.json"),
+                           ("errores", "workflows/AgendaBot · Errores.json"), ("escalado_humano", "workflows/AgendaBot · Escalado humano.json")]:
         x = C.n8n("GET", f"/workflows/{IDS[clave]}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
         json.dump(x, open(os.path.join(MOD11, archivo), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

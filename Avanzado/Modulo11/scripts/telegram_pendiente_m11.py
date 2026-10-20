@@ -88,7 +88,7 @@ def main():
     S.republicar(IDS["canal_telegram"])
     x = C.n8n("GET", f"/workflows/{IDS['canal_telegram']}")
     x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
-    json.dump(x, open(os.path.join(MOD11, "Canal Telegram (M11).json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(x, open(os.path.join(MOD11, "workflows/AgendaBot · Canal Telegram.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"Canal Telegram: pedido pendiente instalado — {len(x['nodes'])} nodos, publicado")
 
 

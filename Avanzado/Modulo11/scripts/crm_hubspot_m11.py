@@ -60,7 +60,7 @@ def main():
     S.republicar(S.IDS["manager"])
     x = C.n8n("GET", f"/workflows/{S.IDS['manager']}")
     x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
-    json.dump(x, open(os.path.join(MOD11, "AI Automation Avanzado - M11.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(x, open(os.path.join(MOD11, "workflows/AgendaBot · Manager.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("HubSpot: contacto con upsert + metadatos de AgendaBot; Manager publicado")
 
 

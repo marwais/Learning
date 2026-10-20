@@ -207,7 +207,7 @@ def main():
     print(f"Manager: {r['name']} — {len(r['nodes'])} nodos, publicado. POST /webhook/agendabot")
     w = C.n8n("GET", f"/workflows/{IDS['manager']}")
     w = {k: w[k] for k in ("name", "nodes", "connections", "settings") if k in w}
-    json.dump(w, open(os.path.join(MOD11, "AI Automation Avanzado - M11.json"), "w", encoding="utf-8"),
+    json.dump(w, open(os.path.join(MOD11, "workflows/AgendaBot · Manager.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
 
 

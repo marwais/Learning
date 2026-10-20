@@ -241,7 +241,7 @@ def republicar(wid):
 
 
 def exportar():
-    for clave, archivo in (("manager", "AI Automation Avanzado - M11.json"), ("supervisor", "SUPERVISOR_Judge (M11).json")):
+    for clave, archivo in (("manager", "workflows/AgendaBot · Manager.json"), ("supervisor", "workflows/AgendaBot · Juez (supervisor).json")):
         x = C.n8n("GET", f"/workflows/{IDS[clave]}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings") if k in x}
         json.dump(x, open(os.path.join(MOD11, archivo), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

@@ -198,8 +198,8 @@ def main():
         print("AVISO: no se pudo activar el Canal Telegram (¿túnel caído? correr Modulo6/scripts/levantar_tunel.ps1):", ex)
 
     # ---- exportar
-    for wid, archivo in [(IDS["manager"], "AI Automation Avanzado - M11.json"), (IDS["canal_telegram"], "Canal Telegram (M11).json"),
-                         (AUX["ingesta_kb"], "Ingesta KB (M11).json"), (IDS["errores"], "Errores (M11).json")]:
+    for wid, archivo in [(IDS["manager"], "workflows/AgendaBot · Manager.json"), (IDS["canal_telegram"], "workflows/AgendaBot · Canal Telegram.json"),
+                         (AUX["ingesta_kb"], "workflows/AgendaBot · Ingesta KB.json"), (IDS["errores"], "workflows/AgendaBot · Errores.json")]:
         x = C.n8n("GET", f"/workflows/{wid}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings") if k in x}
         json.dump(x, open(os.path.join(MOD11, archivo), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

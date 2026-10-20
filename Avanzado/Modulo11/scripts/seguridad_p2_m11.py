@@ -467,8 +467,8 @@ def manager(escalado_id):
 
 
 def exportar():
-    pares = [(IDS["manager"], "AI Automation Avanzado - M11.json"), (IDS["receptor"], "Receptor (M11).json"),
-             (IDS["escalado_humano"], "Escalado humano (M11).json"), (IDS["freno_de_mano"], "Freno de mano (M11).json")]
+    pares = [(IDS["manager"], "workflows/AgendaBot · Manager.json"), (IDS["receptor"], "workflows/AgendaBot · Receptor.json"),
+             (IDS["escalado_humano"], "workflows/AgendaBot · Escalado humano.json"), (IDS["freno_de_mano"], "workflows/AgendaBot · Freno de mano.json")]
     for wid, archivo in pares:
         x = C.n8n("GET", f"/workflows/{wid}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings") if k in x}

@@ -2,21 +2,21 @@
  "name": "AgendaBot · Canal Telegram",
  "nodes": [
   {
-   "id": "6a371300-cdbc-443b-a79e-62d21e605d48",
-   "name": "Mensaje de Telegram",
-   "webhookId": "08172566-f7cf-4a99-bf83-68e19a921332",
-   "type": "n8n-nodes-base.telegramTrigger",
-   "typeVersion": 1.2,
-   "position": [
-    60,
-    820
-   ],
    "parameters": {
     "updates": [
      "message"
     ],
     "additionalFields": {}
    },
+   "id": "6a371300-cdbc-443b-a79e-62d21e605d48",
+   "name": "Mensaje de Telegram",
+   "webhookId": "08172566-f7cf-4a99-bf83-68e19a921332",
+   "type": "n8n-nodes-base.telegramTrigger",
+   "typeVersion": 1.2,
+   "position": [
+    64,
+    832
+   ],
    "credentials": {
     "telegramApi": {
      "id": "x7iGZ1Z1LuKEKu80",
@@ -25,27 +25,19 @@
    }
   },
   {
+   "parameters": {
+    "jsCode": "// Telegram reintenta la entrega si el webhook tarda en responder: el mismo update llega varias veces.\n// Se procesa cada update_id una sola vez (memoria del workflow; persiste con el workflow publicado).\nconst s = $getWorkflowStaticData('global');\ns.vistos = s.vistos || [];\nconst id = $json.update_id;\nif (s.vistos.includes(id)) return [];\ns.vistos.push(id);\ns.vistos = s.vistos.slice(-200);\nreturn [$input.first()];"
+   },
    "id": "4f472e90-7fb8-472e-8587-083b42fedf8b",
    "name": "Filtrar repetidos",
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    260,
-    820
-   ],
-   "parameters": {
-    "jsCode": "// Telegram reintenta la entrega si el webhook tarda en responder: el mismo update llega varias veces.\n// Se procesa cada update_id una sola vez (memoria del workflow; persiste con el workflow publicado).\nconst s = $getWorkflowStaticData('global');\ns.vistos = s.vistos || [];\nconst id = $json.update_id;\nif (s.vistos.includes(id)) return [];\ns.vistos.push(id);\ns.vistos = s.vistos.slice(-200);\nreturn [$input.first()];"
-   }
+    272,
+    832
+   ]
   },
   {
-   "id": "afbd0748-e257-4332-bb67-8507f52f1441",
-   "name": "¿Nota de voz?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2,
-   "position": [
-    460,
-    820
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -68,9 +60,22 @@
      "combinator": "and"
     },
     "options": {}
-   }
+   },
+   "id": "afbd0748-e257-4332-bb67-8507f52f1441",
+   "name": "¿Nota de voz?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    464,
+    832
+   ]
   },
   {
+   "parameters": {
+    "resource": "file",
+    "fileId": "={{ $json.message.voice ? $json.message.voice.file_id : $json.message.audio.file_id }}",
+    "additionalFields": {}
+   },
    "id": "3a3fe3e7-67f0-4425-a312-42873c9d1f79",
    "name": "Descargar nota de voz",
    "webhookId": "4795f5f8-f530-42c9-a330-90391e2a8d80",
@@ -80,14 +85,9 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    660,
+    672,
     720
    ],
-   "parameters": {
-    "resource": "file",
-    "fileId": "={{ $json.message.voice ? $json.message.voice.file_id : $json.message.audio.file_id }}",
-    "additionalFields": {}
-   },
    "credentials": {
     "telegramApi": {
      "id": "x7iGZ1Z1LuKEKu80",
@@ -96,6 +96,14 @@
    }
   },
   {
+   "parameters": {
+    "resource": "audio",
+    "operation": "transcribe",
+    "options": {
+     "language": "es",
+     "temperature": 0
+    }
+   },
    "id": "d8e81985-10f2-4b7f-80ff-f9a66da235ae",
    "name": "Transcribir (Whisper)",
    "type": "@n8n/n8n-nodes-langchain.openAi",
@@ -104,18 +112,9 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    860,
+    864,
     720
    ],
-   "parameters": {
-    "resource": "audio",
-    "operation": "transcribe",
-    "binaryPropertyName": "data",
-    "options": {
-     "language": "es",
-     "temperature": 0
-    }
-   },
    "credentials": {
     "openAiApi": {
      "id": "Tacey98ffkGkZxpa",
@@ -124,27 +123,19 @@
    }
   },
   {
+   "parameters": {
+    "jsCode": "// Contingencia de audio: Whisper no devuelve vacío ante silencio o ruido, ALUCINA frases de subtítulos\n// (p. ej. \"Subtítulos realizados por la comunidad de Amara.org\"). Se marca como ilegible:\n// texto vacío o < 3 letras, solo signos, o una frase alucinada conocida.\nconst texto = String($json.text || '').trim();\nconst letras = texto.replace(/[^\\p{L}\\p{N}]/gu, '');\nconst ALUCINACIONES = [\n  /amara\\.org/i, /subt[ií]tulos (realizados|hechos|por)/i, /gracias por ver/i, /suscr[ií]bete/i,\n  /^\\W*(m[uú]sica|aplausos|risas|silencio)\\W*$/i, /^\\W*gracias\\.?\\W*$/i, /www\\.\\S+/i\n];\nconst alucinada = ALUCINACIONES.some(r => r.test(texto));\nconst ilegible = letras.length < 3 || alucinada;\n// Un email dictado por voz se transcribe mal (\"mwhisbord arroba gmail punto com\"): se pide por escrito.\nconst dicta_email = !ilegible && (/\\barroba\\b/i.test(texto) || /@/.test(texto) || /punto\\s*com\\b/i.test(texto));\nreturn [{ json: { ...$json, text: texto, ilegible, motivo_ilegible: ilegible ? (alucinada ? 'alucinación de Whisper' : 'audio vacío') : '', dicta_email } }];"
+   },
    "id": "1fc5d564-9687-4a0f-981a-6b0c138c5014",
    "name": "Evaluar transcripción",
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    1060,
+    1072,
     720
-   ],
-   "parameters": {
-    "jsCode": "// Contingencia de audio: Whisper no devuelve vacío ante silencio o ruido, ALUCINA frases de subtítulos\n// (p. ej. \"Subtítulos realizados por la comunidad de Amara.org\"). Se marca como ilegible:\n// texto vacío o < 3 letras, solo signos, o una frase alucinada conocida.\nconst texto = String($json.text || '').trim();\nconst letras = texto.replace(/[^\\p{L}\\p{N}]/gu, '');\nconst ALUCINACIONES = [\n  /amara\\.org/i, /subt[ií]tulos (realizados|hechos|por)/i, /gracias por ver/i, /suscr[ií]bete/i,\n  /^\\W*(m[uú]sica|aplausos|risas|silencio)\\W*$/i, /^\\W*gracias\\.?\\W*$/i, /www\\.\\S+/i\n];\nconst alucinada = ALUCINACIONES.some(r => r.test(texto));\nconst ilegible = letras.length < 3 || alucinada;\n// Un email dictado por voz se transcribe mal (\"mwhisbord arroba gmail punto com\"): se pide por escrito.\nconst dicta_email = !ilegible && (/\\barroba\\b/i.test(texto) || /@/.test(texto) || /punto\\s*com\\b/i.test(texto));\nreturn [{ json: { ...$json, text: texto, ilegible, motivo_ilegible: ilegible ? (alucinada ? 'alucinación de Whisper' : 'audio vacío') : '', dicta_email } }];"
-   }
+   ]
   },
   {
-   "id": "88bbf3b8-dc57-43e1-b986-0b840502d4cd",
-   "name": "¿Audio vacío o ilegible?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2,
-   "position": [
-    1260,
-    720
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -167,9 +158,24 @@
      "combinator": "and"
     },
     "options": {}
-   }
+   },
+   "id": "88bbf3b8-dc57-43e1-b986-0b840502d4cd",
+   "name": "¿Audio vacío o ilegible?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    1264,
+    720
+   ]
   },
   {
+   "parameters": {
+    "chatId": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
+    "text": "Perdón, no logré escuchar tu audio con claridad. ¿Podés grabarlo de nuevo en un lugar con menos ruido, o escribirme tu consulta?",
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
    "id": "56eb60cb-2843-4b50-af36-94d2b24fe815",
    "name": "Avisar: no se escuchó",
    "webhookId": "fb4d11ea-7c10-49fe-9c8f-9da3bf23af93",
@@ -179,16 +185,9 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    1480,
-    520
+    1488,
+    528
    ],
-   "parameters": {
-    "chatId": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
-    "text": "Perdón, no logré escuchar tu audio con claridad. ¿Podés grabarlo de nuevo en un lugar con menos ruido, o escribirme tu consulta?",
-    "additionalFields": {
-     "appendAttribution": false
-    }
-   },
    "credentials": {
     "telegramApi": {
      "id": "x7iGZ1Z1LuKEKu80",
@@ -197,14 +196,6 @@
    }
   },
   {
-   "id": "1bad6e61-7e0e-48d3-8660-3ffbb93c6971",
-   "name": "¿Dictó un email?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2,
-   "position": [
-    1480,
-    760
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -227,9 +218,24 @@
      "combinator": "and"
     },
     "options": {}
-   }
+   },
+   "id": "1bad6e61-7e0e-48d3-8660-3ffbb93c6971",
+   "name": "¿Dictó un email?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2,
+   "position": [
+    1488,
+    768
+   ]
   },
   {
+   "parameters": {
+    "chatId": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
+    "text": "Para evitar errores, el email te lo pido por escrito, por favor.",
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
    "id": "4293376d-034c-4ebf-8ffe-90bbfc03ea25",
    "name": "Pedir email por escrito",
    "webhookId": "4abddbf6-6f29-4e15-b08a-ce002a2e56d5",
@@ -239,16 +245,9 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    3260,
-    620
+    2720,
+    672
    ],
-   "parameters": {
-    "chatId": "={{ $('Mensaje de Telegram').first().json.message.chat.id }}",
-    "text": "Para evitar errores, el email te lo pido por escrito, por favor.",
-    "additionalFields": {
-     "appendAttribution": false
-    }
-   },
    "credentials": {
     "telegramApi": {
      "id": "x7iGZ1Z1LuKEKu80",
@@ -257,43 +256,35 @@
    }
   },
   {
+   "parameters": {
+    "jsCode": "// Une las dos ramas de Telegram (voz transcrita o texto) en el formato del Manager.\nconst t = $('Mensaje de Telegram').first().json.message || {};\nconst esVoz = !!(t.voice || t.audio);\nconst texto = esVoz ? String($json.text || '').trim() : String(t.text || '').trim();\nreturn [{ json: {\n  canal: esVoz ? 'telegram_voz' : 'telegram_texto',\n  update_id: $('Mensaje de Telegram').first().json.update_id,  // clave de idempotencia\n  sessionId: 'tg-' + t.chat.id,\n  tg_chat_id: t.chat.id,\n  tg_username: t.from?.username || '',  // para que el equipo pueda abrir el chat\n  mensaje: texto,\n  nombre_remitente: [t.from?.first_name, t.from?.last_name].filter(Boolean).join(' ')\n} }];"
+   },
    "id": "8bf34a0d-0f80-4316-8dae-8e48757de56a",
    "name": "Entrada Telegram",
    "type": "n8n-nodes-base.code",
    "typeVersion": 2,
    "position": [
-    2600,
-    880
-   ],
-   "parameters": {
-    "jsCode": "// Une las dos ramas de Telegram (voz transcrita o texto) en el formato del Manager.\nconst t = $('Mensaje de Telegram').first().json.message || {};\nconst esVoz = !!(t.voice || t.audio);\nconst texto = esVoz ? String($json.text || '').trim() : String(t.text || '').trim();\nreturn [{ json: {\n  canal: esVoz ? 'telegram_voz' : 'telegram_texto',\n  update_id: $('Mensaje de Telegram').first().json.update_id,  // clave de idempotencia\n  sessionId: 'tg-' + t.chat.id,\n  tg_chat_id: t.chat.id,\n  tg_username: t.from?.username || '',  // para que el equipo pueda abrir el chat\n  mensaje: texto,\n  nombre_remitente: [t.from?.first_name, t.from?.last_name].filter(Boolean).join(' ')\n} }];"
-   }
+    2064,
+    928
+   ]
   },
   {
+   "parameters": {
+    "content": "## Capa de voz — entrada",
+    "height": 760,
+    "width": 1960,
+    "color": 4
+   },
    "id": "b13afb30-6e75-4ca1-913c-4642ee5dad1c",
    "name": "Nota: Capa de voz",
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
     0,
-    300
-   ],
-   "parameters": {
-    "width": 1960,
-    "height": 760,
-    "color": 4,
-    "content": "## Capa de voz — entrada"
-   }
+    304
+   ]
   },
   {
-   "id": "53e18c94-56f4-4e8a-b7c9-cc0cd2e2bdc5",
-   "name": "Pasar al Manager",
-   "type": "n8n-nodes-base.executeWorkflow",
-   "typeVersion": 1.2,
-   "position": [
-    3920,
-    880
-   ],
    "parameters": {
     "workflowId": {
      "__rl": true,
@@ -312,19 +303,18 @@
     "options": {
      "waitForSubWorkflow": false
     }
-   }
+   },
+   "id": "53e18c94-56f4-4e8a-b7c9-cc0cd2e2bdc5",
+   "name": "Pasar al Manager",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    3376,
+    928
+   ]
   },
   {
-   "id": "e44d83ed-f8bd-4edf-b88e-688b4695506d",
-   "name": "Guardar pedido pendiente",
-   "type": "n8n-nodes-base.dataTable",
-   "typeVersion": 1.1,
-   "position": [
-    2600,
-    620
-   ],
    "parameters": {
-    "resource": "row",
     "operation": "upsert",
     "dataTableId": {
      "__rl": true,
@@ -336,7 +326,6 @@
      "conditions": [
       {
        "keyName": "sesion",
-       "condition": "eq",
        "keyValue": "={{ 'tg-' + $('Mensaje de Telegram').first().json.message.chat.id }}"
       }
      ]
@@ -378,21 +367,20 @@
        "canBeUsedToMatch": true
       }
      ]
-    }
-   }
-  },
-  {
-   "id": "9e1ea794-5614-4b70-b14a-a502cca984da",
-   "name": "Buscar pedido pendiente",
+    },
+    "options": {}
+   },
+   "id": "e44d83ed-f8bd-4edf-b88e-688b4695506d",
+   "name": "Guardar pedido pendiente",
    "type": "n8n-nodes-base.dataTable",
    "typeVersion": 1.1,
-   "alwaysOutputData": true,
    "position": [
-    2820,
-    880
-   ],
+    2064,
+    672
+   ]
+  },
+  {
    "parameters": {
-    "resource": "row",
     "operation": "get",
     "dataTableId": {
      "__rl": true,
@@ -404,22 +392,22 @@
      "conditions": [
       {
        "keyName": "sesion",
-       "condition": "eq",
        "keyValue": "={{ $json.sessionId }}"
       }
      ]
     }
-   }
+   },
+   "id": "9e1ea794-5614-4b70-b14a-a502cca984da",
+   "name": "Buscar pedido pendiente",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "alwaysOutputData": true,
+   "position": [
+    2288,
+    928
+   ]
   },
   {
-   "id": "789cb71d-3cf5-4d84-b156-ce7c64262aac",
-   "name": "¿Completa un pedido pendiente?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2.2,
-   "position": [
-    3040,
-    880
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -444,19 +432,18 @@
     },
     "looseTypeValidation": true,
     "options": {}
-   }
+   },
+   "id": "789cb71d-3cf5-4d84-b156-ce7c64262aac",
+   "name": "¿Completa un pedido pendiente?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    2496,
+    928
+   ]
   },
   {
-   "id": "d5700fdc-2a20-4699-99aa-9540ac83e761",
-   "name": "Limpiar pendiente",
-   "type": "n8n-nodes-base.dataTable",
-   "typeVersion": 1.1,
-   "position": [
-    3260,
-    760
-   ],
    "parameters": {
-    "resource": "row",
     "operation": "update",
     "dataTableId": {
      "__rl": true,
@@ -468,7 +455,6 @@
      "conditions": [
       {
        "keyName": "sesion",
-       "condition": "eq",
        "keyValue": "={{ $('Entrada Telegram').first().json.sessionId }}"
       }
      ]
@@ -500,63 +486,64 @@
        "canBeUsedToMatch": true
       }
      ]
-    }
-   }
+    },
+    "options": {}
+   },
+   "id": "d5700fdc-2a20-4699-99aa-9540ac83e761",
+   "name": "Limpiar pendiente",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    2720,
+    816
+   ]
   },
   {
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify({ ...$('Entrada Telegram').first().json, mensaje: $('Buscar pedido pendiente').first().json.texto + ' (Datos que el paciente agregó por texto: ' + $('Entrada Telegram').first().json.mensaje.trim() + '. Si incluye un email, ese es el correcto: ignorá cualquier email dictado en el audio.)' }) }}",
+    "options": {}
+   },
    "id": "18a18453-1ba0-4e7a-af05-ad55c10a587c",
    "name": "Pedido completado",
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3480,
-    760
-   ],
-   "parameters": {
-    "mode": "raw",
-    "jsonOutput": "={{ JSON.stringify({ ...$('Entrada Telegram').first().json, mensaje: $('Buscar pedido pendiente').first().json.texto + ' (Datos que el paciente agregó por texto: ' + $('Entrada Telegram').first().json.mensaje.trim() + '. Si incluye un email, ese es el correcto: ignorá cualquier email dictado en el audio.)' }) }}",
-    "options": {}
-   }
+    2944,
+    816
+   ]
   },
   {
+   "parameters": {
+    "mode": "raw",
+    "jsonOutput": "={{ JSON.stringify($('Entrada Telegram').first().json) }}",
+    "options": {}
+   },
    "id": "c1970987-c237-4521-b6aa-52217131366f",
    "name": "Pedido tal cual",
    "type": "n8n-nodes-base.set",
    "typeVersion": 3.4,
    "position": [
-    3480,
-    1000
-   ],
-   "parameters": {
-    "mode": "raw",
-    "jsonOutput": "={{ JSON.stringify($('Entrada Telegram').first().json) }}",
-    "options": {}
-   }
+    2944,
+    1056
+   ]
   },
   {
+   "parameters": {
+    "content": "## Pedido pendiente (email dictado)\nSi la nota de voz dicta un email, se guarda la transcripción en la Data Table `pendientes` y se le pide el email por texto. Cuando llega un texto con @ (dentro de 30 min), se une con el pedido guardado y recién ahí pasa al Manager: el pedido no se pierde y el email es el escrito. La transcripción (solo texto) se borra al usarse.",
+    "height": 200,
+    "width": 1140
+   },
    "id": "23a5c739-5944-4408-a655-9078f4b84f40",
    "name": "Nota 0afa",
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    2560,
-    1140
-   ],
-   "parameters": {
-    "width": 1140,
-    "height": 200,
-    "content": "## Pedido pendiente (email dictado)\nSi la nota de voz dicta un email, se guarda la transcripción en la Data Table `pendientes` y se le pide el email por texto. Cuando llega un texto con @ (dentro de 30 min), se une con el pedido guardado y recién ahí pasa al Manager: el pedido no se pierde y el email es el escrito. La transcripción (solo texto) se borra al usarse."
-   }
+    2016,
+    1200
+   ]
   },
   {
-   "id": "da07ce46-52ff-4c21-bc9e-866e6f71adea",
-   "name": "Texto del pedido de email",
-   "type": "n8n-nodes-base.set",
-   "typeVersion": 3.4,
-   "position": [
-    2820,
-    620
-   ],
    "parameters": {
     "assignments": {
      "assignments": [
@@ -574,19 +561,18 @@
       }
      ]
     },
-    "includeOtherFields": false,
     "options": {}
-   }
+   },
+   "id": "da07ce46-52ff-4c21-bc9e-866e6f71adea",
+   "name": "Texto del pedido de email",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    2288,
+    672
+   ]
   },
   {
-   "id": "75fb0ad8-6262-4867-91cc-d465f3e6f89e",
-   "name": "Pedir email por voz",
-   "type": "n8n-nodes-base.executeWorkflow",
-   "typeVersion": 1.2,
-   "position": [
-    3040,
-    620
-   ],
    "parameters": {
     "workflowId": {
      "__rl": true,
@@ -605,7 +591,15 @@
     "options": {
      "waitForSubWorkflow": true
     }
-   }
+   },
+   "id": "75fb0ad8-6262-4867-91cc-d465f3e6f89e",
+   "name": "Pedir email por voz",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    2496,
+    672
+   ]
   }
  ],
  "connections": {
@@ -831,6 +825,7 @@
   "errorWorkflow": "UBZ3dbNmFMFuYrAR",
   "executionOrder": "v1",
   "saveExecutionProgress": false,
-  "saveManualExecutions": false
+  "saveManualExecutions": false,
+  "binaryMode": "separate"
  }
 }

@@ -91,7 +91,7 @@ def main():
     S.republicar(IDS["manager"])
     x2 = C.n8n("GET", f"/workflows/{IDS['manager']}")
     x2 = {k: x2[k] for k in ("name", "nodes", "connections", "settings") if k in x2}
-    json.dump(x2, open(os.path.join(MOD11, "AI Automation Avanzado - M11.json"), "w", encoding="utf-8"),
+    json.dump(x2, open(os.path.join(MOD11, "workflows/AgendaBot · Manager.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=1)
     print(f"Manager: control de comprensión instalado — {len(x2['nodes'])} nodos, publicado")
 

@@ -104,7 +104,7 @@ def main():
     S.republicar(IDS["escalado_humano"])
     x = C.n8n("GET", f"/workflows/{IDS['escalado_humano']}")
     x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
-    json.dump(x, open(os.path.join(MOD11, "Escalado humano (M11).json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(x, open(os.path.join(MOD11, "workflows/AgendaBot · Escalado humano.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(f"Escalado humano: responder al paciente instalado — {len(x['nodes'])} nodos, publicado")
 
 

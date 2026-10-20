@@ -182,7 +182,7 @@ def main():
                                            "settings": {**body["settings"], "errorWorkflow": IDS["errores"]}})
     republicar(r["id"])
     print(f"Receptor: {r['name']} ({r['id']}) — publicado en POST /webhook/agendabot")
-    for wid, archivo in [(IDS["manager"], "AI Automation Avanzado - M11.json"), (r["id"], "Receptor (M11).json")]:
+    for wid, archivo in [(IDS["manager"], "workflows/AgendaBot · Manager.json"), (r["id"], "workflows/AgendaBot · Receptor.json")]:
         x = C.n8n("GET", f"/workflows/{wid}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings") if k in x}
         json.dump(x, open(os.path.join(MOD11, archivo), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

@@ -62,7 +62,7 @@ def main():
     S.republicar(IDS["supervisor"])
     x = C.n8n("GET", f"/workflows/{IDS['supervisor']}")
     x = {k: x[k] for k in ("name", "nodes", "connections", "settings")}
-    json.dump(x, open(os.path.join(MOD11, "SUPERVISOR_Judge (M11).json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    json.dump(x, open(os.path.join(MOD11, "workflows/AgendaBot · Juez (supervisor).json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("Juez: enmascarado con CUIT de empresa preservado y [CUIL] para personas, publicado")
 
 

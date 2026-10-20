@@ -2,30 +2,20 @@
  "name": "AgendaBot · Escalado humano",
  "nodes": [
   {
+   "parameters": {
+    "inputSource": "passthrough"
+   },
    "id": "106e5695-47e6-4c7e-b7bc-a55413eeaffc",
    "name": "Recibir caso",
    "type": "n8n-nodes-base.executeWorkflowTrigger",
    "typeVersion": 1.1,
    "position": [
     0,
-    300
-   ],
-   "parameters": {
-    "inputSource": "passthrough"
-   }
+    304
+   ]
   },
   {
-   "id": "573b7ed7-36af-45a0-b840-57a93cac52e2",
-   "name": "Registrar escalado",
-   "type": "n8n-nodes-base.dataTable",
-   "typeVersion": 1.1,
-   "position": [
-    220,
-    300
-   ],
    "parameters": {
-    "resource": "row",
-    "operation": "insert",
     "dataTableId": {
      "__rl": true,
      "mode": "id",
@@ -108,22 +98,21 @@
        "canBeUsedToMatch": true
       }
      ]
-    }
-   }
+    },
+    "options": {}
+   },
+   "id": "573b7ed7-36af-45a0-b840-57a93cac52e2",
+   "name": "Registrar escalado",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    224,
+    304
+   ]
   },
   {
-   "id": "5ddac9de-950d-4044-b290-87da7e7fbfb8",
-   "name": "Avisar al equipo (Slack)",
-   "webhookId": "df22e2d0-56c0-4130-b1e5-96e8b1c5766c",
-   "type": "n8n-nodes-base.slack",
-   "typeVersion": 2.3,
-   "position": [
-    660,
-    300
-   ],
    "parameters": {
     "authentication": "oAuth2",
-    "resource": "message",
     "operation": "sendAndWait",
     "select": "channel",
     "channelId": {
@@ -133,7 +122,6 @@
      "cachedResultName": "soporte"
     },
     "message": "=:rotating_light: *AgendaBot — caso para una persona: {{ $('Recibir caso').first().json.categoria }}*\n*Paciente:* {{ $('Recibir caso').first().json.nombre_remitente || ($('Buscar memoria del paciente').first().json.fields || {})['Datos Clave'] && (($('Buscar memoria del paciente').first().json.fields || {})['Datos Clave'].match(/Paciente:\\s*([^|]+)/) || [])[1] || 'sin nombre' }}{{ $('Recibir caso').first().json.tg_username ? ' (@' + $('Recibir caso').first().json.tg_username + ')' : '' }}\n*Cómo contactarlo:* {{ String($('Recibir caso').first().json.canal).startsWith('telegram') || $('Recibir caso').first().json.tg_chat_id ? ($('Recibir caso').first().json.tg_username ? 'Telegram <https://t.me/' + $('Recibir caso').first().json.tg_username + '|abrir chat con @' + $('Recibir caso').first().json.tg_username + '>' : 'Telegram (sin usuario público, chat ' + $('Recibir caso').first().json.tg_chat_id + '): pedile un teléfono o email por el bot') : ($('Recibir caso').first().json.email_entrada ? 'Email ' + $('Recibir caso').first().json.email_entrada : 'chat de la web') }}\n*Mensaje del paciente:* {{ $('Recibir caso').first().json.mensaje }}\n*Lo que sabemos (memoria):* {{ ($('Buscar memoria del paciente').first().json.fields || {})['Datos Clave'] || 'sin datos previos' }}{{ ($('Buscar memoria del paciente').first().json.fields || {})['Resumen Consolidado'] ? ' · ' + ($('Buscar memoria del paciente').first().json.fields || {})['Resumen Consolidado'] : '' }}\n*Ya se le respondió:* {{ $('Recibir caso').first().json.respuesta_fija }}\n*traceId:* {{ $('Recibir caso').first().json.traceId }} · protocolo {{ $('Recibir caso').first().json.protocolo }}\nTocá *Tomo el caso* y contactá al paciente, o *Falso positivo* si no hacía falta. Si nadie responde en 15 minutos, se repite el aviso.",
-    "responseType": "approval",
     "approvalOptions": {
      "values": {
       "approvalType": "double",
@@ -144,13 +132,21 @@
     "options": {
      "limitWaitTime": {
       "values": {
-       "limitType": "afterTimeInterval",
        "resumeAmount": 15,
        "resumeUnit": "minutes"
       }
      }
     }
    },
+   "id": "5ddac9de-950d-4044-b290-87da7e7fbfb8",
+   "name": "Avisar al equipo (Slack)",
+   "webhookId": "df22e2d0-56c0-4130-b1e5-96e8b1c5766c",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "position": [
+    672,
+    304
+   ],
    "credentials": {
     "slackOAuth2Api": {
      "id": "M9PprPoqQvpvY6pT",
@@ -159,16 +155,7 @@
    }
   },
   {
-   "id": "eca4dd8e-4f8a-434a-a295-0b11769153df",
-   "name": "Registrar decisión",
-   "type": "n8n-nodes-base.dataTable",
-   "typeVersion": 1.1,
-   "position": [
-    880,
-    300
-   ],
    "parameters": {
-    "resource": "row",
     "operation": "update",
     "dataTableId": {
      "__rl": true,
@@ -180,7 +167,6 @@
      "conditions": [
       {
        "keyName": "traceId",
-       "condition": "eq",
        "keyValue": "={{ $('Recibir caso').first().json.traceId }}"
       }
      ]
@@ -212,18 +198,19 @@
        "canBeUsedToMatch": true
       }
      ]
-    }
-   }
+    },
+    "options": {}
+   },
+   "id": "eca4dd8e-4f8a-434a-a295-0b11769153df",
+   "name": "Registrar decisión",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    880,
+    304
+   ]
   },
   {
-   "id": "d87610af-020a-4d77-8b17-eda857c6522e",
-   "name": "¿Nadie lo tomó?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2.2,
-   "position": [
-    1100,
-    300
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -248,25 +235,19 @@
     },
     "looseTypeValidation": true,
     "options": {}
-   }
+   },
+   "id": "d87610af-020a-4d77-8b17-eda857c6522e",
+   "name": "¿Nadie lo tomó?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    1104,
+    304
+   ]
   },
   {
-   "id": "8882b578-26a4-48e4-8a9d-26208a280600",
-   "name": "Recordatorio (Slack)",
-   "webhookId": "d1f103d8-3d5c-4308-9214-df7557d5fbc7",
-   "type": "n8n-nodes-base.slack",
-   "typeVersion": 2.3,
-   "retryOnFail": true,
-   "maxTries": 3,
-   "waitBetweenTries": 2000,
-   "position": [
-    1320,
-    220
-   ],
    "parameters": {
     "authentication": "oAuth2",
-    "resource": "message",
-    "operation": "post",
     "select": "channel",
     "channelId": {
      "__rl": true,
@@ -279,6 +260,18 @@
      "includeLinkToWorkflow": false
     }
    },
+   "id": "8882b578-26a4-48e4-8a9d-26208a280600",
+   "name": "Recordatorio (Slack)",
+   "webhookId": "d1f103d8-3d5c-4308-9214-df7557d5fbc7",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    1328,
+    224
+   ],
    "credentials": {
     "slackOAuth2Api": {
      "id": "M9PprPoqQvpvY6pT",
@@ -287,34 +280,21 @@
    }
   },
   {
+   "parameters": {
+    "content": "## AgendaBot · Escalado humano: casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código.\n\n**Responder al paciente**: con *Tomo el caso*, Slack pide la respuesta (texto libre, 10 min). AgendaBot la envía por el canal del paciente (por Telegram, en audio si habló o en texto si escribió; por email, solo si hay respuesta escrita). Por defecto, en Telegram: \"Nos estaremos comunicando en breve para continuar.\"",
+    "height": 330,
+    "width": 1240
+   },
    "id": "5fc98598-739e-45a3-9435-8a7b761e4827",
    "name": "Nota 49c6",
    "type": "n8n-nodes-base.stickyNote",
    "typeVersion": 1,
    "position": [
-    -40,
-    -20
-   ],
-   "parameters": {
-    "width": 1240,
-    "height": 330,
-    "content": "## AgendaBot · Escalado humano: casos rojos y freno de mano\nLo llama el Manager **sin esperar**: el paciente ya recibió su respuesta fija. Registra el caso en la Data Table `escalados` (traceId, categoría, canal, sesión, mensaje, estado), avisa en #soporte con los botones **Tomo el caso / Falso positivo** (espera máx. 15 min), guarda la decisión y, si nadie respondió, repite el aviso. Es el protocolo de escalado forzado del M7 (semáforo rojo), armado sin código.\n\n**Responder al paciente**: con *Tomo el caso*, Slack pide la respuesta (texto libre, 10 min). AgendaBot la envía por el canal del paciente (por Telegram, en audio si habló o en texto si escribió; por email, solo si hay respuesta escrita). Por defecto, en Telegram: \"Nos estaremos comunicando en breve para continuar.\""
-   }
+    -48,
+    -16
+   ]
   },
   {
-   "id": "a524b80b-06d8-4abe-a09f-bde60020e506",
-   "name": "Buscar memoria del paciente",
-   "type": "n8n-nodes-base.airtable",
-   "typeVersion": 2.2,
-   "alwaysOutputData": true,
-   "retryOnFail": true,
-   "maxTries": 3,
-   "waitBetweenTries": 2000,
-   "onError": "continueRegularOutput",
-   "position": [
-    440,
-    300
-   ],
    "parameters": {
     "operation": "search",
     "base": {
@@ -332,22 +312,27 @@
     "filterByFormula": "={{ '{Session_ID} = \"' + String($('Recibir caso').first().json.sessionId).replace(/\"/g,'') + '\"' }}",
     "options": {}
    },
+   "id": "a524b80b-06d8-4abe-a09f-bde60020e506",
+   "name": "Buscar memoria del paciente",
+   "type": "n8n-nodes-base.airtable",
+   "typeVersion": 2.2,
+   "alwaysOutputData": true,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    448,
+    304
+   ],
    "credentials": {
     "airtableTokenApi": {
      "id": "tlRnBKsgQgEbyhnG",
-     "name": "Airtable Memoria M3"
+     "name": "Airtable AgendaBot"
     }
-   }
+   },
+   "onError": "continueRegularOutput"
   },
   {
-   "id": "854d5252-34c7-43b9-a7ab-f4175c9e275e",
-   "name": "¿Lo tomó una persona?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2.2,
-   "position": [
-    1100,
-    560
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -372,21 +357,19 @@
     },
     "looseTypeValidation": true,
     "options": {}
-   }
+   },
+   "id": "854d5252-34c7-43b9-a7ab-f4175c9e275e",
+   "name": "¿Lo tomó una persona?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    1104,
+    560
+   ]
   },
   {
-   "id": "a1b00f82-2509-4184-a31c-198747710a62",
-   "name": "Respuesta para el paciente (Slack)",
-   "webhookId": "e74cfd6f-0168-4a4a-92a3-0695ae1ef3d8",
-   "type": "n8n-nodes-base.slack",
-   "typeVersion": 2.3,
-   "position": [
-    1320,
-    560
-   ],
    "parameters": {
     "authentication": "oAuth2",
-    "resource": "message",
     "operation": "sendAndWait",
     "select": "channel",
     "channelId": {
@@ -395,18 +378,26 @@
      "mode": "list",
      "cachedResultName": "soporte"
     },
-    "responseType": "freeText",
     "message": "=:writing_hand: *Respuesta para {{ $('Recibir caso').first().json.nombre_remitente || 'el paciente' }}* ({{ $('Recibir caso').first().json.categoria }} · traceId {{ $('Recibir caso').first().json.traceId }})\nEscribí lo que AgendaBot le tiene que mandar por su canal ({{ $('Recibir caso').first().json.canal }}). Si no escribís nada en 10 minutos, o escribís un punto, {{ String($('Recibir caso').first().json.canal).startsWith('telegram') || $('Recibir caso').first().json.tg_chat_id ? 'se le envía: _Nos estaremos comunicando en breve para continuar._' : 'no se le envía nada (contactalo vos)' }}",
+    "responseType": "freeText",
     "options": {
      "limitWaitTime": {
       "values": {
-       "limitType": "afterTimeInterval",
        "resumeAmount": 10,
        "resumeUnit": "minutes"
       }
      }
     }
    },
+   "id": "a1b00f82-2509-4184-a31c-198747710a62",
+   "name": "Respuesta para el paciente (Slack)",
+   "webhookId": "e74cfd6f-0168-4a4a-92a3-0695ae1ef3d8",
+   "type": "n8n-nodes-base.slack",
+   "typeVersion": 2.3,
+   "position": [
+    1328,
+    560
+   ],
    "credentials": {
     "slackOAuth2Api": {
      "id": "M9PprPoqQvpvY6pT",
@@ -415,14 +406,6 @@
    }
   },
   {
-   "id": "58b8426b-951d-4097-8c0c-64d31d2935fc",
-   "name": "Mensaje para el paciente",
-   "type": "n8n-nodes-base.set",
-   "typeVersion": 3.4,
-   "position": [
-    1540,
-    560
-   ],
    "parameters": {
     "assignments": {
      "assignments": [
@@ -440,21 +423,19 @@
       }
      ]
     },
-    "includeOtherFields": false,
     "options": {}
-   }
+   },
+   "id": "58b8426b-951d-4097-8c0c-64d31d2935fc",
+   "name": "Mensaje para el paciente",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    1552,
+    560
+   ]
   },
   {
-   "id": "a90646cb-f020-459c-9958-ba93a611a66d",
-   "name": "Registrar respuesta",
-   "type": "n8n-nodes-base.dataTable",
-   "typeVersion": 1.1,
-   "position": [
-    1760,
-    560
-   ],
    "parameters": {
-    "resource": "row",
     "operation": "update",
     "dataTableId": {
      "__rl": true,
@@ -466,7 +447,6 @@
      "conditions": [
       {
        "keyName": "traceId",
-       "condition": "eq",
        "keyValue": "={{ $('Recibir caso').first().json.traceId }}"
       }
      ]
@@ -488,18 +468,19 @@
        "canBeUsedToMatch": true
       }
      ]
-    }
-   }
+    },
+    "options": {}
+   },
+   "id": "a90646cb-f020-459c-9958-ba93a611a66d",
+   "name": "Registrar respuesta",
+   "type": "n8n-nodes-base.dataTable",
+   "typeVersion": 1.1,
+   "position": [
+    1760,
+    560
+   ]
   },
   {
-   "id": "86e43d37-aead-447b-b1a2-e2b2f7b99fd0",
-   "name": "¿Paciente en Telegram?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2.2,
-   "position": [
-    1980,
-    560
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -524,17 +505,17 @@
     },
     "looseTypeValidation": true,
     "options": {}
-   }
-  },
-  {
-   "id": "87b4bd56-952f-468b-93f9-a4240b62b9d8",
-   "name": "¿Mandó audio?",
+   },
+   "id": "86e43d37-aead-447b-b1a2-e2b2f7b99fd0",
+   "name": "¿Paciente en Telegram?",
    "type": "n8n-nodes-base.if",
    "typeVersion": 2.2,
    "position": [
-    2200,
-    460
-   ],
+    1984,
+    560
+   ]
+  },
+  {
    "parameters": {
     "conditions": {
      "options": {
@@ -559,17 +540,17 @@
     },
     "looseTypeValidation": true,
     "options": {}
-   }
+   },
+   "id": "87b4bd56-952f-468b-93f9-a4240b62b9d8",
+   "name": "¿Mandó audio?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    2208,
+    464
+   ]
   },
   {
-   "id": "a9a8b3e9-7125-4966-bc49-29fde2b19f10",
-   "name": "Armar respuesta de voz",
-   "type": "n8n-nodes-base.set",
-   "typeVersion": 3.4,
-   "position": [
-    2420,
-    360
-   ],
    "parameters": {
     "assignments": {
      "assignments": [
@@ -587,19 +568,18 @@
       }
      ]
     },
-    "includeOtherFields": false,
     "options": {}
-   }
+   },
+   "id": "a9a8b3e9-7125-4966-bc49-29fde2b19f10",
+   "name": "Armar respuesta de voz",
+   "type": "n8n-nodes-base.set",
+   "typeVersion": 3.4,
+   "position": [
+    2432,
+    368
+   ]
   },
   {
-   "id": "c501f981-95fa-4177-94f3-595468efeb4b",
-   "name": "Responder por voz (Respuesta de voz)",
-   "type": "n8n-nodes-base.executeWorkflow",
-   "typeVersion": 1.2,
-   "position": [
-    2640,
-    360
-   ],
    "parameters": {
     "workflowId": {
      "__rl": true,
@@ -618,9 +598,24 @@
     "options": {
      "waitForSubWorkflow": true
     }
-   }
+   },
+   "id": "c501f981-95fa-4177-94f3-595468efeb4b",
+   "name": "Responder por voz (Respuesta de voz)",
+   "type": "n8n-nodes-base.executeWorkflow",
+   "typeVersion": 1.2,
+   "position": [
+    2640,
+    368
+   ]
   },
   {
+   "parameters": {
+    "chatId": "={{ $('Recibir caso').first().json.tg_chat_id }}",
+    "text": "={{ $('Mensaje para el paciente').first().json.texto }}",
+    "additionalFields": {
+     "appendAttribution": false
+    }
+   },
    "id": "2b8e2451-7a0b-4193-8de0-476c3a0faa52",
    "name": "Responder por texto (Telegram)",
    "webhookId": "ad3cb515-1c7e-4d3e-b6a4-8e53455cf5a5",
@@ -630,16 +625,9 @@
    "maxTries": 3,
    "waitBetweenTries": 2000,
    "position": [
-    2420,
+    2432,
     560
    ],
-   "parameters": {
-    "chatId": "={{ $('Recibir caso').first().json.tg_chat_id }}",
-    "text": "={{ $('Mensaje para el paciente').first().json.texto }}",
-    "additionalFields": {
-     "appendAttribution": false
-    }
-   },
    "credentials": {
     "telegramApi": {
      "id": "x7iGZ1Z1LuKEKu80",
@@ -648,14 +636,6 @@
    }
   },
   {
-   "id": "cd03e416-fc07-4cd6-8178-897410a34fad",
-   "name": "¿Hay email y una respuesta escrita?",
-   "type": "n8n-nodes-base.if",
-   "typeVersion": 2.2,
-   "position": [
-    2200,
-    720
-   ],
    "parameters": {
     "conditions": {
      "options": {
@@ -680,21 +660,17 @@
     },
     "looseTypeValidation": true,
     "options": {}
-   }
+   },
+   "id": "cd03e416-fc07-4cd6-8178-897410a34fad",
+   "name": "¿Hay email y una respuesta escrita?",
+   "type": "n8n-nodes-base.if",
+   "typeVersion": 2.2,
+   "position": [
+    2208,
+    720
+   ]
   },
   {
-   "id": "4c690995-2c97-455d-8f79-568dabb58f6a",
-   "name": "Responder por email (Gmail)",
-   "webhookId": "c0003478-e7ea-4af4-af16-a7978950239e",
-   "type": "n8n-nodes-base.gmail",
-   "typeVersion": 2.1,
-   "retryOnFail": true,
-   "maxTries": 3,
-   "waitBetweenTries": 2000,
-   "position": [
-    2420,
-    720
-   ],
    "parameters": {
     "sendTo": "={{ $('Recibir caso').first().json.email_entrada }}",
     "subject": "Clínica LoDeTincho — sobre tu consulta",
@@ -704,6 +680,18 @@
      "appendAttribution": false
     }
    },
+   "id": "4c690995-2c97-455d-8f79-568dabb58f6a",
+   "name": "Responder por email (Gmail)",
+   "webhookId": "c0003478-e7ea-4af4-af16-a7978950239e",
+   "type": "n8n-nodes-base.gmail",
+   "typeVersion": 2.1,
+   "retryOnFail": true,
+   "maxTries": 3,
+   "waitBetweenTries": 2000,
+   "position": [
+    2432,
+    720
+   ],
    "credentials": {
     "gmailOAuth2": {
      "id": "LCpAQRDOeUUC99pU",
@@ -891,6 +879,7 @@
   "saveDataErrorExecution": "all",
   "saveDataSuccessExecution": "all",
   "errorWorkflow": "UBZ3dbNmFMFuYrAR",
-  "executionOrder": "v1"
+  "executionOrder": "v1",
+  "binaryMode": "separate"
  }
 }

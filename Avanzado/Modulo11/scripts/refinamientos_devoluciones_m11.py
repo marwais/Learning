@@ -129,8 +129,8 @@ def main():
     republicar(IDS["supervisor"])
     print("Juez: rúbrica reconoce «No sé»")
 
-    for wid, archivo in [(IDS["manager"], "AI Automation Avanzado - M11.json"), (IDS["respuesta_voz"], "Respuesta de voz (M11).json"),
-                         (IDS["canal_telegram"], "Canal Telegram (M11).json"), (IDS["supervisor"], "SUPERVISOR_Judge (M11).json")]:
+    for wid, archivo in [(IDS["manager"], "workflows/AgendaBot · Manager.json"), (IDS["respuesta_voz"], "workflows/AgendaBot · Respuesta de voz.json"),
+                         (IDS["canal_telegram"], "workflows/AgendaBot · Canal Telegram.json"), (IDS["supervisor"], "workflows/AgendaBot · Juez (supervisor).json")]:
         x = C.n8n("GET", f"/workflows/{wid}")
         x = {k: x[k] for k in ("name", "nodes", "connections", "settings") if k in x}
         json.dump(x, open(os.path.join(MOD11, archivo), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
