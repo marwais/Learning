@@ -73,6 +73,6 @@
 ## A.6 Privacidad
 
 - **Audios:** la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en *Respuesta de voz*. **Ninguno de los dos guarda ejecuciones** (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.
-- **Log de auditoría:** el nombre, el email, el DNI y el teléfono se enmascaran antes de guardarse (`[NOMBRE]`, `[EMAIL]`, `[DNI]`, `[TEL]`).
+- **Log de auditoría:** el nombre, el email, el CUIL, el DNI y el teléfono se enmascaran antes de guardarse (`[NOMBRE]`, `[EMAIL]`, `[CUIL]`, `[DNI]`, `[TEL]`). El CUIT de la clínica (dato público de una empresa) y los códigos de turno no son datos personales y se conservan, para que el log siga sirviendo para auditar.
 - **Biblioteca anonimizada:** la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.
 - **Mínimo privilegio:** cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).

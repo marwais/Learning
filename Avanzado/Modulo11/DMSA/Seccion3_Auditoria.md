@@ -110,4 +110,4 @@ Evalúa dos tipos de caso, con una rúbrica para cada uno:
 
 **Cómo leer estas cifras:** son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en `QA_Veredictos`, filtrando por `traceId`.
 
-**Mejoras detectadas en la auditoría:** el enmascarado de datos personales del log es algo excesivo (confunde algunos códigos numéricos de turno con teléfonos). Se ajustará sin dejar de proteger los datos.
+**Mejoras detectadas en la auditoría:** el enmascarado de datos personales del log resultó excesivo: confundía los códigos de turno con teléfonos y ocultaba parte del CUIT de la clínica como si fuera un DNI. Ya se ajustó: esos datos se conservan y el CUIL de una persona se enmascara como `[CUIL]`.

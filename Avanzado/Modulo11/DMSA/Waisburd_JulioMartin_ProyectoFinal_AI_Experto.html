@@ -29,7 +29,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </style></head><body><section class="portada">
 <div class="titulo"><h1>Proyecto Final Integrador<br>AgendaBot: Central de Turnos agéntica</h1>
 <p>Documentación Maestra del Sistema Agéntico (DMSA) — AI Automation Avanzado (Coderhouse), cohorte 2026</p>
-<p><b>Julio Martín Waisburd</b></p><p>17/10/2026</p></div>
+<p><b>Julio Martín Waisburd</b></p><p>20/10/2026</p></div>
 <nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 14</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 18</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 21</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 24</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows y operación</span><span class="dots"></span><span class="p">pág. 30</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
 <h2>El problema de negocio</h2>
 <p>La Clínica LoDeTincho (nombre anonimizado) recibe unas <strong>250 gestiones por día</strong>: sacar, cambiar, consultar y confirmar turnos, y preguntas sobre especialidades, horarios y estudios. Hoy las atienden tres administrativas de 8 a 20 h, que repiten las mismas tareas todo el día:</p>
@@ -708,7 +708,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 </tbody>
 </table>
 <p><strong>Cómo leer estas cifras:</strong> son pruebas controladas con una muestra chica (por ejemplo, 4 consultas informativas por configuración), armadas a propósito con más casos difíciles que los habituales. No reemplazan la medición en operación. Por eso el plan de gobernanza mantiene el control humano: una persona revisa cada semana una muestra del 5 % de los veredictos ACEPTADO en <code>QA_Veredictos</code>, filtrando por <code>traceId</code>.</p>
-<p><strong>Mejoras detectadas en la auditoría:</strong> el enmascarado de datos personales del log es algo excesivo (confunde algunos códigos numéricos de turno con teléfonos). Se ajustará sin dejar de proteger los datos.</p></section><section class="pieza" id="pieza-4"><h1>4. Justificación financiera</h1>
+<p><strong>Mejoras detectadas en la auditoría:</strong> el enmascarado de datos personales del log resultó excesivo: confundía los códigos de turno con teléfonos y ocultaba parte del CUIT de la clínica como si fuera un DNI. Ya se ajustó: esos datos se conservan y el CUIL de una persona se enmascara como <code>[CUIL]</code>.</p></section><section class="pieza" id="pieza-4"><h1>4. Justificación financiera</h1>
 <p>Pregunta del comité: <em>¿esto realmente ahorra plata o es un gasto nuevo?</em> La respuesta compara el <strong>costo real de operar el sistema</strong>, medido en las pruebas, contra el <strong>costo de la labor humana que libera</strong>, proyectado sobre el baseline. Cada cifra va rotulada como <strong>medida</strong> o <strong>proyectada</strong>. El cálculo completo y reproducible está en <code>evaluacion/finanzas.json</code>, generado por <code>scripts/finanzas.py</code>.</p>
 <h2>4.1 Baseline: el costo del proceso manual (proyección, supuestos declarados)</h2>
 <table>
@@ -1291,7 +1291,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <h2>A.6 Privacidad</h2>
 <ul>
 <li><strong>Audios:</strong> la nota de voz del paciente se procesa en el Canal Telegram y la respuesta hablada en <em>Respuesta de voz</em>. <strong>Ninguno de los dos guarda ejecuciones</strong> (ni con éxito ni con error), y al Manager solo le llega texto. Verificado en n8n: esos workflows no tienen ejecuciones registradas, mientras que el Manager sí guarda las suyas como evidencia.</li>
-<li><strong>Log de auditoría:</strong> el nombre, el email, el DNI y el teléfono se enmascaran antes de guardarse (<code>[NOMBRE]</code>, <code>[EMAIL]</code>, <code>[DNI]</code>, <code>[TEL]</code>).</li>
+<li><strong>Log de auditoría:</strong> el nombre, el email, el CUIL, el DNI y el teléfono se enmascaran antes de guardarse (<code>[NOMBRE]</code>, <code>[EMAIL]</code>, <code>[CUIL]</code>, <code>[DNI]</code>, <code>[TEL]</code>). El CUIT de la clínica (dato público de una empresa) y los códigos de turno no son datos personales y se conservan, para que el log siga sirviendo para auditar.</li>
 <li><strong>Biblioteca anonimizada:</strong> la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.</li>
 <li><strong>Mínimo privilegio:</strong> cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).</li>
 </ul></section><section class="pieza" id="pieza-6"><h1>Anexo B. Pruebas de punta a punta</h1>
