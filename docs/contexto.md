@@ -32,8 +32,7 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
   - **Estado del Caso en Airtable** (`scripts/estado_caso_m11.py`): ahora se calcula según el resultado (antes siempre quedaba "En Progreso"). La ruta informativa ahora actualiza la memoria. El filtro de Gmail frena los rebotes y los correos propios. Las baterías F y G dieron 16/16.
 - **Componente B (DMSA)**: tiene un borrador completo, con 4 secciones y los anexos A a C. Sale en 35 páginas como `Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf`.
   - Ya no hace referencias a módulos, pre-entregas ni devoluciones (verificado sobre el texto del PDF).
-  - El C.2 explica cómo se levanta el sistema.
-  - Sin sección de video (decisión del usuario, 20/10): el Anexo C termina en "C.2 Cómo se levanta el sistema".
+  - Sin sección de video ni "Cómo se levanta el sistema" (decisiones del usuario, 20/10): el Anexo C es solo el inventario de workflows con sus capturas. El Anexo B ya no cita los archivos de la batería.
   - **Finanzas, escenario base**:
     - costo de US$ 127,91 por mes, unos $339.079;
     - beneficio neto de $1.493.521;
@@ -66,7 +65,7 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
 
 ## Pendientes (por prioridad)
 1. **Usuario: revisar el DMSA** (35 páginas), con atención a la diagramación de los Anexos B y C. Claude no pudo ver las páginas: en esta PC no hay con qué convertir el PDF a imagen.
-2. **Claude, al cerrar:** re-exportar los 15 workflows (las exportaciones todavía tienen nombres de archivo viejos), regenerar el PDF y verificarlo con `pdftotext`.
+2. **Opcional (Claude):** renombrar los JSON exportados de los workflows en `Avanzado/Modulo11/`, que tienen nombres de archivo viejos ("AI Automation Avanzado - M11.json", "SUPERVISOR_Judge (M11).json"…). El contenido ya está al día. No forman parte de la entrega, que es solo el PDF.
 3. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
 
 ## Recursos clave

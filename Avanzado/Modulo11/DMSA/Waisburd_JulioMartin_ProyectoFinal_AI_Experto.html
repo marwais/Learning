@@ -30,7 +30,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <div class="titulo"><h1>Proyecto Final Integrador<br>AgendaBot: Central de Turnos agéntica</h1>
 <p>Documentación Maestra del Sistema Agéntico (DMSA) — AI Automation Avanzado (Coderhouse), cohorte 2026</p>
 <p><b>Julio Martín Waisburd</b></p><p>20/10/2026</p></div>
-<nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 14</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 18</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 21</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 24</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows y operación</span><span class="dots"></span><span class="p">pág. 30</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
+<nav class="indice"><h2>Índice</h2><a href="#pieza-1"><span class="t">1. Resumen ejecutivo</span><span class="dots"></span><span class="p">pág. 2</span></a><a href="#pieza-2"><span class="t">2. Arquitectura del sistema en n8n</span><span class="dots"></span><span class="p">pág. 4</span></a><a href="#pieza-3"><span class="t">3. Reporte de auditoría y rúbricas</span><span class="dots"></span><span class="p">pág. 14</span></a><a href="#pieza-4"><span class="t">4. Justificación financiera</span><span class="dots"></span><span class="p">pág. 18</span></a><a href="#pieza-5"><span class="t">Anexo A. Gobernanza de datos</span><span class="dots"></span><span class="p">pág. 21</span></a><a href="#pieza-6"><span class="t">Anexo B. Pruebas de punta a punta</span><span class="dots"></span><span class="p">pág. 24</span></a><a href="#pieza-7"><span class="t">Anexo C. Inventario de workflows</span><span class="dots"></span><span class="p">pág. 30</span></a></nav></section><section class="pieza" id="pieza-1"><h1>1. Resumen ejecutivo</h1>
 <h2>El problema de negocio</h2>
 <p>La Clínica LoDeTincho (nombre anonimizado) recibe unas <strong>250 gestiones por día</strong>: sacar, cambiar, consultar y confirmar turnos, y preguntas sobre especialidades, horarios y estudios. Hoy las atienden tres administrativas de 8 a 20 h, que repiten las mismas tareas todo el día:</p>
 <ul>
@@ -1295,7 +1295,7 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <li><strong>Biblioteca anonimizada:</strong> la razón social, el CUIT, el ingreso bruto y el domicilio fiscal de la empresa de origen se reemplazaron por datos ficticios.</li>
 <li><strong>Mínimo privilegio:</strong> cada credencial tiene solo los permisos que su función necesita (por ejemplo, HubSpot solo contactos).</li>
 </ul></section><section class="pieza" id="pieza-6"><h1>Anexo B. Pruebas de punta a punta</h1>
-<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code>. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Una corrida de confirmación con la configuración C, ya con los nombres de producción, repitió el 16/16 con el mismo costo (US$ 0,0166 por consulta y US$ 0,0092 por acción). Datos completos: <code>evaluacion/bateria_A.json</code>, <code>_B.json</code>, <code>_C.json</code> y <code>_E.json</code> (confirmación).</p>
+<p>Batería de 16 casos con resultado esperado, enviada por el webhook del Receptor el 16/10/2026 (corrida C: coordinador y agente en Haiku 4.5, Juez en Sonnet 4.6). Cada fila se vincula con su registro de auditoría por el <code>traceId</code>. Las corridas A (todo Sonnet) y B (coordinador en Haiku) dieron el mismo resultado, 16/16. Una corrida de confirmación con la configuración C, ya con los nombres de producción, repitió el 16/16 con el mismo costo (US$ 0,0166 por consulta y US$ 0,0092 por acción).</p>
 <table>
 <thead>
 <tr>
@@ -1540,8 +1540,8 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <td><code>trc-20261015094543-607-vmtl</code></td>
 </tr>
 </tbody>
-</table></section><section class="pieza" id="pieza-7"><h1>Anexo C. Inventario de workflows y operación</h1>
-<h2>C.1 Workflows de n8n</h2>
+</table></section><section class="pieza" id="pieza-7"><h1>Anexo C. Inventario de workflows</h1>
+<h2>Workflows de n8n</h2>
 <table>
 <thead>
 <tr>
@@ -1640,23 +1640,4 @@ blockquote { border-left: 3px solid #0b3d5c; margin: 8px 0; padding: 2px 10px; c
 <figure><img alt="AgendaBot · Errores: alerta al equipo y aviso de demora al paciente por su canal" src="capturas/sub_errores.png" /><figcaption>AgendaBot · Errores: alerta al equipo y aviso de demora al paciente por su canal</figcaption></figure>
 <figure><img alt="AgendaBot · Freno de mano: cambio de estado con token y aviso en Slack" src="capturas/sub_freno.png" /><figcaption>AgendaBot · Freno de mano: cambio de estado con token y aviso en Slack</figcaption></figure>
 <figure><img alt="AgendaBot · Simulacro de falla: API externa caída a demanda, para probar la rama de error" src="capturas/sub_simulacro.png" /><figcaption>AgendaBot · Simulacro de falla: API externa caída a demanda, para probar la rama de error</figcaption></figure>
-<figure><img alt="AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones" src="capturas/sub_ingesta_kb.png" /><figcaption>AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones</figcaption></figure>
-<h2>C.2 Cómo se levanta el sistema</h2>
-<p>El sistema corre en contenedores de Docker sobre un servidor (o una computadora) con salida a internet. Levantarlo consiste en:</p>
-<ol>
-<li><strong>Configuración.</strong> El archivo <code>.env</code> (fuera del control de versiones) tiene las variables del Anexo A.1, y el almacén de credenciales de n8n, las credenciales del Anexo A.2. Las autorizaciones OAuth (Google, Slack) se renuevan desde el editor de n8n en <code>http://localhost:5678</code>.</li>
-<li><strong>Servicios.</strong> Se levantan tres contenedores:</li>
-<li><strong>Qdrant</strong>, la biblioteca oficial, en el puerto 6333;</li>
-<li><strong>n8n</strong>, con <code>WEBHOOK_URL</code> igual al dominio público y <code>N8N_EDITOR_BASE_URL</code> igual a la dirección local;</li>
-<li>el <strong>agente del túnel (ngrok)</strong>, que publica n8n en el dominio fijo por el puerto 443.</li>
-</ol>
-<p>Los datos de n8n quedan en un volumen persistente.
-3. <strong>Activación.</strong> Se publican los workflows: primero los especialistas (Workers, herramienta RAG, Juez, Escalado humano, Respuesta de voz, Errores) y al final los que tienen disparadores externos (Receptor, Canal Telegram, Freno de mano y el Manager). Al activarse, el Canal Telegram registra su dirección en Telegram y el Manager empieza a leer la casilla de Gmail.
-4. <strong>Verificación.</strong>
-   - <code>GET {WEBHOOK_URL}/healthz</code> responde 200 desde afuera;
-   - los workflows figuran como activos;
-   - una petición al Receptor devuelve 202 con un <code>traceId</code>, y la misma petición repetida devuelve "duplicado";
-   - un mensaje de prueba por Telegram recibe respuesta;
-   - el simulacro de falla genera la alerta en Slack;
-   - en las Data Tables, <code>control</code> tiene <code>freno_de_mano = no</code>.
-5. <strong>Pruebas automáticas.</strong> <code>scripts/probar_webhook.py</code> (prueba de humo) y <code>scripts/bateria.py</code> (los 16 casos del Anexo B).</p></section></body></html>
+<figure><img alt="AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones" src="capturas/sub_ingesta_kb.png" /><figcaption>AgendaBot · Ingesta KB: recrea la colección y carga la documentación por secciones</figcaption></figure></section></body></html>
