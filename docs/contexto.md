@@ -30,10 +30,10 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
   - **Batería de 16 casos**: A, B y C dieron 16/16. C cuesta US$ 0,0166 por consulta y US$ 0,0092 por acción.
   - **Batería E** (confirmación con los nombres de producción, después de reconectar Sheets): 16/16, con el mismo costo.
   - **Estado del Caso en Airtable** (`scripts/estado_caso_m11.py`): ahora se calcula según el resultado (antes siempre quedaba "En Progreso"). La ruta informativa ahora actualiza la memoria. El filtro de Gmail frena los rebotes y los correos propios. Las baterías F y G dieron 16/16.
-- **Componente B (DMSA)**: tiene un borrador completo, con 4 secciones y los anexos A a C. Sale en 28 páginas como `Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf`.
+- **Componente B (DMSA)**: tiene un borrador completo, con 4 secciones y los anexos A a C. Sale en 35 páginas como `Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf`.
   - Ya no hace referencias a módulos, pre-entregas ni devoluciones (verificado sobre el texto del PDF).
-  - El C.2 explica cómo se levanta el sistema y qué hacer si ya está publicado en otra máquina.
-  - La sección se llama "C.3 Video".
+  - El C.2 explica cómo se levanta el sistema.
+  - Sin sección de video (decisión del usuario, 20/10): el Anexo C termina en "C.2 Cómo se levanta el sistema".
   - **Finanzas, escenario base**:
     - costo de US$ 127,91 por mes, unos $339.079;
     - beneficio neto de $1.493.521;
@@ -48,7 +48,8 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
   - **Nombres de producción sin sufijos del curso**: el documento final no puede mostrar artefactos del curso. Rompe a propósito la convención de duplicar cada módulo.
   - **El documento final no tiene referencias a módulos, pre-entregas ni devoluciones**. El criterio del usuario: "lo que no está en este documento, no está".
   - **Nombre del PDF**: `Waisburd_JulioMartin_ProyectoFinal_AI_Experto.pdf`.
-  - **El video lo graba el usuario**. El guion está en `Avanzado/Modulo11/DMSA/guion_video.md`.
+  - **Sin video por ahora** (20/10): el usuario no lo va a grabar; se sacó el C.3 del documento. El guion queda en `Avanzado/Modulo11/DMSA/guion_video.md` (con Carlos Demo) por si se retoma.
+  - **Sin comando `/nueva`** para separar sesiones de Telegram (propuesto y descartado por el usuario).
 - **Decisiones técnicas** (motivo en cada punto):
   - **Túnel por ngrok con dominio fijo**: el quick tunnel de Cloudflare se caía con cada corte de red y la red pública bloquea el puerto 7844.
   - **Idempotencia en el Receptor y en las Data Tables**, no en el staticData del Manager, porque el staticData se guarda recién al terminar la ejecución.
@@ -65,14 +66,8 @@ El detalle técnico y las pruebas están en `Avanzado/Modulo11/README.md`. Las d
 
 ## Pendientes (por prioridad)
 1. **Usuario: revisar el DMSA** (35 páginas), con atención a la diagramación de los Anexos B y C. Claude no pudo ver las páginas: en esta PC no hay con qué convertir el PDF a imagen.
-2. **Usuario: grabar el video.** Después, Claude:
-   - incorpora el link en la sección C.3;
-   - regenera el PDF y lo verifica con `pdftotext`;
-   - re-exporta los 15 workflows. Las exportaciones todavía tienen nombres de archivo viejos.
-3. **Opcional:**
-   - recapturar la Data Table `control`, que hoy dice "Prueba Claude" en `actualizado_por`. Antes hay que activar y desactivar el freno por su webhook (propuesta, sin confirmar);
-   - borrar a mano en Airtable las filas `mailer-daemon@googlemail.com` y `mwquiero@gmail.com`.
-4. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
+2. **Claude, al cerrar:** re-exportar los 15 workflows (las exportaciones todavía tienen nombres de archivo viejos), regenerar el PDF y verificarlo con `pdftotext`.
+3. El usuario sube la entrega antes del 13/11/2026 a las 20:59.
 
 ## Recursos clave
 - **Ids**:

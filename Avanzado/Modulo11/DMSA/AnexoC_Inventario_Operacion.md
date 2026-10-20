@@ -67,7 +67,3 @@ El sistema corre en contenedores de Docker sobre un servidor (o una computadora)
    - el simulacro de falla genera la alerta en Slack;
    - en las Data Tables, `control` tiene `freno_de_mano = no`.
 5. **Pruebas automáticas.** `scripts/probar_webhook.py` (prueba de humo) y `scripts/bateria.py` (los 16 casos del Anexo B).
-
-## C.3 Video
-
-Demostración de 3 minutos del flujo activo: **[enlace pendiente]**.
