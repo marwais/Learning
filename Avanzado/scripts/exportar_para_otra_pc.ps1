@@ -149,9 +149,18 @@ foreach ($m in $memorias) {
 }
 if (-not $memorias) { Write-Host "  No hay memoria local de Claude para este proyecto." }
 
+# git escribe en UTF-8 y PowerShell 5.1 lo decodifica con la página de códigos de la consola (rompe los acentos):
+# la salida pasa por un archivo temporal que se lee como UTF-8.
+function Invoke-GitUtf8([string]$argumentos) {
+  $tmp = [IO.Path]::GetTempFileName()
+  cmd /c "git -C ""$Repo"" $argumentos > ""$tmp"" 2>&1"
+  $texto = [IO.File]::ReadAllText($tmp, [Text.Encoding]::UTF8)
+  Remove-Item $tmp -ErrorAction SilentlyContinue
+  return $texto
+}
 cmd /c "git -C ""$Repo"" fetch -q 2>&1" | Out-Null
-$head = (cmd /c "git -C ""$Repo"" log -1 --format=""%h %cd %s"" --date=iso 2>&1" | Out-String).Trim()
-$estado = @(cmd /c "git -C ""$Repo"" status -sb 2>&1")
+$head = (Invoke-GitUtf8 "log -1 --format=""%h %cd %s"" --date=iso").Trim()
+$estado = @((Invoke-GitUtf8 "status -sb") -split "`r?`n" | Where-Object { $_ })
 $cambios = @($estado | Select-Object -Skip 1)
 if ($estado[0] -match 'ahead') { [void]$problemas.Add("El repo de $pc tiene commits sin subir a GitHub: $($estado[0])") }
 if ($cambios) { [void]$problemas.Add("El repo de $pc tiene $($cambios.Count) cambio(s) sin commitear (ver manifiesto).") }

@@ -1,8 +1,8 @@
 {
-  "_comentario": "Máquinas donde corre el proyecto. El nombre es el COMPUTERNAME de Windows. 'ip' es opcional: se usa si el nombre no resuelve en la red local (la IP puede cambiar si el router la asigna por DHCP).",
+  "_comentario": "Máquinas donde corre el proyecto. El nombre es el COMPUTERNAME de Windows. 'ip' es opcional: se usa si no resuelven ni el nombre ni <NOMBRE>.local en la red local (la IP puede cambiar si el router la asigna por DHCP).",
   "maquinas": {
-    "LOBO": { "ip": "192.168.1.48" },
-    "WOLVERINE": { "ip": "" }
+    "LOBO": { "ip": "192.168.1.36" },
+    "WOLVERINE": { "ip": "192.168.1.34" }
   },
   "puerto_n8n": 5678
 }

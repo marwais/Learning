@@ -53,7 +53,8 @@ Write-Host "=== Activando el proyecto en $aqui (la otra es $otra) ===" -Foregrou
 # 1. Desactivar en la otra máquina
 Write-Host "`n[1/4] Desactivar en $otra"
 $baseOtra = $null
-foreach ($destino in @($otra, $cfg.maquinas.$otra.ip) | Where-Object { $_ }) {
+# Por nombre, por mDNS (<NOMBRE>.local, que resuelve aunque el firewall bloquee NetBIOS) y por la IP de maquinas.json.
+foreach ($destino in @($otra, "$otra.local", $cfg.maquinas.$otra.ip) | Where-Object { $_ }) {
   try { Invoke-RestMethod -Uri "http://${destino}:$puerto/healthz" -TimeoutSec 4 | Out-Null; $baseOtra = "http://${destino}:$puerto"; break } catch {}
 }
 if ($baseOtra) {
